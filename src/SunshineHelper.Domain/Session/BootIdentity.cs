@@ -14,4 +14,9 @@ public sealed record BootIdentity
 
     /// <summary>Milliseconds the PC has been up. Never decreases within a boot.</summary>
     public required long UptimeMs { get; init; }
+
+    /// <summary>Stored when the platform cannot tell which boot this is. A snapshot
+    /// carrying it is still safe to act on: <see cref="RecoveryDecider"/> falls back to
+    /// comparing the uptime against the time elapsed since the snapshot was written.</summary>
+    public static BootIdentity Unknown { get; } = new() { Id = "unknown", UptimeMs = 0 };
 }
