@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Threading;
 using SunshineHelper.Application.Session;
 using SunshineHelper.Domain.Session;
@@ -125,7 +126,7 @@ static async Task ApplyLimitAsync(RtssFpsLimitModule module, int value)
     Console.WriteLine(outcome.Status switch
     {
         ApplyStatus.Changed =>
-            $"Aplicado. Confira no osd do RTSS (ou no painel dele): o limite deveria estar em {(value == 0 ? "sem limite" : value.ToString())} agora.",
+            $"Aplicado. Confira no osd do RTSS (ou no painel dele): o limite deveria estar em {(value == 0 ? "sem limite" : value.ToString(CultureInfo.InvariantCulture))} agora.",
         ApplyStatus.NothingToDo => "Inesperado: este teste sempre pede uma mudança.",
         _ => $"Falhou: {outcome.ErrorMessage}",
     });
