@@ -4,6 +4,10 @@
     <TargetFramework>net10.0-windows</TargetFramework>
     <!-- Windows-only: this is where CsWin32, RTSS integration, the Sunshine log
          reader and the named-pipe channel will live. -->
+    <!-- Several Win32 entry points take raw pointers that no managed signature can
+         stand in for — ChangeDisplaySettingsEx takes a DEVMODEW* precisely because
+         Win32 lets it be null. Only the call sites that need it are marked unsafe. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>

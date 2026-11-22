@@ -110,22 +110,35 @@ public sealed class PrimaryDisplayModule : IEnvironmentModule
         return mode;
     }
 
-    private static ApplyOutcome ChangeMode(int width, int height, int refreshRateHz)
+    private static unsafe ApplyOutcome ChangeMode(int width, int height, int refreshRateHz)
     {
+        var fields = DEVMODE_FIELD_FLAGS.DM_PELSWIDTH | DEVMODE_FIELD_FLAGS.DM_PELSHEIGHT;
+
+        // Both 0 and 1 mean "whatever the driver's default is" rather than a real rate.
+        // Asking for one of those literally can only confuse the driver; leaving the
+        // field out entirely lets it keep doing what it was already doing, which is the
+        // same outcome and is exactly what this app promises about the refresh rate.
+        if (refreshRateHz > 1)
+        {
+            fields |= DEVMODE_FIELD_FLAGS.DM_DISPLAYFREQUENCY;
+        }
+
         var mode = new DEVMODEW
         {
             dmSize = (ushort)Marshal.SizeOf<DEVMODEW>(),
-            dmFields = DEVMODE_FIELD_FLAGS.DM_PELSWIDTH
-                | DEVMODE_FIELD_FLAGS.DM_PELSHEIGHT
-                | DEVMODE_FIELD_FLAGS.DM_DISPLAYFREQUENCY,
+            dmFields = fields,
             dmPelsWidth = (uint)width,
             dmPelsHeight = (uint)height,
             dmDisplayFrequency = (uint)refreshRateHz,
         };
 
+        // The device name and lParam are both null: the primary display, and no extra
+        // parameters. lpDevMode is a raw pointer because Win32 allows null there to mean
+        // "use the registry settings" — something a managed `ref` cannot express, which
+        // is why this method is unsafe.
         var result = PInvoke.ChangeDisplaySettingsEx(
             default,
-            mode,
+            &mode,
             HWND.Null,
             (CDS_TYPE)0,
             null);
