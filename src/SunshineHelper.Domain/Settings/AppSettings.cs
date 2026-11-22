@@ -1,0 +1,29 @@
+namespace SunshineHelper.Domain.Settings;
+
+/// <summary>The whole contents of settings.json, after migration to
+/// <see cref="SettingsSchema.CurrentVersion"/>.</summary>
+public sealed record AppSettings
+{
+    public required int SchemaVersion { get; init; }
+
+    /// <summary>Profile used when no match rule fires. Null means "ask on the first
+    /// connection and remember the answer" (docs/adr/0002-arquitetura-do-nucleo.md,
+    /// "Escolha do perfil", item 4 — not implemented yet; the field exists so
+    /// settings.json stays forward-compatible).</summary>
+    public string? DefaultProfileId { get; init; }
+
+    public TimingSettings Timing { get; init; } = new();
+
+    public IReadOnlyList<ClientProfile> Profiles { get; init; } = [];
+
+    /// <summary>What a brand-new installation starts with: no profiles yet, schema
+    /// at the current version, default timing. The UI (Phase 1, PR "Casca da
+    /// interface") is where the user actually sets up their first profile.</summary>
+    public static AppSettings CreateDefault() => new()
+    {
+        SchemaVersion = SettingsSchema.CurrentVersion,
+        DefaultProfileId = null,
+        Timing = new TimingSettings(),
+        Profiles = [],
+    };
+}
