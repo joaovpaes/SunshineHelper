@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>SunshineHelper.Trigger</RootNamespace>
+    <AssemblyName>SunshineHelper.Trigger</AssemblyName>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <!-- PublishAot is enabled once the real channel/barrier logic lands
+         (docs/adr/0002-arquitetura-do-nucleo.md): NativeAOT needs the final
+         dependency set settled first, to avoid repeated trimming fixes. -->
+  </PropertyGroup>
+
+</Project>
