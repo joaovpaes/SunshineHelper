@@ -37,9 +37,35 @@ verdade (não uma simulação), com um menu interativo.
       `dwFlags = 0` não gravou nada no registro). Se não voltar sozinho, rode
       a ferramenta de novo e use a opção 4 para arrumar.
 
-## PR 5b — Módulo de HDR
+## PR 5b — Módulo de HDR (`HdrModule`)
 
-- [ ] A definir junto com o PR.
+Ferramenta pronta em `tools/manual-tests/hdr-module/` — roda o módulo de
+verdade (não uma simulação), com um menu interativo.
+
+1. Copie ou clone o repositório na máquina com o monitor de teste (precisa
+   suportar HDR).
+2. Rode, fora de uma transmissão do Sunshine (não precisa ser administrador):
+   ```
+   powershell -ExecutionPolicy Bypass -File .\tools\manual-tests\hdr-module\run.ps1
+   ```
+   ou dê duplo clique em `tools\manual-tests\hdr-module\run.bat`.
+3. Siga o checklist pelo próprio menu:
+
+- [ ] Opção **1**: confere se o estado mostrado bate com o que Configurações >
+      Sistema > Tela > HDR mostra no Windows.
+- [ ] Opção **2**, depois **3** (ligar) com o HDR desligado no início: o
+      Windows liga o HDR (confirme olhando a tela e/ou o toggle nas
+      Configurações).
+- [ ] Opção **4** (desligar) com o HDR ligado: o Windows desliga.
+- [ ] Opção **5**: o HDR volta exatamente ao estado que a opção 2 capturou.
+- [ ] **Comparação pedida pelo autor antes de descartar a ferramenta
+      externa**: repita ligar/desligar com o `HDRSwitch.exe` na mesma máquina
+      e confirme que o resultado (o que aparece em Configurações > Sistema >
+      Tela) é o mesmo nos dois casos. Só depois dessa comparação bater é que
+      o `HDRSwitch.exe` deixa de ser necessário como alternativa.
+- [ ] Testar com o HDR desligado num monitor que você saiba que **não**
+      suporta HDR (se tiver um à mão): a opção 3 (ligar) deve falhar com uma
+      mensagem clara, sem travar nada.
 
 ## Automatizar isto (pendência, sem PR ainda)
 

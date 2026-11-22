@@ -5,3 +5,9 @@
 // Display/PrimaryDisplayModule.cs (resolution, preserving the refresh rate)
 ChangeDisplaySettingsEx
 EnumDisplaySettingsEx
+
+// Display/HdrModule.cs (HDR / advanced color, via the CCD API)
+QueryDisplayConfig
+GetDisplayConfigBufferSizes
+DisplayConfigGetDeviceInfo
+DisplayConfigSetDeviceInfo
