@@ -27,3 +27,14 @@ ponta, mesmo com o CI verde.
 ## PR 5b — Módulo de HDR
 
 - [ ] A definir junto com o PR.
+
+## Automatizar isto (pendência, sem PR ainda)
+
+Pedido do autor: transformar estes itens em testes automáticos de verdade, em
+vez de checklist manual. Para isso precisa de um jeito de rodar código contra
+um Windows real no CI — hoje o `windows-latest` do GitHub Actions roda os
+testes de Domain/Application, mas um teste que troque a resolução da tela
+precisaria de um runner com monitor (self-hosted, ou aceitar que só valida a
+leitura/API sem mudar o modo de verdade). Decidir a abordagem (e se vale a
+pena antes da Fase 2, que é quando o `fase1-plano.md` já previa isso) fica
+para quando este item for puxado.
