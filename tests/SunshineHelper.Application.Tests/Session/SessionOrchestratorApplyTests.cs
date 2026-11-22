@@ -57,7 +57,7 @@ public class SessionOrchestratorApplyTests
 
         result.Status.ShouldBe(SessionApplyStatus.Failed);
         result.EnvironmentRestored.ShouldBeTrue();
-        result.ErrorMessage.ShouldContain("A placa de vídeo não respondeu.");
+        result.ErrorMessage.ShouldNotBeNull().ShouldContain("A placa de vídeo não respondeu.");
         test.Store.WriteCount.ShouldBe(0);
         test.Environment.ShouldBe("original,original,original");
     }
@@ -122,7 +122,7 @@ public class SessionOrchestratorApplyTests
         var result = await test.Orchestrator.ApplyAsync(TestProfiles.FollowClient(), TestProfiles.Request(), TestContext.Current.CancellationToken);
 
         result.Status.ShouldBe(SessionApplyStatus.Failed);
-        result.ErrorMessage.ShouldContain("Erro do Windows.");
+        result.ErrorMessage.ShouldNotBeNull().ShouldContain("Erro do Windows.");
         result.EnvironmentRestored.ShouldBeTrue();
         test.Environment.ShouldBe("original,original,original");
     }
