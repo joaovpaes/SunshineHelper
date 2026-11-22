@@ -15,6 +15,12 @@ public sealed class FakeSettingsFileStore : ISettingsFileStore
 
     public void Seed(string path, string content) => _files[path] = content;
 
+    public void ResetCounters()
+    {
+        WriteCount = 0;
+        CopyCount = 0;
+    }
+
     public string? Get(string path) => _files.GetValueOrDefault(path);
 
     public Task<string?> ReadAllTextAsync(string path, CancellationToken cancellationToken) =>

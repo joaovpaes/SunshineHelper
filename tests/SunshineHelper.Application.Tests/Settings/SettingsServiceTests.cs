@@ -15,7 +15,7 @@ public class SettingsServiceTests
         var store = new FakeSettingsFileStore();
         var service = new SettingsService(store);
 
-        var result = await service.LoadAsync(Path);
+        var result = await service.LoadAsync(Path, TestContext.Current.CancellationToken);
 
         result.Created.ShouldBeTrue();
         result.Migrated.ShouldBeFalse();
@@ -31,7 +31,7 @@ public class SettingsServiceTests
         store.Seed(Path, "{ não é json");
         var service = new SettingsService(store);
 
-        var result = await service.LoadAsync(Path);
+        var result = await service.LoadAsync(Path, TestContext.Current.CancellationToken);
 
         result.Created.ShouldBeFalse();
         result.Validation.IsValid.ShouldBeFalse();
@@ -45,12 +45,15 @@ public class SettingsServiceTests
         store.Seed(Path, "{}");
         var service = new SettingsService(store);
 
-        var result = await service.LoadAsync(Path);
+        var result = await service.LoadAsync(Path, TestContext.Current.CancellationToken);
 
         result.Migrated.ShouldBeTrue();
         result.Settings.SchemaVersion.ShouldBe(SettingsSchema.CurrentVersion);
         store.WriteCount.ShouldBe(1);
-        store.Get(Path).ShouldContain("schemaVersion");
+
+        var written = store.Get(Path);
+        written.ShouldNotBeNullOrEmpty();
+        written!.ShouldContain("schemaVersion");
     }
 
     [Fact]
@@ -58,10 +61,10 @@ public class SettingsServiceTests
     {
         var store = new FakeSettingsFileStore();
         var service = new SettingsService(store);
-        await service.SaveAsync(Path, AppSettings.CreateDefault());
-        store.WriteCount = 0;
+        await service.SaveAsync(Path, AppSettings.CreateDefault(), TestContext.Current.CancellationToken);
+        store.ResetCounters();
 
-        var result = await service.LoadAsync(Path);
+        var result = await service.LoadAsync(Path, TestContext.Current.CancellationToken);
 
         result.Migrated.ShouldBeFalse();
         store.WriteCount.ShouldBe(0);
@@ -73,7 +76,7 @@ public class SettingsServiceTests
         var store = new FakeSettingsFileStore();
         var service = new SettingsService(store);
 
-        await service.SaveAsync(Path, AppSettings.CreateDefault());
+        await service.SaveAsync(Path, AppSettings.CreateDefault(), TestContext.Current.CancellationToken);
 
         store.CopyCount.ShouldBe(0);
         store.WriteCount.ShouldBe(1);
@@ -85,11 +88,11 @@ public class SettingsServiceTests
         var store = new FakeSettingsFileStore();
         var clock = new FakeTimeProvider(new DateTimeOffset(2026, 11, 22, 10, 0, 0, TimeSpan.Zero));
         var service = new SettingsService(store, clock);
-        await service.SaveAsync(Path, AppSettings.CreateDefault());
+        await service.SaveAsync(Path, AppSettings.CreateDefault(), TestContext.Current.CancellationToken);
 
-        await service.SaveAsync(Path, AppSettings.CreateDefault());
+        await service.SaveAsync(Path, AppSettings.CreateDefault(), TestContext.Current.CancellationToken);
         clock.Now = clock.Now.AddHours(2);
-        await service.SaveAsync(Path, AppSettings.CreateDefault());
+        await service.SaveAsync(Path, AppSettings.CreateDefault(), TestContext.Current.CancellationToken);
 
         store.CopyCount.ShouldBe(1);
     }
@@ -100,11 +103,11 @@ public class SettingsServiceTests
         var store = new FakeSettingsFileStore();
         var clock = new FakeTimeProvider(new DateTimeOffset(2026, 11, 22, 10, 0, 0, TimeSpan.Zero));
         var service = new SettingsService(store, clock);
-        await service.SaveAsync(Path, AppSettings.CreateDefault());
-        await service.SaveAsync(Path, AppSettings.CreateDefault());
+        await service.SaveAsync(Path, AppSettings.CreateDefault(), TestContext.Current.CancellationToken);
+        await service.SaveAsync(Path, AppSettings.CreateDefault(), TestContext.Current.CancellationToken);
 
         clock.Now = clock.Now.AddDays(1);
-        await service.SaveAsync(Path, AppSettings.CreateDefault());
+        await service.SaveAsync(Path, AppSettings.CreateDefault(), TestContext.Current.CancellationToken);
 
         store.CopyCount.ShouldBe(2);
     }
@@ -132,8 +135,8 @@ public class SettingsServiceTests
             ],
         };
 
-        await service.SaveAsync(Path, settings);
-        var result = await service.LoadAsync(Path);
+        await service.SaveAsync(Path, settings, TestContext.Current.CancellationToken);
+        var result = await service.LoadAsync(Path, TestContext.Current.CancellationToken);
 
         result.Validation.IsValid.ShouldBeTrue();
         result.Settings.Profiles.Count.ShouldBe(1);
