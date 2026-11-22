@@ -10,7 +10,8 @@ Testes executados em 22/11/2026, Windows 11 Pro 26H2 (26300.9974), Sunshine 2026
 | 2. Tempo real de cada passo | Trabalho real ≈ 2,5 s contra 23,4 s dos `.bat` | Esperas por condição no lugar de `timeout` fixo |
 | 3. Barreira (espera de 45 s) | Celular desiste aos ~57 s; TV aguarda 70 s | Orçamento de tempo da barreira definido |
 | 4. Monitor capturado | Um monitor, `DISPLAY1`, `device_id` estável | Identificação do monitor pela API |
-| Fechamento do Playnite | Mudou de comportamento; causa ainda indefinida | Precisa de um teste A/B |
+| Teste rápido do 4K | `QRes /S` não reflete o modo aplicado | A consulta de modo do app não pode usar `QRes`; usar a API nativa |
+| Teste A/B do Playnite | Sem a barreira, voltou a não fechar | A barreira ajuda de fato; não era só "Playnite quente" |
 
 ## Teste 1: o Sunshine entrega o nome do cliente (o achado principal)
 
@@ -105,18 +106,26 @@ Com quatro sessões não dá para separar as duas. O `Exit Timeout` de 5 s confi
 
 **Teste A/B para decidir:** com o Playnite já aberto e fechado uma vez (quente), remover a barreira e conectar duas vezes. Se fechar limpo sem a barreira, a causa era o aquecimento, e a solução é o app fechar o Playnite por conta própria (pedido educado, espera por condição, e só então encerrar) em vez de depender do `Exit Timeout`.
 
-## Teste rápido pendente (resolução 4K)
-
-No PowerShell, na pasta `Automacoes`, **fora de transmissão**:
+## Teste rápido do 4K: resultado
 
 ```
-.\QRes.exe /S
-.\QRes.exe /x 3840 /y 2160
-.\QRes.exe /S
-.\QRes.exe /x 2560 /y 1440
+> .\QRes.exe /S                  → 2560x1440, 32 bits @ 180 Hz.
+> .\QRes.exe /x 3840 /y 2160      → Mode Ok...
+> .\QRes.exe /S                  → 2560x1440, 32 bits @ 180 Hz.   (!)
+> .\QRes.exe /x 2560 /y 1440      → Mode Ok...
 ```
 
-A saída dos dois `/S` diz se o 4K foi aplicado e como o Windows relata o modo. Isso define se a API de vídeo do app precisa informar a taxa de atualização junto com a resolução.
+`QRes` reporta "Mode Ok" ao aplicar 3840x2160, mas a consulta seguinte (`/S`) continua mostrando 2560x1440. Isso **confirma a suspeita**: a falha do teste 2 não era o 4K não aplicar (o próprio log do Sunshine registra `Desktop resolution [3840x2160]` durante a transmissão), e sim que **a consulta de modo do `QRes` não é confiável** nesta combinação monitor/driver — provavelmente por não reler o estado depois de uma mudança de modo feita por outro processo, ou por cache do driver.
+
+**Decisão:** o app não pode usar `QRes /S` (ou equivalente) para confirmar que uma resolução foi aplicada. A captura/confirmação de modo de vídeo (`Capture`/`Apply`/`Revert` do módulo de vídeo) usa a API nativa do Windows (`EnumDisplaySettings`/`QueryDisplayConfig` via CsWin32), nunca uma leitura por processo externo. Isso também evita o custo de abrir um processo a cada verificação.
+
+## Teste A/B do Playnite: resultado
+
+Com o Playnite já aberto e fechado uma vez (quente) e a barreira removida, voltou o mesmo problema: o Sunshine não conseguiu fechar o Playnite de forma limpa.
+
+Isso **descarta a hipótese do "Playnite quente"** e **confirma que a barreira ajuda**. A explicação mais provável: o processo principal do Playnite (`Playnite.FullscreenApp.exe`) sai rápido quando o jogo em si (ou um processo filho) ainda está subindo, e o Sunshine, sem a barreira, tenta encerrar tudo antes desses processos existirem ou estarem em um estado que aceite o pedido de fechar; com a barreira, esses processos já existem e respondem ao fechamento.
+
+**Decisão confirmada:** o fechamento do Playnite não pode depender do `Exit Timeout` do Sunshine (5 s, fixo, sem lógica de retry). Fica para o app: ao receber o comando de "desconectar e fechar", o app pede o fechamento ele mesmo, espera por uma condição (processo e janela realmente encerrados, com um teto de tempo) e só então reporta sucesso ao gatilho. Isso é parte do módulo de processos/janelas da Fase 3, mas a política (quem fecha o quê e quando) entra na arquitetura da Fase 1.
 
 ## O que muda no plano
 
@@ -124,4 +133,5 @@ A saída dos dois `/S` diz se o 4K foi aplicado e como o Windows relata o modo. 
 2. A barreira do auxiliar ganha número: alvo abaixo de 10 s, limite padrão 20 s, teto absoluto 55 s.
 3. HDR é o passo caro (2,3 s por troca). Vale testar na Fase 1 se a API do Windows aplica HDR e resolução numa só chamada, o que economizaria cerca de 1 s.
 4. O HDR passa a seguir `SUNSHINE_CLIENT_HDR` em vez de ligar sempre.
-5. O fechamento do Playnite vira responsabilidade do app, não do `Exit Timeout` do Sunshine.
+5. O fechamento do Playnite vira responsabilidade do app, não do `Exit Timeout` do Sunshine (confirmado pelo teste A/B).
+6. A confirmação de modo de vídeo usa a API nativa do Windows, nunca a saída de um processo externo como o `QRes` (confirmado pelo teste do 4K).
