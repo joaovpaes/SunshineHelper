@@ -5,3 +5,16 @@
 // Display/PrimaryDisplayModule.cs (resolution, preserving the refresh rate)
 ChangeDisplaySettingsEx
 EnumDisplaySettingsEx
+
+// Display/HdrModule.cs (HDR / advanced color, via the CCD API)
+QueryDisplayConfig
+GetDisplayConfigBufferSizes
+DisplayConfigGetDeviceInfo
+DisplayConfigSetDeviceInfo
+
+// These two carry the actual data for DisplayConfigGetDeviceInfo/SetDeviceInfo, but
+// neither function names them directly in its own signature (both just take a generic
+// DISPLAYCONFIG_DEVICE_INFO_HEADER*), so CsWin32 never reaches them from the four names
+// above on its own — they need to be listed by name.
+DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO
+DISPLAYCONFIG_SET_ADVANCED_COLOR_STATE
