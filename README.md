@@ -20,6 +20,7 @@ Hoje o fechamento de launcher é feito para o **Playnite** (o launcher usado pel
 
 - Windows 10 22H2 ou Windows 11 (piso a confirmar), x64.
 - Sunshine e Moonlight instalados (não são distribuídos por este projeto). Qualquer aparelho suportado pelo Moonlight pode ter seu próprio perfil.
+- O instalador verifica se o Sunshine está presente antes de instalar; se não achar, interrompe a instalação e aponta para a página oficial do Sunshine. Também há um tutorial próprio de como configurar o Sunshine para funcionar com o SunshineHelper.
 - RTSS (RivaTuner Statistics Server) 7.3.7 ou superior, para o limite de FPS.
 - Placas AMD, NVIDIA ou Intel; interface em português e inglês.
 - Fechamento de launcher: hoje só Playnite; outros launchers estão nos planos futuros.
@@ -49,6 +50,7 @@ Launcher closing currently targets **Playnite** (the launcher used in the author
 - A single Sunshine Prep Command calls `SunshineHelper.Trigger.exe`, which notifies the app (the app starts with Windows). The Sunshine log is used as confirmation and fallback.
 - Each device gets its own profile, matched by the client name Sunshine reports (with other signals as a fallback).
 - Planned requirements: Windows 10 22H2 / Windows 11 x64, Sunshine and Moonlight (not bundled, any Moonlight-supported device), RTSS 7.3.7+ for the FPS cap, AMD/NVIDIA/Intel GPUs. UI in Portuguese and English. Launcher closing: Playnite only for now, other launchers planned.
+- The installer checks whether Sunshine is present before installing; if not found, it stops and points to Sunshine's official download page. A dedicated tutorial covers how to configure Sunshine to work with SunshineHelper.
 - Planned downloads: installer (downloads dependencies if needed) and a portable `.zip`, with `SHA256SUMS.txt`.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Licensed under [MIT](LICENSE).
