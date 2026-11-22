@@ -61,19 +61,28 @@ internal static class RtssHooks
         return File.Exists(fullPath) && NativeLibrary.TryLoad(fullPath, out nint handle) ? handle : IntPtr.Zero;
     }
 
-    [DllImport(DllFileName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern void LoadProfile([MarshalAs(UnmanagedType.LPStr)] string profile);
+    // Every name below is passed as NUL-terminated bytes, not as a C# string, because
+    // RTSS's exports take LPCSTR. Marshaling a string to LPCSTR would run it through the
+    // machine's current ANSI code page, where a character that has no representation is
+    // silently replaced by a look-alike (what CA2101 is about); the DllImport flags that
+    // are supposed to control that are ignored on modern .NET, so they would quiet the
+    // analyzer without changing anything. Bytes remove the conversion altogether — the
+    // names we pass are ASCII constants (see RtssFpsLimitModule), so there is nothing to
+    // convert in the first place. Do not "simplify" these parameters back to string.
 
-    [DllImport(DllFileName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern void SaveProfile([MarshalAs(UnmanagedType.LPStr)] string profile);
+    [DllImport(DllFileName, CallingConvention = CallingConvention.StdCall)]
+    public static extern void LoadProfile(byte[] profile);
 
-    [DllImport(DllFileName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    [DllImport(DllFileName, CallingConvention = CallingConvention.StdCall)]
+    public static extern void SaveProfile(byte[] profile);
+
+    [DllImport(DllFileName, CallingConvention = CallingConvention.StdCall)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static extern bool GetProfileProperty([MarshalAs(UnmanagedType.LPStr)] string name, nint data, uint size);
+    public static extern bool GetProfileProperty(byte[] name, nint data, uint size);
 
-    [DllImport(DllFileName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    [DllImport(DllFileName, CallingConvention = CallingConvention.StdCall)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static extern bool SetProfileProperty([MarshalAs(UnmanagedType.LPStr)] string name, nint data, uint size);
+    public static extern bool SetProfileProperty(byte[] name, nint data, uint size);
 
     [DllImport(DllFileName, CallingConvention = CallingConvention.StdCall)]
     public static extern void UpdateProfiles();

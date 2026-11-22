@@ -41,9 +41,13 @@ namespace SunshineHelper.Infrastructure.Fps;
 public sealed class RtssFpsLimitModule : IEnvironmentModule
 {
     private const int CurrentPayloadVersion = 1;
-    private const string GlobalProfileName = ""; // RTSS's own convention for "the global profile".
-    private const string FramerateLimitProperty = "FramerateLimit";
     private const string DefaultInstallDirectory = @"C:\Program Files (x86)\RivaTuner Statistics Server";
+
+    // NUL-terminated ASCII, because RTSS's exports take LPCSTR (see RtssHooks). The empty
+    // name is RTSS's own convention for "the global profile" — the one that applies to
+    // every process, rather than a specific game's profile.
+    private static readonly byte[] _globalProfileName = "\0"u8.ToArray();
+    private static readonly byte[] _framerateLimitProperty = "FramerateLimit\0"u8.ToArray();
 
     public string Id => "fps";
 
@@ -146,12 +150,12 @@ public sealed class RtssFpsLimitModule : IEnvironmentModule
 
     private static int ReadFramerateLimit()
     {
-        RtssHooks.LoadProfile(GlobalProfileName);
+        RtssHooks.LoadProfile(_globalProfileName);
 
         nint data = Marshal.AllocHGlobal(sizeof(int));
         try
         {
-            if (!RtssHooks.GetProfileProperty(FramerateLimitProperty, data, sizeof(int)))
+            if (!RtssHooks.GetProfileProperty(_framerateLimitProperty, data, sizeof(int)))
             {
                 throw new InvalidOperationException("Não foi possível ler o limite de FPS do RTSS (GetProfileProperty).");
             }
@@ -166,14 +170,14 @@ public sealed class RtssFpsLimitModule : IEnvironmentModule
 
     private static bool WriteFramerateLimit(int value)
     {
-        RtssHooks.LoadProfile(GlobalProfileName);
+        RtssHooks.LoadProfile(_globalProfileName);
 
         nint data = Marshal.AllocHGlobal(sizeof(int));
         bool accepted;
         try
         {
             Marshal.WriteInt32(data, value);
-            accepted = RtssHooks.SetProfileProperty(FramerateLimitProperty, data, sizeof(int));
+            accepted = RtssHooks.SetProfileProperty(_framerateLimitProperty, data, sizeof(int));
         }
         finally
         {
@@ -188,7 +192,7 @@ public sealed class RtssFpsLimitModule : IEnvironmentModule
         // Persists the change to the profile file on disk and pushes it live to every
         // process RTSS is already watching — without this, the change would only last
         // until RTSS itself next reloads the profile from disk.
-        RtssHooks.SaveProfile(GlobalProfileName);
+        RtssHooks.SaveProfile(_globalProfileName);
         RtssHooks.UpdateProfiles();
         return true;
     }
