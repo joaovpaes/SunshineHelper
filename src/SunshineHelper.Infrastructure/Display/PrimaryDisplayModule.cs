@@ -125,7 +125,7 @@ public sealed class PrimaryDisplayModule : IEnvironmentModule
 
         var result = PInvoke.ChangeDisplaySettingsEx(
             default,
-            in mode,
+            mode,
             HWND.Null,
             (CDS_TYPE)0,
             null);
