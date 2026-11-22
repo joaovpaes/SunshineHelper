@@ -173,28 +173,29 @@ public sealed class RtssFpsLimitModule : IEnvironmentModule
         RtssHooks.LoadProfile(_globalProfileName);
 
         nint data = Marshal.AllocHGlobal(sizeof(int));
-        bool accepted;
         try
         {
             Marshal.WriteInt32(data, value);
-            accepted = RtssHooks.SetProfileProperty(_framerateLimitProperty, data, sizeof(int));
+            if (!RtssHooks.SetProfileProperty(_framerateLimitProperty, data, sizeof(int)))
+            {
+                return false;
+            }
+
+            // RTSS does not necessarily copy the 4 bytes out the instant
+            // SetProfileProperty returns — SaveProfile/UpdateProfiles may still read
+            // through this same pointer to actually commit the change. Freeing it any
+            // earlier than this handed RTSS a dangling pointer: SetProfileProperty kept
+            // reporting success, but the value that landed was whatever was left in that
+            // freed memory, which is exactly the bug a manual test caught (reported
+            // "sucesso", limite não mudou).
+            RtssHooks.SaveProfile(_globalProfileName);
+            RtssHooks.UpdateProfiles();
+            return true;
         }
         finally
         {
             Marshal.FreeHGlobal(data);
         }
-
-        if (!accepted)
-        {
-            return false;
-        }
-
-        // Persists the change to the profile file on disk and pushes it live to every
-        // process RTSS is already watching — without this, the change would only last
-        // until RTSS itself next reloads the profile from disk.
-        RtssHooks.SaveProfile(_globalProfileName);
-        RtssHooks.UpdateProfiles();
-        return true;
     }
 
     private static string? FindInstallDirectory()
