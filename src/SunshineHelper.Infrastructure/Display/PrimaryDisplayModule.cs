@@ -102,7 +102,7 @@ public sealed class PrimaryDisplayModule : IEnvironmentModule
             null,
             ENUM_DISPLAY_SETTINGS_MODE.ENUM_CURRENT_SETTINGS,
             ref mode,
-            (EDS_FLAGS)0))
+            0))
         {
             throw new InvalidOperationException("Não foi possível ler o modo de vídeo atual (EnumDisplaySettingsEx).");
         }
@@ -124,8 +124,8 @@ public sealed class PrimaryDisplayModule : IEnvironmentModule
         };
 
         var result = PInvoke.ChangeDisplaySettingsEx(
-            (string?)null,
-            ref mode,
+            default,
+            in mode,
             HWND.Null,
             (CDS_TYPE)0,
             null);
