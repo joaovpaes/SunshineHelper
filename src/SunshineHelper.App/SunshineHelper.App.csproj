@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <OutputType>WinExe</OutputType>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>SunshineHelper.App</RootNamespace>
+    <AssemblyName>SunshineHelper</AssemblyName>
+    <!-- Not yet an app the user can run: no window, no tray icon, no DI host.
+         Those land as Phase 1 PRs land. See docs/fase1-plano.md. -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SunshineHelper.Infrastructure\SunshineHelper.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

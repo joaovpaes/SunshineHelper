@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- Domain is platform-neutral by design (see docs/adr/0002-arquitetura-do-nucleo.md):
+         no Windows API, no I/O. This keeps it testable on any OS, including this CI. -->
+  </PropertyGroup>
+
+</Project>

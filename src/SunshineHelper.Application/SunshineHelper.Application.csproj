@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- Application is platform-neutral, same as Domain: orchestration logic only,
+         no Windows API. See docs/adr/0002-arquitetura-do-nucleo.md. -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SunshineHelper.Domain\SunshineHelper.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
