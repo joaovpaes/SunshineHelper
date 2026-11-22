@@ -30,9 +30,12 @@ namespace SunshineHelper.Infrastructure.Display;
 /// </para>
 /// <para>
 /// Confirmation is always a fresh read of the state through this module's own
-/// <c>DisplayConfigGetDeviceInfo</c> call, immediately after changing it — never from an
-/// external process (same reasoning as <see cref="PrimaryDisplayModule"/>:
-/// docs/fase0-resultados.md, "Teste rápido do 4K").
+/// <c>DisplayConfigGetDeviceInfo</c> call, never from an external process (same reasoning
+/// as <see cref="PrimaryDisplayModule"/>: docs/fase0-resultados.md, "Teste rápido do
+/// 4K"). Unlike a resolution change, though, the read is retried for a moment: switching
+/// HDR makes the display re-train — the screen goes black and comes back — and the state
+/// read the instant the call returns can still be the old one. Reporting a failure there
+/// would make the orchestrator roll back a session that actually worked.
 /// </para>
 /// </remarks>
 public sealed class HdrModule : IEnvironmentModule
@@ -41,9 +44,26 @@ public sealed class HdrModule : IEnvironmentModule
 
     // Bits inside the "value" field of the anonymous bitfield union on
     // DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO (wingdi.h) — read as a plain uint instead of
-    // guessing at the generated bitfield property names.
+    // depending on the names generated for the bitfield members.
     private const uint AdvancedColorSupportedBit = 0x1;
     private const uint AdvancedColorEnabledBit = 0x2;
+
+    private const int ConfirmTimeoutSeconds = 5;
+
+    private static readonly TimeSpan ConfirmTimeout = TimeSpan.FromSeconds(ConfirmTimeoutSeconds);
+    private static readonly TimeSpan ConfirmInterval = TimeSpan.FromMilliseconds(150);
+
+    private readonly TimeProvider _timeProvider;
+
+    public HdrModule()
+        : this(TimeProvider.System)
+    {
+    }
+
+    public HdrModule(TimeProvider timeProvider)
+    {
+        _timeProvider = timeProvider;
+    }
 
     public string Id => "hdr";
 
@@ -55,52 +75,50 @@ public sealed class HdrModule : IEnvironmentModule
 
     public Task<ModuleSnapshot> CaptureAsync(CancellationToken cancellationToken)
     {
-        var (_, enabled) = QueryAdvancedColorState();
+        var (_, enabled) = QueryAdvancedColorState(GetPrimaryTarget());
 
         var payload = new JsonObject { ["enabled"] = enabled };
         return Task.FromResult(new ModuleSnapshot { PayloadVersion = CurrentPayloadVersion, Payload = payload });
     }
 
-    public Task<ApplyOutcome> ApplyAsync(DesiredEnvironment desired, CancellationToken cancellationToken)
+    public async Task<ApplyOutcome> ApplyAsync(DesiredEnvironment desired, CancellationToken cancellationToken)
     {
         if (desired.Hdr is not { } wantEnabled)
         {
-            return Task.FromResult(ApplyOutcome.NothingToDo());
+            return ApplyOutcome.NothingToDo();
         }
 
-        return Task.FromResult(SetAdvancedColorState(wantEnabled));
+        return await SetAdvancedColorStateAsync(wantEnabled, cancellationToken).ConfigureAwait(false);
     }
 
-    public Task<RevertOutcome> RevertAsync(ModuleSnapshot snapshot, CancellationToken cancellationToken)
+    public async Task<RevertOutcome> RevertAsync(ModuleSnapshot snapshot, CancellationToken cancellationToken)
     {
         if (snapshot.PayloadVersion != CurrentPayloadVersion)
         {
-            return Task.FromResult(RevertOutcome.Failed(
+            return RevertOutcome.Failed(
                 $"O snapshot do módulo de HDR foi gravado numa versão ({snapshot.PayloadVersion}) "
-                + $"que esta versão do app não lê (esperado {CurrentPayloadVersion})."));
+                + $"que esta versão do app não lê (esperado {CurrentPayloadVersion}).");
         }
 
         if (snapshot.Payload is not { } payload)
         {
-            return Task.FromResult(RevertOutcome.Failed("O snapshot do módulo de HDR não tem dados."));
+            return RevertOutcome.Failed("O snapshot do módulo de HDR não tem dados.");
         }
 
         bool enabled = payload["enabled"]!.GetValue<bool>();
 
-        var outcome = SetAdvancedColorState(enabled);
-        return Task.FromResult(outcome.Status == ApplyStatus.Failed
+        var outcome = await SetAdvancedColorStateAsync(enabled, cancellationToken).ConfigureAwait(false);
+        return outcome.Status == ApplyStatus.Failed
             ? RevertOutcome.Failed(outcome.ErrorMessage ?? "Falha desconhecida ao restaurar o HDR.")
-            : RevertOutcome.Success());
+            : RevertOutcome.Success();
     }
 
-    private static unsafe (LUID AdapterId, uint TargetId) GetPrimaryTarget()
+    private static unsafe DisplayTarget GetPrimaryTarget()
     {
-        uint pathCount;
-        uint modeCount;
         var sizeError = PInvoke.GetDisplayConfigBufferSizes(
             QUERY_DISPLAY_CONFIG_FLAGS.QDC_ONLY_ACTIVE_PATHS,
-            out pathCount,
-            out modeCount);
+            out uint pathCount,
+            out uint modeCount);
 
         if (sizeError != WIN32_ERROR.ERROR_SUCCESS)
         {
@@ -111,7 +129,7 @@ public sealed class HdrModule : IEnvironmentModule
 
         if (pathCount == 0)
         {
-            throw new InvalidOperationException("Nenhuma tela ativa foi encontrada (QueryDisplayConfig).");
+            throw new InvalidOperationException("Nenhuma tela ativa foi encontrada (GetDisplayConfigBufferSizes).");
         }
 
         var paths = new DISPLAYCONFIG_PATH_INFO[pathCount];
@@ -138,26 +156,35 @@ public sealed class HdrModule : IEnvironmentModule
             throw new InvalidOperationException($"Não foi possível ler a configuração de vídeo ativa (QueryDisplayConfig: {queryError}).");
         }
 
+        // QueryDisplayConfig writes back how many entries it actually filled, which can
+        // be fewer than the buffer asked for. Without this check, zero filled entries
+        // would quietly hand the calls below an all-zero adapter and target.
+        if (pathCount == 0)
+        {
+            throw new InvalidOperationException("Nenhuma tela ativa foi encontrada (QueryDisplayConfig).");
+        }
+
         // Scoped to the primary display for v1 (see class remarks): the first active path.
         var target = paths[0].targetInfo;
-        return (target.adapterId, target.id);
+        return new DisplayTarget(target.adapterId, target.id);
     }
 
-    private static (bool Supported, bool Enabled) QueryAdvancedColorState()
+    private static (bool Supported, bool Enabled) QueryAdvancedColorState(DisplayTarget target)
     {
-        var (adapterId, targetId) = GetPrimaryTarget();
-
         var colorInfo = new DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO
         {
             header = new DISPLAYCONFIG_DEVICE_INFO_HEADER
             {
                 type = DISPLAYCONFIG_DEVICE_INFO_TYPE.DISPLAYCONFIG_DEVICE_INFO_GET_ADVANCED_COLOR_INFO,
                 size = (uint)Marshal.SizeOf<DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO>(),
-                adapterId = adapterId,
-                id = targetId,
+                adapterId = target.AdapterId,
+                id = target.TargetId,
             },
         };
 
+        // The header sits at offset 0 of the struct above, so passing it by reference
+        // hands the native call the address of the whole packet — which is what it
+        // expects, since it reads header.size bytes from there.
         int result = PInvoke.DisplayConfigGetDeviceInfo(ref colorInfo.header);
         if (result != 0)
         {
@@ -170,15 +197,15 @@ public sealed class HdrModule : IEnvironmentModule
             Enabled: (flags & AdvancedColorEnabledBit) != 0);
     }
 
-    private static ApplyOutcome SetAdvancedColorState(bool enable)
+    private async Task<ApplyOutcome> SetAdvancedColorStateAsync(bool enable, CancellationToken cancellationToken)
     {
-        var (supported, _) = QueryAdvancedColorState();
+        var target = GetPrimaryTarget();
+
+        var (supported, _) = QueryAdvancedColorState(target);
         if (enable && !supported)
         {
             return ApplyOutcome.Failed("Este monitor não anuncia suporte a HDR (Advanced Color) para o Windows.");
         }
-
-        var (adapterId, targetId) = GetPrimaryTarget();
 
         var setState = new DISPLAYCONFIG_SET_ADVANCED_COLOR_STATE
         {
@@ -186,26 +213,51 @@ public sealed class HdrModule : IEnvironmentModule
             {
                 type = DISPLAYCONFIG_DEVICE_INFO_TYPE.DISPLAYCONFIG_DEVICE_INFO_SET_ADVANCED_COLOR_STATE,
                 size = (uint)Marshal.SizeOf<DISPLAYCONFIG_SET_ADVANCED_COLOR_STATE>(),
-                adapterId = adapterId,
-                id = targetId,
+                adapterId = target.AdapterId,
+                id = target.TargetId,
             },
         };
         setState.Anonymous.value = enable ? 1u : 0u;
 
-        int result = PInvoke.DisplayConfigSetDeviceInfo(ref setState.header);
+        // Same offset-0 reasoning as the read above; this one takes the packet as "in"
+        // because the native side only reads it.
+        int result = PInvoke.DisplayConfigSetDeviceInfo(in setState.header);
         if (result != 0)
         {
             return ApplyOutcome.Failed($"Troca de HDR recusada pelo driver de vídeo (DisplayConfigSetDeviceInfo: {result}).");
         }
 
-        var (_, confirmedEnabled) = QueryAdvancedColorState();
-        if (confirmedEnabled != enable)
+        if (!await ConfirmAsync(target, enable, cancellationToken).ConfigureAwait(false))
         {
             return ApplyOutcome.Failed(
-                $"O driver relatou sucesso, mas o HDR lido de volta está "
-                + $"{(confirmedEnabled ? "ligado" : "desligado")}, não {(enable ? "ligado" : "desligado")}.");
+                $"O driver relatou sucesso, mas depois de {ConfirmTimeoutSeconds} s o HDR lido de volta "
+                + $"continua {(enable ? "desligado" : "ligado")}.");
         }
 
         return ApplyOutcome.Changed();
     }
+
+    /// <summary>Reads the state back until it matches, or until the timeout — the display
+    /// re-trains after an HDR switch, so the first read can still be the old value.</summary>
+    private async Task<bool> ConfirmAsync(DisplayTarget target, bool expected, CancellationToken cancellationToken)
+    {
+        long start = _timeProvider.GetTimestamp();
+
+        while (true)
+        {
+            if (QueryAdvancedColorState(target).Enabled == expected)
+            {
+                return true;
+            }
+
+            if (_timeProvider.GetElapsedTime(start) >= ConfirmTimeout)
+            {
+                return false;
+            }
+
+            await Task.Delay(ConfirmInterval, _timeProvider, cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    private readonly record struct DisplayTarget(LUID AdapterId, uint TargetId);
 }
