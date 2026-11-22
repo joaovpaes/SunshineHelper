@@ -62,18 +62,18 @@ internal static class RtssHooks
     }
 
     [DllImport(DllFileName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern void LoadProfile(string profile);
+    public static extern void LoadProfile([MarshalAs(UnmanagedType.LPStr)] string profile);
 
     [DllImport(DllFileName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    public static extern void SaveProfile(string profile);
-
-    [DllImport(DllFileName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public static extern bool GetProfileProperty(string name, nint data, uint size);
+    public static extern void SaveProfile([MarshalAs(UnmanagedType.LPStr)] string profile);
 
     [DllImport(DllFileName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static extern bool SetProfileProperty(string name, nint data, uint size);
+    public static extern bool GetProfileProperty([MarshalAs(UnmanagedType.LPStr)] string name, nint data, uint size);
+
+    [DllImport(DllFileName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool SetProfileProperty([MarshalAs(UnmanagedType.LPStr)] string name, nint data, uint size);
 
     [DllImport(DllFileName, CallingConvention = CallingConvention.StdCall)]
     public static extern void UpdateProfiles();
