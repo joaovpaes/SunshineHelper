@@ -116,13 +116,22 @@ public sealed class HdrModule : IEnvironmentModule
 
         var paths = new DISPLAYCONFIG_PATH_INFO[pathCount];
         var modes = new DISPLAYCONFIG_MODE_INFO[modeCount];
-        var queryError = PInvoke.QueryDisplayConfig(
-            QUERY_DISPLAY_CONFIG_FLAGS.QDC_ONLY_ACTIVE_PATHS,
-            ref pathCount,
-            paths,
-            ref modeCount,
-            modes,
-            null);
+
+        // QueryDisplayConfig's array parameters are raw pointers in the generated
+        // bindings (no friendly Span<T> overload), so the arrays above are pinned and
+        // addressed directly instead.
+        WIN32_ERROR queryError;
+        fixed (DISPLAYCONFIG_PATH_INFO* pathsPtr = paths)
+        fixed (DISPLAYCONFIG_MODE_INFO* modesPtr = modes)
+        {
+            queryError = PInvoke.QueryDisplayConfig(
+                QUERY_DISPLAY_CONFIG_FLAGS.QDC_ONLY_ACTIVE_PATHS,
+                ref pathCount,
+                pathsPtr,
+                ref modeCount,
+                modesPtr,
+                null);
+        }
 
         if (queryError != WIN32_ERROR.ERROR_SUCCESS)
         {
