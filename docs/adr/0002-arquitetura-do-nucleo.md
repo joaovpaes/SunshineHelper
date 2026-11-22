@@ -76,28 +76,49 @@ Módulos da v1: `display` (resolução, preservando a taxa de atualização), `h
 
 ```
 Aplicar:
-  1. snapshot = Capture de todos os módulos        (só leitura)
-  2. grava o snapshot em disco de forma atômica    (temp + File.Replace + flush)
-  3. para cada módulo, na ordem:
-        Apply; se falhar → desfaz os já aplicados e encerra a sessão como falha
-  4. marca a sessão como "aplicada"
+  1. se já existe snapshot em disco, a sessão não começa
+  2. snapshot = Capture de todos os módulos        (só leitura)
+        se um Capture falhar → aborta sem aplicar nada
+  3. grava o snapshot em disco de forma atômica    (temp + flush até o disco + File.Replace)
+  4. para cada módulo, na ordem:
+        marca o módulo como "aplicando" e regrava o snapshot
+        Apply
+        marca o resultado (aplicado / sem mudança / falhou) e regrava o snapshot
+        se falhar → desfaz os já aplicados e encerra a sessão como falha
+  5. marca a sessão como "aplicada"
 
 Reverter:
   1. carrega o snapshot
-  2. para cada módulo, na ordem inversa: Revert (best effort, acumula erros)
+  2. para cada módulo que mexeu no ambiente, na ordem inversa:
+        Revert (best effort, acumula erros)
   3. apaga o snapshot só se tudo deu certo; senão mantém para o --restore
 ```
 
-O snapshot vai para `%LOCALAPPDATA%\SunshineHelper\state\current-session.json` **antes** de qualquer mudança. Se o arquivo não puder ser gravado, a sessão não começa: sem rede de segurança, não se mexe no ambiente.
+O snapshot vai para `%LOCALAPPDATA%\SunshineHelper\state\current-session.json` **antes** de qualquer mudança. Se o arquivo não puder ser gravado, a sessão não começa: sem rede de segurança, não se mexe no ambiente. O mesmo vale para a captura — um módulo que não consegue ler o próprio estado não tem volta, então ninguém aplica nada.
+
+Cada módulo grava seu estado como um bloco de JSON **opaco, com versão própria**. O núcleo não conhece o conteúdo de módulo nenhum: um módulo novo entra sem mexer no núcleo, e um módulo que mudou de formato recusa um bloco antigo com mensagem clara, em vez de restaurar o estado errado.
+
+Três pontos que a primeira versão desta ADR não resolvia:
+
+- **O snapshot é regravado a cada passo.** Sem isso, uma queda no meio da aplicação não deixa como saber quais módulos chegaram a mexer no ambiente — e reverter um módulo que não foi aplicado muda um valor que o perfil mandou deixar quieto. Cada módulo carrega seu próprio estado (`pending`, `applying`, `applied`, `skipped`, `failed`); só `applying`, `applied` e `failed` são revertidos. Gravar o arquivo custa milissegundos, dentro de um orçamento de 10 s.
+- **Uma sessão por vez.** Se uma transmissão começa com um snapshot já em disco (Prep Command duplicado, reconexão), capturar de novo salvaria o estado **já modificado** como se fosse o normal, e o usuário nunca voltaria ao estado real. O orquestrador recusa iniciar nesse caso. Reaplicar depois de um `/resume` é trabalho do leitor de log, não de uma segunda captura.
+- **Enquanto o arquivo existe, o ambiente é considerado modificado.** O snapshot só é apagado quando uma reversão termina sem erro, então encontrar o arquivo na inicialização — em qualquer estado — significa que há o que restaurar.
 
 ### Recuperação após queda
 
-Na inicialização (e via `--restore`), se existe um snapshot marcado como aplicado e não há sessão ativa, o app reverte. O snapshot guarda o **identificador do boot** do Windows:
+Na inicialização (e via `--restore`), se existe um snapshot em disco e não há sessão ativa, o app reverte. O snapshot guarda a **identidade do boot**: um identificador do boot atual e quanto tempo o PC estava ligado no momento da captura.
 
-- **Mesmo boot** (o app caiu): reverte tudo.
+- **Mesmo boot** (o app caiu): reverte tudo que mexeu no ambiente.
 - **Boot diferente** (o PC reiniciou): resolução e HDR já voltaram sozinhos — reverter seria errado. Mas o **perfil do RTSS é um arquivo em disco e sobrevive ao reinício**, então esse módulo é revertido de qualquer forma.
 
 Cada módulo declara se seu estado sobrevive a um reinício (`SurvivesReboot`), e o orquestrador usa isso para decidir.
+
+Nenhum dos dois sinais é conclusivo sozinho, então a decisão usa os dois, nesta ordem:
+
+1. O tempo ligado nunca diminui dentro de um mesmo boot. Se agora é **menor** que no momento da captura, o PC reiniciou — isso é prova, e não depende do relógio do sistema.
+2. Identificadores iguais: mesmo boot.
+3. Identificadores diferentes: pode ser reinício ou um ajuste do relógio do sistema. É reinício só se o PC está ligado há **menos tempo** do que o tempo decorrido desde a captura, porque aí ele não pode ter ficado ligado o tempo todo.
+4. **Na dúvida, mesmo boot** — reverte tudo. Uma reversão desnecessária devolve o ambiente aos valores que o próprio usuário tinha; uma reversão que não acontece deixa o PC em configuração de transmissão, na resolução errada, com HDR e limite de FPS que ele não pediu. Vale também quando a identidade do boot não pode ser determinada.
 
 ### Escolha do perfil
 
