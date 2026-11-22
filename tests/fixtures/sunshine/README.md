@@ -7,4 +7,4 @@ Trechos de `sunshine.log` (nível Debug), versão 2026.914.233613, já **redigid
 | `tv-hdr-session.log` | TV (Xbox): `/launch` com `hdrMode`, 3840x2160x60, HDR, ~78 Mbps; termina com `/cancel` (sem `CLIENT DISCONNECTED`) |
 | `phone-disconnect-resume-cancel.log` | Celular: SDR, ~31 Mbps; Desconectar simples, `/resume`, Desconectar de novo e `/cancel` |
 
-Antes de adicionar um log novo, redija os segredos e rode a busca descrita em `CONTRIBUTING.md`.
+Antes de adicionar um log novo, redija os segredos e confira com uma busca por `192.168`, `rikey` e `uniqueid` (e pelo nome de usuário do Windows) antes de commitar.
