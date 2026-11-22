@@ -50,8 +50,8 @@ public sealed class HdrModule : IEnvironmentModule
 
     private const int ConfirmTimeoutSeconds = 5;
 
-    private static readonly TimeSpan ConfirmTimeout = TimeSpan.FromSeconds(ConfirmTimeoutSeconds);
-    private static readonly TimeSpan ConfirmInterval = TimeSpan.FromMilliseconds(150);
+    private static readonly TimeSpan _confirmTimeout = TimeSpan.FromSeconds(ConfirmTimeoutSeconds);
+    private static readonly TimeSpan _confirmInterval = TimeSpan.FromMilliseconds(150);
 
     private readonly TimeProvider _timeProvider;
 
@@ -250,12 +250,12 @@ public sealed class HdrModule : IEnvironmentModule
                 return true;
             }
 
-            if (_timeProvider.GetElapsedTime(start) >= ConfirmTimeout)
+            if (_timeProvider.GetElapsedTime(start) >= _confirmTimeout)
             {
                 return false;
             }
 
-            await Task.Delay(ConfirmInterval, _timeProvider, cancellationToken).ConfigureAwait(false);
+            await Task.Delay(_confirmInterval, _timeProvider, cancellationToken).ConfigureAwait(false);
         }
     }
 
