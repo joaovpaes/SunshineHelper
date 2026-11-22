@@ -22,3 +22,10 @@
 ## Ambiente
 
 Windows com .NET 10 SDK (`global.json` fixa a versão mínima). O CI compila e testa em `windows-latest`.
+
+## Revisão de PRs de outros colaboradores
+
+Pull requests de colaboradores (não só os que o Claude abre) também passam pela Claude Code: ele lê o diff completo, os arquivos mudados e o resultado do CI, confere contra as regras deste arquivo (convenções de commit, testes, segredos, redação de logs) e aponta problemas, podendo comentar direto no PR.
+
+- A revisão é um apoio ao mantenedor, não o substitui: **o "pode mesclar" continua sendo do mantenedor**, mesmo com CI verde e revisão sem apontamentos.
+- Nível de modelo/esforço da revisão: PR com risco de segurança (processos, privilégio elevado, parsing de dados externos como o log do Sunshine, manipulação de estado do sistema) pede **Opus · esforço alto**; PR comum (documentação, testes, módulo isolado, ajuste de UI) fica em **Sonnet · esforço médio** — mesma tabela de `padrao-modelo-esforco.md` usada para o resto do projeto.
