@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <RootNamespace>SunshineHelper.Tools.DisplayModuleHarness</RootNamespace>
+    <!-- Dev tool, not part of SunshineHelper.sln: exercises the real PrimaryDisplayModule
+         by hand, for the checklist in docs/testes-manuais.md. Never built, tested or
+         linted by CI — the whole point is that it changes your actual screen, which the
+         CI runner cannot do. Directory.Build.props and Directory.Packages.props still
+         apply (same analyzers, same central package versions), so it stays held to the
+         same bar as the rest of the repo. -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\SunshineHelper.Infrastructure\SunshineHelper.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
