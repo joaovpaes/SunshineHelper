@@ -18,8 +18,6 @@ namespace SunshineHelper.Infrastructure.Session;
 /// </remarks>
 public sealed class FileSessionSnapshotStore : ISessionSnapshotStore
 {
-    private const int BufferSize = 4096;
-
     private readonly string _path;
 
     public FileSessionSnapshotStore()
@@ -52,10 +50,12 @@ public sealed class FileSessionSnapshotStore : ISessionSnapshotStore
     {
         EnsureDirectory();
 
+        const int bufferSize = 4096;
+
         string tempPath = $"{_path}.tmp";
         var bytes = Encoding.UTF8.GetBytes(content);
 
-        var stream = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None, BufferSize, useAsync: true);
+        var stream = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize, useAsync: true);
         await using (stream.ConfigureAwait(false))
         {
             await stream.WriteAsync(bytes, cancellationToken).ConfigureAwait(false);
