@@ -8,12 +8,18 @@ using SunshineHelper.Infrastructure.Fps;
 // e não entra no CI (sem RTSS instalado no runner do GitHub). Cobre o checklist de
 // docs/testes-manuais.md, "PR 6 — Módulo de FPS (RTSS)".
 //
-// Rodar (PowerShell comum, não precisa ser administrador, fora de uma transmissão):
+// Rodar, fora de uma transmissão:
 //   cd tools/manual-tests/rtss-module
 //   dotnet run
 //
 // Ou, da raiz do repositório:
 //   powershell -ExecutionPolicy Bypass -File .\tools\manual-tests\rtss-module\run.ps1
+//
+// As opções 1 e 2 (só leitura) funcionam num PowerShell comum. As opções 3, 4 e 5
+// (aplicar/reverter) precisam de um PowerShell como administrador — o perfil do RTSS fica
+// em Program Files, e sem elevação o Windows nega a gravação sem avisar a chamada nativa
+// (ver o <remarks> da classe). Sem administrador, a opção 3 deve falhar com uma mensagem
+// explicando isso, não fingir sucesso.
 //
 // Se o RTSS não estiver instalado nesta máquina, as opções 1 e 2 devem dizer isso
 // claramente (em vez de travar ou lançar uma exceção), e a opção 3 deve falhar com uma

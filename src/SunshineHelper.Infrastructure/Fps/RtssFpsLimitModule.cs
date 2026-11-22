@@ -37,11 +37,26 @@ namespace SunshineHelper.Infrastructure.Fps;
 /// registry entry RTSS's own installer writes, then the common default path as a last
 /// resort. Nothing about a specific machine is hard-coded.
 /// </para>
+/// <para>
+/// <b>Applying or reverting a limit needs administrator rights</b> — confirmed by manual
+/// testing (see docs/testes-manuais.md, "PR 6"): RTSS's default install folder is under
+/// Program Files, and <c>SaveProfile</c> writes the profile file there directly. Without
+/// elevation, Windows silently denies that write; <c>SetProfileProperty</c> still reports
+/// success (it only touches an in-memory copy), so without the check in
+/// <see cref="HasWritePermission"/> the failure would be invisible until the read-back
+/// confirmation in <see cref="SetFramerateLimit"/> caught the mismatch — a confusing
+/// result to hand the user. Checking first lets us give the real reason instead.
+/// Capturing is unaffected: reading the current value needs no elevation.
+/// </para>
 /// </remarks>
 public sealed class RtssFpsLimitModule : IEnvironmentModule
 {
     private const int CurrentPayloadVersion = 1;
     private const string DefaultInstallDirectory = @"C:\Program Files (x86)\RivaTuner Statistics Server";
+    private const string NoWritePermissionMessage =
+        "Sem permissão para gravar o perfil do RTSS (a pasta dele fica em Program Files, "
+        + "protegida pelo Windows). Abra o SunshineHelper como administrador para aplicar "
+        + "ou restaurar o limite de FPS.";
 
     // NUL-terminated ASCII, because RTSS's exports take LPCSTR (see RtssHooks). The empty
     // name is RTSS's own convention for "the global profile" — the one that applies to
@@ -83,6 +98,11 @@ public sealed class RtssFpsLimitModule : IEnvironmentModule
             return Task.FromResult(ApplyOutcome.Failed("O RTSS não parece estar instalado; não foi possível aplicar o limite de FPS."));
         }
 
+        if (!HasWritePermission(directory))
+        {
+            return Task.FromResult(ApplyOutcome.Failed(NoWritePermissionMessage));
+        }
+
         RtssHooks.EnsureResolver(directory);
         return Task.FromResult(SetFramerateLimit(target));
     }
@@ -116,6 +136,11 @@ public sealed class RtssFpsLimitModule : IEnvironmentModule
         {
             return Task.FromResult(RevertOutcome.Failed(
                 "O RTSS estava instalado quando a sessão começou e não está mais; não foi possível restaurar o limite de FPS."));
+        }
+
+        if (!HasWritePermission(directory))
+        {
+            return Task.FromResult(RevertOutcome.Failed(NoWritePermissionMessage));
         }
 
         RtssHooks.EnsureResolver(directory);
@@ -277,4 +302,28 @@ public sealed class RtssFpsLimitModule : IEnvironmentModule
 
     private static bool HasHooksDll(string directory)
         => File.Exists(Path.Combine(directory, RtssHooks.DllFileName));
+
+    /// <summary>
+    /// Confirmed by manual testing (see the class remarks): <c>SetProfileProperty</c>
+    /// reports success even when the real write — <c>SaveProfile</c>, to a file under
+    /// <paramref name="directory"/> — was silently denied for lack of permission, because
+    /// it only ever touches an in-memory copy. Probing this ourselves, with an actual
+    /// file write, is the only way to tell the two cases apart before the native calls
+    /// run, so <see cref="ApplyAsync"/> and <see cref="RevertAsync"/> can give the real
+    /// reason instead of a confusing "it worked, but the value didn't change".
+    /// </summary>
+    private static bool HasWritePermission(string directory)
+    {
+        string probePath = Path.Combine(directory, $".sunshinehelper-write-check-{Guid.NewGuid():N}.tmp");
+        try
+        {
+            File.WriteAllBytes(probePath, []);
+            File.Delete(probePath);
+            return true;
+        }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or IOException or SecurityException)
+        {
+            return false;
+        }
+    }
 }
