@@ -10,7 +10,7 @@ public sealed record MigrationResult(JsonObject Document, bool Migrated);
 /// the document reaches <see cref="SettingsSchema.CurrentVersion"/>.</summary>
 public sealed class SettingsMigrator
 {
-    private readonly IReadOnlyDictionary<int, ISettingsMigration> _migrationsByFromVersion;
+    private readonly Dictionary<int, ISettingsMigration> _migrationsByFromVersion;
 
     public SettingsMigrator(IEnumerable<ISettingsMigration> migrations)
     {

@@ -91,8 +91,12 @@ public static class SettingsValidator
             }
         }
 
-        if (display.FpsLimit.Mode == ProfileValueMode.Fixed &&
-            display.FpsLimit.FixedValue is null or <= 0)
+        // FixedValue is `int`, not `int?`, here: an unconstrained generic's `T?` only
+        // carries a real nullable annotation for reference-type instantiations (like
+        // Resolution above); for a value type like int it collapses to plain T. An
+        // unset FixedValue therefore defaults to 0, which this same check already
+        // catches — no separate "is it set" check is needed or even possible.
+        if (display.FpsLimit.Mode == ProfileValueMode.Fixed && display.FpsLimit.FixedValue <= 0)
         {
             errors.Add($"Perfil '{profile.Id}': fpsLimit fixo deve ser maior que zero.");
         }
