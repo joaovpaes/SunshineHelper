@@ -101,6 +101,8 @@ Cada módulo declara se seu estado sobrevive a um reinício (`SurvivesReboot`), 
 
 ### Escolha do perfil
 
+Não há dois "tipos" fixos de aparelho: o app lida com qualquer cliente que o Moonlight suporte (TV, celular, tablet, Steam Deck, outro PC, etc.), cada um com seu próprio perfil, identificado por nome. TV e celular aparecem nos exemplos deste repositório só porque são os aparelhos usados nos testes do autor na Fase 0.
+
 O perfil é escolhido pela primeira regra que casar, na ordem definida pelo usuário, com um perfil padrão no fim:
 
 1. `SUNSHINE_CLIENT_NAME` (caminho principal — resolvido na Fase 0)
