@@ -9,7 +9,7 @@ namespace SunshineHelper.Application.Settings;
 /// <see cref="AppSettings"/>.</summary>
 public static class SettingsSerializer
 {
-    private static readonly JsonSerializerOptions Options = SettingsJsonOptions.Create();
+    private static readonly JsonSerializerOptions _options = SettingsJsonOptions.Create();
 
     public static JsonObject ParseRaw(string json)
     {
@@ -35,7 +35,7 @@ public static class SettingsSerializer
     {
         try
         {
-            return document.Deserialize<AppSettings>(Options)
+            return document.Deserialize<AppSettings>(_options)
                 ?? throw new SettingsFormatException("settings.json não pôde ser interpretado.");
         }
         catch (JsonException ex)
@@ -44,5 +44,5 @@ public static class SettingsSerializer
         }
     }
 
-    public static string Serialize(AppSettings settings) => JsonSerializer.Serialize(settings, Options);
+    public static string Serialize(AppSettings settings) => JsonSerializer.Serialize(settings, _options);
 }

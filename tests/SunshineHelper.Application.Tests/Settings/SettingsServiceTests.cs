@@ -7,7 +7,7 @@ namespace SunshineHelper.Application.Tests.Settings;
 
 public class SettingsServiceTests
 {
-    private const string Path = "settings.json";
+    private const string _settingsPath = "settings.json";
 
     [Fact]
     public async Task LoadAsync_arquivo_inexistente_retorna_padroes_sem_escrever_nada()
@@ -15,7 +15,7 @@ public class SettingsServiceTests
         var store = new FakeSettingsFileStore();
         var service = new SettingsService(store);
 
-        var result = await service.LoadAsync(Path, TestContext.Current.CancellationToken);
+        var result = await service.LoadAsync(_settingsPath, TestContext.Current.CancellationToken);
 
         result.Created.ShouldBeTrue();
         result.Migrated.ShouldBeFalse();
@@ -28,10 +28,10 @@ public class SettingsServiceTests
     public async Task LoadAsync_json_invalido_retorna_padroes_com_erro_de_validacao()
     {
         var store = new FakeSettingsFileStore();
-        store.Seed(Path, "{ não é json");
+        store.Seed(_settingsPath, "{ não é json");
         var service = new SettingsService(store);
 
-        var result = await service.LoadAsync(Path, TestContext.Current.CancellationToken);
+        var result = await service.LoadAsync(_settingsPath, TestContext.Current.CancellationToken);
 
         result.Created.ShouldBeFalse();
         result.Validation.IsValid.ShouldBeFalse();
@@ -42,16 +42,16 @@ public class SettingsServiceTests
     public async Task LoadAsync_schema_antigo_migra_e_salva_de_volta()
     {
         var store = new FakeSettingsFileStore();
-        store.Seed(Path, "{}");
+        store.Seed(_settingsPath, "{}");
         var service = new SettingsService(store);
 
-        var result = await service.LoadAsync(Path, TestContext.Current.CancellationToken);
+        var result = await service.LoadAsync(_settingsPath, TestContext.Current.CancellationToken);
 
         result.Migrated.ShouldBeTrue();
         result.Settings.SchemaVersion.ShouldBe(SettingsSchema.CurrentVersion);
         store.WriteCount.ShouldBe(1);
 
-        var written = store.Get(Path);
+        var written = store.Get(_settingsPath);
         written.ShouldNotBeNullOrEmpty();
         written!.ShouldContain("schemaVersion");
     }
@@ -61,10 +61,10 @@ public class SettingsServiceTests
     {
         var store = new FakeSettingsFileStore();
         var service = new SettingsService(store);
-        await service.SaveAsync(Path, AppSettings.CreateDefault(), TestContext.Current.CancellationToken);
+        await service.SaveAsync(_settingsPath, AppSettings.CreateDefault(), TestContext.Current.CancellationToken);
         store.ResetCounters();
 
-        var result = await service.LoadAsync(Path, TestContext.Current.CancellationToken);
+        var result = await service.LoadAsync(_settingsPath, TestContext.Current.CancellationToken);
 
         result.Migrated.ShouldBeFalse();
         store.WriteCount.ShouldBe(0);
@@ -76,7 +76,7 @@ public class SettingsServiceTests
         var store = new FakeSettingsFileStore();
         var service = new SettingsService(store);
 
-        await service.SaveAsync(Path, AppSettings.CreateDefault(), TestContext.Current.CancellationToken);
+        await service.SaveAsync(_settingsPath, AppSettings.CreateDefault(), TestContext.Current.CancellationToken);
 
         store.CopyCount.ShouldBe(0);
         store.WriteCount.ShouldBe(1);
@@ -88,11 +88,11 @@ public class SettingsServiceTests
         var store = new FakeSettingsFileStore();
         var clock = new FakeTimeProvider(new DateTimeOffset(2026, 11, 22, 10, 0, 0, TimeSpan.Zero));
         var service = new SettingsService(store, clock);
-        await service.SaveAsync(Path, AppSettings.CreateDefault(), TestContext.Current.CancellationToken);
+        await service.SaveAsync(_settingsPath, AppSettings.CreateDefault(), TestContext.Current.CancellationToken);
 
-        await service.SaveAsync(Path, AppSettings.CreateDefault(), TestContext.Current.CancellationToken);
+        await service.SaveAsync(_settingsPath, AppSettings.CreateDefault(), TestContext.Current.CancellationToken);
         clock.Now = clock.Now.AddHours(2);
-        await service.SaveAsync(Path, AppSettings.CreateDefault(), TestContext.Current.CancellationToken);
+        await service.SaveAsync(_settingsPath, AppSettings.CreateDefault(), TestContext.Current.CancellationToken);
 
         store.CopyCount.ShouldBe(1);
     }
@@ -103,11 +103,11 @@ public class SettingsServiceTests
         var store = new FakeSettingsFileStore();
         var clock = new FakeTimeProvider(new DateTimeOffset(2026, 11, 22, 10, 0, 0, TimeSpan.Zero));
         var service = new SettingsService(store, clock);
-        await service.SaveAsync(Path, AppSettings.CreateDefault(), TestContext.Current.CancellationToken);
-        await service.SaveAsync(Path, AppSettings.CreateDefault(), TestContext.Current.CancellationToken);
+        await service.SaveAsync(_settingsPath, AppSettings.CreateDefault(), TestContext.Current.CancellationToken);
+        await service.SaveAsync(_settingsPath, AppSettings.CreateDefault(), TestContext.Current.CancellationToken);
 
         clock.Now = clock.Now.AddDays(1);
-        await service.SaveAsync(Path, AppSettings.CreateDefault(), TestContext.Current.CancellationToken);
+        await service.SaveAsync(_settingsPath, AppSettings.CreateDefault(), TestContext.Current.CancellationToken);
 
         store.CopyCount.ShouldBe(2);
     }
@@ -135,8 +135,8 @@ public class SettingsServiceTests
             ],
         };
 
-        await service.SaveAsync(Path, settings, TestContext.Current.CancellationToken);
-        var result = await service.LoadAsync(Path, TestContext.Current.CancellationToken);
+        await service.SaveAsync(_settingsPath, settings, TestContext.Current.CancellationToken);
+        var result = await service.LoadAsync(_settingsPath, TestContext.Current.CancellationToken);
 
         result.Validation.IsValid.ShouldBeTrue();
         result.Settings.Profiles.Count.ShouldBe(1);
