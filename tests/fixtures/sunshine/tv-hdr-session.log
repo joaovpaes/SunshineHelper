@@ -1,0 +1,143 @@
+[2026-11-22 09:01:30.211]: Debug: DESTINATION :: /serverinfo
+[2026-11-22 09:01:30.211]: Debug: uuid -- <REDACTED>
+[2026-11-22 09:01:30.211]: Debug: uniqueid -- <REDACTED>
+[2026-11-22 09:01:30.211]: Debug: DESTINATION :: /serverinfo
+[2026-11-22 09:01:30.211]: Debug: uuid -- <REDACTED>
+[2026-11-22 09:01:30.211]: Debug: uniqueid -- <REDACTED>
+[2026-11-22 09:01:32.023]: Debug: DESTINATION :: /serverinfo
+[2026-11-22 09:01:32.023]: Debug: uuid -- <REDACTED>
+[2026-11-22 09:01:32.023]: Debug: uniqueid -- <REDACTED>
+[2026-11-22 09:01:32.052]: Debug: DESTINATION :: /serverinfo
+[2026-11-22 09:01:32.052]: Debug: uuid -- <REDACTED>
+[2026-11-22 09:01:32.052]: Debug: uniqueid -- <REDACTED>
+[2026-11-22 09:01:33.520]: Debug: DESTINATION :: /serverinfo
+[2026-11-22 09:01:33.520]: Debug: uuid -- <REDACTED>
+[2026-11-22 09:01:33.520]: Debug: uniqueid -- <REDACTED>
+[2026-11-22 09:01:33.548]: Debug: DESTINATION :: /applist
+[2026-11-22 09:01:33.548]: Debug: uuid -- <REDACTED>
+[2026-11-22 09:01:33.548]: Debug: uniqueid -- <REDACTED>
+[2026-11-22 09:01:33.569]: Debug: DESTINATION :: /serverinfo
+[2026-11-22 09:01:33.569]: Debug: uuid -- <REDACTED>
+[2026-11-22 09:01:33.569]: Debug: uniqueid -- <REDACTED>
+[2026-11-22 09:01:34.625]: Debug: DESTINATION :: /serverinfo
+[2026-11-22 09:01:34.625]: Debug: uuid -- <REDACTED>
+[2026-11-22 09:01:34.625]: Debug: uniqueid -- <REDACTED>
+[2026-11-22 09:01:34.645]: Debug: DESTINATION :: /launch
+[2026-11-22 09:01:34.645]: Debug: clientHdrCapDisplayData -- 0x0x0x0x0x0x0x0x0x0x0
+[2026-11-22 09:01:34.646]: Debug: clientHdrCapSupportedFlagsInUint32 -- 0
+[2026-11-22 09:01:34.646]: Debug: clientHdrCapVersion -- 0
+[2026-11-22 09:01:34.646]: Debug: uniqueid -- <REDACTED>
+[2026-11-22 09:01:34.646]: Debug: additionalStates -- 1
+[2026-11-22 09:01:34.646]: Debug: uuid -- <REDACTED>
+[2026-11-22 09:01:34.646]: Debug: hdrMode -- 1
+[2026-11-22 09:01:34.646]: Debug: appid -- 1942687974
+[2026-11-22 09:01:34.646]: Debug: mode -- 3840x2160x60
+[2026-11-22 09:01:34.646]: Debug: clientHdrCapMetaDataId -- NV_STATIC_METADATA_TYPE_1
+[2026-11-22 09:01:34.646]: Debug: sops -- 0
+[2026-11-22 09:01:34.646]: Debug: rikey -- <REDACTED>
+[2026-11-22 09:01:34.646]: Debug: surroundAudioInfo -- 4128774
+[2026-11-22 09:01:34.646]: Debug: rikeyid -- <REDACTED>
+[2026-11-22 09:01:34.646]: Debug: remoteControllersBitmap -- 0
+[2026-11-22 09:01:34.646]: Debug: corever -- 1
+[2026-11-22 09:01:34.646]: Debug: gcmap -- 0
+[2026-11-22 09:01:34.646]: Debug: localAudioPlayMode -- <REDACTED>
+[2026-11-22 09:01:34.646]: Info: Display device configuration is disabled. Reverting any active display device configuration.
+[2026-11-22 09:01:34.647]: Info: Encoder reenumeration is required
+[2026-11-22 09:01:34.647]: Info: Trying encoder [nvenc]
+[2026-11-22 09:01:34.716]: Info: Desktop resolution [2560x1440]
+[2026-11-22 09:01:34.716]: Info: Desktop format [DXGI_FORMAT_B8G8R8A8_UNORM]
+[2026-11-22 09:01:34.716]: Info: Requested frame rate [60/1 exactly 60 fps]
+[2026-11-22 09:01:34.717]: Info: Encoder [nvenc] is not supported on this GPU
+[2026-11-22 09:01:34.724]: Info: Trying encoder [quicksync]
+[2026-11-22 09:01:34.806]: Info: Desktop resolution [2560x1440]
+[2026-11-22 09:01:34.806]: Info: Desktop format [DXGI_FORMAT_B8G8R8A8_UNORM]
+[2026-11-22 09:01:34.806]: Info: Requested frame rate [60/1 exactly 60 fps]
+[2026-11-22 09:01:34.807]: Info: Encoder [quicksync] is not supported on this GPU
+[2026-11-22 09:01:34.813]: Info: Trying encoder [amdvce]
+[2026-11-22 09:01:34.898]: Info: Desktop resolution [2560x1440]
+[2026-11-22 09:01:34.898]: Info: Desktop format [DXGI_FORMAT_B8G8R8A8_UNORM]
+[2026-11-22 09:01:34.898]: Info: Requested frame rate [60/1 exactly 60 fps]
+[2026-11-22 09:01:34.903]: Info: Creating encoder [h264_amf]
+[2026-11-22 09:01:34.903]: Info: Color coding: SDR (Rec. 601)
+[2026-11-22 09:01:34.903]: Info: Color depth: 8-bit
+[2026-11-22 09:01:34.903]: Info: Color range: JPEG
+[2026-11-22 09:01:34.937]: Info: Streaming bitrate is 1000000
+[2026-11-22 09:01:34.984]: Info: Creating encoder [hevc_amf]
+[2026-11-22 09:01:34.984]: Info: Color coding: SDR (Rec. 601)
+[2026-11-22 09:01:34.984]: Info: Color depth: 8-bit
+[2026-11-22 09:01:34.984]: Info: Color range: JPEG
+[2026-11-22 09:01:35.018]: Info: Streaming bitrate is 1000000
+[2026-11-22 09:01:35.148]: Info: Desktop resolution [2560x1440]
+[2026-11-22 09:01:35.148]: Info: Desktop format [DXGI_FORMAT_B8G8R8A8_UNORM]
+[2026-11-22 09:01:35.148]: Info: Requested frame rate [60/1 exactly 60 fps]
+[2026-11-22 09:01:35.247]: Info: Desktop resolution [2560x1440]
+[2026-11-22 09:01:35.247]: Info: Desktop format [DXGI_FORMAT_B8G8R8A8_UNORM]
+[2026-11-22 09:01:35.247]: Info: Requested frame rate [60/1 exactly 60 fps]
+[2026-11-22 09:01:35.341]: Info: Desktop resolution [2560x1440]
+[2026-11-22 09:01:35.341]: Info: Desktop format [DXGI_FORMAT_B8G8R8A8_UNORM]
+[2026-11-22 09:01:35.341]: Info: Requested frame rate [60/1 exactly 60 fps]
+[2026-11-22 09:01:35.346]: Info: Creating encoder [hevc_amf]
+[2026-11-22 09:01:35.346]: Info: Color coding: SDR (Rec. 709)
+[2026-11-22 09:01:35.346]: Info: Color depth: 10-bit
+[2026-11-22 09:01:35.346]: Info: Color range: JPEG
+[2026-11-22 09:01:35.381]: Info: Streaming bitrate is 1000000
+[2026-11-22 09:01:35.511]: Info: Desktop resolution [2560x1440]
+[2026-11-22 09:01:35.511]: Info: Desktop format [DXGI_FORMAT_B8G8R8A8_UNORM]
+[2026-11-22 09:01:35.511]: Info: Requested frame rate [60/1 exactly 60 fps]
+[2026-11-22 09:01:35.602]: Info: Desktop resolution [2560x1440]
+[2026-11-22 09:01:35.602]: Info: Desktop format [DXGI_FORMAT_B8G8R8A8_UNORM]
+[2026-11-22 09:01:35.602]: Info: Requested frame rate [60/1 exactly 60 fps]
+[2026-11-22 09:01:35.698]: Info: Desktop resolution [2560x1440]
+[2026-11-22 09:01:35.698]: Info: Desktop format [DXGI_FORMAT_B8G8R8A8_UNORM]
+[2026-11-22 09:01:35.698]: Info: Requested frame rate [60/1 exactly 60 fps]
+[2026-11-22 09:01:35.792]: Info: Desktop resolution [2560x1440]
+[2026-11-22 09:01:35.792]: Info: Desktop format [DXGI_FORMAT_B8G8R8A8_UNORM]
+[2026-11-22 09:01:35.792]: Info: Requested frame rate [60/1 exactly 60 fps]
+[2026-11-22 09:01:35.800]: Info: Found H.264 encoder: h264_amf [amdvce]
+[2026-11-22 09:01:35.800]: Info: Found HEVC encoder: hevc_amf [amdvce]
+[2026-11-22 09:01:35.800]: Info: Executing Do Cmd: ["C:\Users\<USER>\OneDrive\Documents\Configs Sunshine\Automacoes\Display_ON.bat"]
+[2026-11-22 09:01:35.808]: Info: Resolved user-provided command '"C:\Users\<USER>\OneDrive\Documents\Configs Sunshine\Automacoes\Display_ON.bat"' to '"C:\Users\<USER>\OneDrive\Documents\Configs Sunshine\Automacoes\Display_ON.bat" '
+[2026-11-22 09:01:35.826]: Info: "C:\Users\<USER>\OneDrive\Documents\Configs Sunshine\Automacoes\Display_ON.bat" running with PID 8444
+[2026-11-22 09:01:46.137]: Info: Executing Do Cmd: ["C:\Users\<USER>\OneDrive\Documents\Configs Sunshine\Automacoes\RTSS_ON.bat"]
+[2026-11-22 09:01:46.139]: Info: Resolved user-provided command '"C:\Users\<USER>\OneDrive\Documents\Configs Sunshine\Automacoes\RTSS_ON.bat"' to '"C:\Users\<USER>\OneDrive\Documents\Configs Sunshine\Automacoes\RTSS_ON.bat" '
+[2026-11-22 09:01:46.161]: Info: "C:\Users\<USER>\OneDrive\Documents\Configs Sunshine\Automacoes\RTSS_ON.bat" running with PID 14128
+[2026-11-22 09:01:59.274]: Info: Executing: [C:\Users\<USER>\AppData\Local\Playnite\Playnite.FullscreenApp.exe] in ["C:\Users\<USER>\AppData\Local\Playnite"]
+[2026-11-22 09:01:59.364]: Info: C:\Users\<USER>\AppData\Local\Playnite\Playnite.FullscreenApp.exe running with PID 18316
+[2026-11-22 09:01:59.551]: Debug: Initialized new control stream session by connect data match [v2]
+[2026-11-22 09:01:59.551]: Debug: Control local address [192.0.2.10]
+[2026-11-22 09:01:59.551]: Debug: Control peer address [192.0.2.20:61379]
+[2026-11-22 09:01:59.552]: Info: CLIENT CONNECTED
+[2026-11-22 09:01:59.615]: Debug: Start capturing Video
+[2026-11-22 09:01:59.712]: Info: Desktop resolution [3840x2160]
+[2026-11-22 09:01:59.712]: Info: Desktop format [DXGI_FORMAT_R16G16B16A16_FLOAT]
+[2026-11-22 09:01:59.712]: Info: Requested frame rate [60000/1001 exactly 59.9401 fps]
+[2026-11-22 09:01:59.713]: Info: Creating encoder [hevc_amf]
+[2026-11-22 09:01:59.713]: Info: Color coding: HDR (Rec. 2020 + SMPTE 2084 PQ)
+[2026-11-22 09:01:59.713]: Info: Color depth: 10-bit
+[2026-11-22 09:01:59.713]: Info: Color range: MPEG
+[2026-11-22 09:01:59.742]: Info: Streaming bitrate is 77964000
+[2026-11-22 09:01:59.756]: Debug: Sent HDR mode: true
+[2026-11-22 09:01:59.921]: Debug: Start capturing Audio
+[2026-11-22 09:02:00.163]: Info: App exited gracefully within 5 seconds of launch. Treating the app as a detached command.
+[2026-11-22 09:02:33.736]: Debug: DESTINATION :: /cancel
+[2026-11-22 09:02:33.736]: Debug: uuid -- <REDACTED>
+[2026-11-22 09:02:33.736]: Debug: uniqueid -- <REDACTED>
+[2026-11-22 09:02:33.825]: Debug: Session ended
+[2026-11-22 09:02:33.965]: Info: Executing Undo Cmd: ["C:\Users\<USER>\OneDrive\Documents\Configs Sunshine\Automacoes\RTSS_OFF.bat"]
+[2026-11-22 09:02:33.968]: Info: Resolved user-provided command '"C:\Users\<USER>\OneDrive\Documents\Configs Sunshine\Automacoes\RTSS_OFF.bat"' to '"C:\Users\<USER>\OneDrive\Documents\Configs Sunshine\Automacoes\RTSS_OFF.bat" '
+[2026-11-22 09:02:33.990]: Info: "C:\Users\<USER>\OneDrive\Documents\Configs Sunshine\Automacoes\RTSS_OFF.bat" running with PID 19556
+[2026-11-22 09:02:35.426]: Debug: DESTINATION :: /serverinfo
+[2026-11-22 09:02:35.426]: Debug: uuid -- <REDACTED>
+[2026-11-22 09:02:35.426]: Debug: uniqueid -- <REDACTED>
+[2026-11-22 09:02:47.267]: Info: Executing Undo Cmd: ["C:\Users\<USER>\OneDrive\Documents\Configs Sunshine\Automacoes\Display_OFF.bat"]
+[2026-11-22 09:02:47.269]: Info: Resolved user-provided command '"C:\Users\<USER>\OneDrive\Documents\Configs Sunshine\Automacoes\Display_OFF.bat"' to '"C:\Users\<USER>\OneDrive\Documents\Configs Sunshine\Automacoes\Display_OFF.bat" '
+[2026-11-22 09:02:47.288]: Info: "C:\Users\<USER>\OneDrive\Documents\Configs Sunshine\Automacoes\Display_OFF.bat" running with PID 20212
+[2026-11-22 09:02:57.242]: Debug: DESTINATION :: /applist
+[2026-11-22 09:02:57.242]: Debug: uuid -- <REDACTED>
+[2026-11-22 09:02:57.242]: Debug: uniqueid -- <REDACTED>
+[2026-11-22 09:02:57.263]: Debug: DESTINATION :: /serverinfo
+[2026-11-22 09:02:57.263]: Debug: uuid -- <REDACTED>
+[2026-11-22 09:02:57.263]: Debug: uniqueid -- <REDACTED>
+[2026-11-22 09:03:00.346]: Debug: DESTINATION :: /serverinfo
+[2026-11-22 09:03:00.346]: Debug: uuid -- <REDACTED>
+[2026-11-22 09:03:00.346]: Debug: uniqueid -- <REDACTED>
