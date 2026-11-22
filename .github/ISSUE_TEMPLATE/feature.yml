@@ -1,0 +1,14 @@
+name: Ideia / Feature request
+description: Sugestão de melhoria
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: O que você gostaria que o app fizesse?
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Qual problema isso resolve?

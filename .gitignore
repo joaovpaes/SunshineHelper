@@ -1,0 +1,39 @@
+# Build
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+publish/
+artifacts/
+*.nupkg
+
+# IDE
+.vs/
+.vscode/*
+!.vscode/extensions.json
+*.user
+*.suo
+*.DotSettings.user
+.idea/
+
+# Tests and coverage
+TestResults/
+coverage/
+*.coverage
+*.trx
+
+# Secrets and local data (never commit)
+.env
+.env.*
+*.pfx
+*.snk
+*.key
+appsettings.Local.json
+settings.local.json
+
+# Real Sunshine logs contain secrets: only redacted fixtures go in tests/fixtures/
+*.log
+!tests/fixtures/**/*.log
+
+# OS
+Thumbs.db
+.DS_Store

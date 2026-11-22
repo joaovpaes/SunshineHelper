@@ -1,0 +1,27 @@
+name: Bug / Erro
+description: Algo não funcionou como esperado
+labels: ["bug"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Versão do SunshineHelper
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Windows, Sunshine, Moonlight e RTSS (versões)
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Passos para reproduzir / Steps to reproduce
+    validations:
+      required: true
+  - type: textarea
+    id: diagnose
+    attributes:
+      label: Pacote de diagnóstico (SunshineHelper.exe --diagnose)
+      description: O pacote já vem sem segredos. Não cole logs brutos do Sunshine (contêm chaves e IPs).
