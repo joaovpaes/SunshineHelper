@@ -17,6 +17,23 @@ Arquitetura em camadas: Domain ← Application ← Infrastructure/UI. Módulos c
 - Segredos nunca entram. Logs do Sunshine têm `rikey`, `uniqueid`, IPs e MACs: redigir antes de virarem fixture.
 - Ações do GitHub fixadas por SHA; `permissions:` mínimo por job.
 
+## AVISO DE TROCA DE MODELO/ESFORÇO (obrigatório)
+
+O Claude não troca o próprio modelo nem o esforço; quem troca é o usuário. Em **todo início de tarefa e em toda mudança de etapa**, a **primeira coisa da resposta** é um destes blocos (citação, negrito):
+
+> **🔀 TROCAR AGORA → Opus · esforço alto**
+> Etapa: ... Como: seletor de modelo do app ou `/model opus`, e depois o esforço "alto".
+> Responda **"troquei"** e eu começo. Até lá não faço nada além deste aviso.
+
+> **✅ MANTER → Sonnet · esforço médio** (a sessão já está no nível certo)
+
+> **⬇️ PODE VOLTAR → Sonnet · esforço médio** (a parte difícil terminou; diga qual etapa vem agora)
+
+- Nível necessário maior que o atual, ou nível atual desconhecido: **TROCAR AGORA** e esperar o "troquei". Não adivinhar.
+- Se o usuário recusar a troca, seguir no nível atual, avisar o risco em uma frase e registrar no PR.
+- Falhou 2 vezes no mesmo problema: **TROCAR AGORA** para o nível acima.
+- Citar a linha da tabela de `padrao-modelo-esforco.md` que justifica o nível.
+
 ## Modelo e esforço por etapa (padrão do projeto)
 
 - Começar pelo mais baixo que a tarefa permite; subir um nível depois de 2 falhas; voltar ao padrão ao terminar a parte difícil.
