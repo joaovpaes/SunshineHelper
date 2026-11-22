@@ -10,4 +10,11 @@
     <ProjectReference Include="..\SunshineHelper.Application\SunshineHelper.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Source generator: turns NativeMethods.txt into the P/Invoke signatures and
+         structs it names, generated at build time from Microsoft's own Win32 metadata.
+         No runtime assembly of its own. -->
+    <PackageReference Include="Microsoft.Windows.CsWin32" PrivateAssets="all" />
+  </ItemGroup>
+
 </Project>

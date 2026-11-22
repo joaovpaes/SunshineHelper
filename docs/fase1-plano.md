@@ -30,7 +30,8 @@ Cada linha é um PR próprio, pequeno, com testes.
 | 3 | Configuração e perfis | `settings.json` com `schemaVersion`, leitura, validação, migração, backup diário | Sonnet · médio |
 | 4a | Snapshot da sessão e recuperação | modelo do snapshot com versão por módulo, gravação atômica, regra de recuperação (queda do app x reinício do PC) | **Opus · alto** |
 | 4b | Orquestrador | aplicar, reverter, rollback em falha, recusa de sessão dupla, uma só via de volta; testes com módulos falsos e falhas injetadas | **Opus · alto** |
-| 5 | Módulo de vídeo e HDR | CsWin32, resolução preservando a taxa de atualização, HDR por API | Sonnet · médio |
+| 5a | Módulo de vídeo: resolução | CsWin32 (`ChangeDisplaySettingsEx`/`EnumDisplaySettingsEx`), preservando a taxa de atualização, confirmação só pela API, nunca por processo externo | Sonnet · médio |
+| 5b | Módulo de HDR | CsWin32 (API de Advanced Color/CCD); comparar com o `HDRSwitch.exe` na máquina do autor antes de descartar a ferramenta externa | Sonnet · médio |
 | 6 | Módulo de FPS (RTSS) | cópia de perfil, reinício, espera por condição, detecção de versão | Sonnet · médio |
 | 7 | Auxiliar de gatilho e canal | `SunshineHelper.Trigger` em NativeAOT, named pipe, barreira, saída sempre 0 | **Opus · alto** |
 | 8 | Leitor do log do Sunshine | retomada, desconexão, fallback; testes com as fixtures da Fase 0 | Sonnet · médio |
@@ -55,3 +56,4 @@ O parâmetro `--restore` sai desta lista e entra depois do PR 6: o motor de recu
 | O atraso antes do launcher ser mesmo necessário | `launcherDelayMs` configurável; PR 10 calibra |
 | RTSS mudar de formato de perfil entre versões | detectar versão, ler o perfil antes de copiar, recusar com mensagem clara se o formato for desconhecido |
 | Testes de interface e de Win32 não rodarem no CI | Domain e Application cobrem a lógica; Infrastructure e UI têm testes marcados para execução manual até a Fase 2 |
+| A verificação de vídeo/HDR não pode acontecer no runner do CI (sem monitor de verdade) | Cada PR de Infrastructure que mexe no vídeo lista em `docs/testes-manuais.md` o que o autor precisa verificar na própria máquina antes de considerar aquele módulo pronto |

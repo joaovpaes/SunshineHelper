@@ -1,0 +1,7 @@
+; Lists the Win32 APIs CsWin32 generates P/Invoke signatures for, by name — it pulls in
+; whatever structs, enums and constants those signatures need on its own. One file for
+; the whole project; add to it rather than creating a second one.
+
+; Display/Display.cs (resolution, preserving the refresh rate)
+ChangeDisplaySettingsEx
+EnumDisplaySettingsEx
