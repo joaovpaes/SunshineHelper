@@ -6,7 +6,7 @@ Formato e modelo: `0000-template.md`. Um ADR por arquivo; quando um deles for tr
 | ADR | Decisão | Status | Data |
 | --- | --- | --- | --- |
 | 0001 | Stack e gatilho de sessão | aceita | 2026-11-22 |
-| 0002 | Arquitetura do núcleo (Fase 1) | proposta no arquivo; em uso desde a Fase 1 | 2026-11-22 |
+| 0002 | Arquitetura do núcleo (Fase 1) | aceita | 2026-11-22 |
 | 0003 | Canal (named pipe) e auxiliar de gatilho | aceita | 2026-11-22 |
 | 0004 | Leitor do log do Sunshine | aceita | 2026-11-23 |
 | 0005 | Casca da interface (PR 9a) | aceita | 2026-11-23 |

@@ -1,7 +1,7 @@
 # Estado do projeto
 
 Uma página para retomar o trabalho sem reler tudo. O Claude atualiza este arquivo no fim de cada PR
-(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-23**, `main` após o PR 43.
+(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-23**, `main` após o PR 44.
 
 ## Onde estamos
 
@@ -11,7 +11,7 @@ leitor do log do Sunshine, bandeja e janela (Painel, Geral, Perfis), log de diag
 diagnóstico. As decisões D2 (falha de um módulo vira aviso) e D3 (sessão anterior presa é restaurada antes da
 nova) estão no ADR 0011 e passaram no teste do PC. Situação do portão: `docs/fase1-portao.md`.
 
-**Último PR mesclado:** #43 (armadilhas do compilador e checklist de PR).
+**Último PR mesclado:** #44 (`ESTADO.md` e índice de ADRs).
 
 ## Próximos PRs
 
@@ -19,7 +19,6 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 | PR | O quê | Modelo |
 | --- | --- | --- |
-| 14c | Este `ESTADO.md` e o índice de ADRs | Sonnet · médio |
 | 15a | Teste do RTSS só em memória (roda na máquina do autor) | Sonnet · médio |
 | 15b | Permissão do RTSS e botão "Reparar" (só se o 15a mostrar que precisa), ADR 0012 | Opus · alto |
 | 16 | O app percebe que o Sunshine morreu e restaura sozinho (ADR novo) | Opus · alto |
@@ -29,8 +28,6 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 - **D1, FPS sem administrador:** hoje, sem administrador, o módulo de FPS falha e a sessão segue só com
   resolução e HDR, com aviso no Painel. O caminho (teste em memória, depois permissão no arquivo do RTSS) está
   em `docs/fase1-plano.md`, "Decisões D1–D3".
-- **Status do ADR 0002:** o arquivo ainda diz "proposta", mas o núcleo inteiro segue esse ADR. Falta decidir se
-  passa a "aceita".
 
 ## Pendências de teste manual
 

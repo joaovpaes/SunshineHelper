@@ -1,6 +1,6 @@
 # 0002. Arquitetura do núcleo (Fase 1)
 
-- Status: proposta
+- Status: aceita (2026-11-23; em uso desde a Fase 1)
 - Data: 2026-11-22
 - Depende de: `0001-stack-e-gatilho.md`, `docs/fase0-resultados.md`
 
