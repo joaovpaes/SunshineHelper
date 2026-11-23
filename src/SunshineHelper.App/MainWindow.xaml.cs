@@ -10,9 +10,9 @@ using System.Windows.Threading;
 using SunshineHelper.App.Services;
 using SunshineHelper.Application.Session;
 using SunshineHelper.Domain.Localization;
-using SunshineHelper.Infrastructure.Startup;
 using SunshineHelper.Domain.Monitoring;
 using SunshineHelper.Domain.Settings;
+using SunshineHelper.Infrastructure.Startup;
 
 namespace SunshineHelper.App;
 
