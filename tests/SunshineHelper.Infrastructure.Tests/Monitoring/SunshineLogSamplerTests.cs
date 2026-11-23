@@ -1,6 +1,6 @@
 using Shouldly;
-using Xunit;
 using SunshineHelper.Infrastructure.Monitoring;
+using Xunit;
 
 namespace SunshineHelper.Infrastructure.Tests.Monitoring;
 
