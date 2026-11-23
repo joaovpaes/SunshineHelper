@@ -65,5 +65,34 @@ public class LauncherSettingsTests
         SettingsValidator.Validate(settings).IsValid.ShouldBeFalse();
     }
 
+    [Fact]
+    public void ParseNames_aceita_linhas_virgulas_e_ponto_e_virgula_sem_repetir()
+    {
+        var names = LauncherSettings.ParseNames("Playnite.FullscreenApp.exe\r\n  Playnite.DesktopApp , playnite.fullscreenapp;\n\n");
+
+        names.ShouldBe(new[] { "Playnite.FullscreenApp", "Playnite.DesktopApp" });
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("  \r\n ,; ")]
+    public void ParseNames_sem_nada_util_devolve_lista_vazia(string? text)
+    {
+        LauncherSettings.ParseNames(text).ShouldBeEmpty();
+    }
+
+    [Theory]
+    [InlineData(0, true)]
+    [InlineData(30_000, true)]
+    [InlineData(30_001, false)]
+    [InlineData(-1, false)]
+    public void Atraso_do_launcher_fica_entre_zero_e_o_maximo(int delayMs, bool valid)
+    {
+        var settings = AppSettings.CreateDefault() with { Timing = new TimingSettings { LauncherDelayMs = delayMs } };
+
+        SettingsValidator.Validate(settings).IsValid.ShouldBe(valid);
+    }
+
     private static AppSettings With(LauncherSettings launcher) => AppSettings.CreateDefault() with { Launcher = launcher };
 }

@@ -229,6 +229,38 @@ Abra o app e vá em **Geral**:
       perfil configurado e desconecte/retome: o log do app (ou o Painel) acompanha. (Só vale
       se você já tem um perfil no `settings.json`.)
 
+## PR 10b — launcher (tela Geral e calibração)
+
+Pré-requisito: `settings.json` com um perfil e o Sunshine configurado para chamar o
+SunshineHelper no Prep Command.
+
+- [ ] Em **Geral**, role a página: aparecem "Programas a fechar" e "Atraso". Em inglês, o
+      mesmo, traduzido.
+- [ ] Digite o atraso `abc` e **Salvar**: aparece "Atraso inválido". Digite `30001`: também.
+- [ ] Digite `Playnite.FullscreenApp.exe` (com `.exe`) e **Salvar**: a caixa passa a mostrar
+      `Playnite.FullscreenApp`. Em `settings.json`: `launcher.processNames` com esse nome.
+- [ ] Escreva `explorer` e Salvar: o app aceita a tela, mas o módulo nunca o fecha (nomes
+      proibidos são ignorados). Depois apague.
+- [ ] **Já aberto não fecha:** abra o launcher à mão, inicie e encerre uma transmissão: ele
+      continua aberto.
+- [ ] **Fecha o que a transmissão abriu:** com o launcher fechado, inicie pelo Moonlight e
+      encerre (/cancel): ele fecha sozinho. Anote se foi educado ou à força.
+- [ ] **Desconectar sem encerrar** (com "reverter ao desconectar"): a tela volta, mas o
+      launcher continua; ao retomar o stream, o app dele ainda está lá.
+
+### Calibração do atraso (anote os resultados)
+
+Repita 3 vezes cada valor (0, 3000, 5000 ms) e veja se o launcher abre direito na
+transmissão e fecha no fim:
+
+| Atraso | Abriu certo? | Fechou no fim? | Observação |
+|-------:|:------------:|:--------------:|------------|
+| 0      |              |                |            |
+| 3000   |              |                |            |
+| 5000   |              |                |            |
+
+Passe a tabela preenchida: o padrão do atraso só muda com esses números.
+
 ## Automatizar isto (pendência, sem PR ainda)
 
 Pedido do autor: transformar estes itens em testes automáticos de verdade, em
