@@ -66,7 +66,7 @@ public sealed class RtssFpsLimitModule : IEnvironmentModule
 
     public string Id => "fps";
 
-    public int Order => 3; // After the display (1) and HDR (2) modules.
+    public int Order => 3; // After the HDR (1) and display (2) modules.
 
     public bool SurvivesReboot => true;
 

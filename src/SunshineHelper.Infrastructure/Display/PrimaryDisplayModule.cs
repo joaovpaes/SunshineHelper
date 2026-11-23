@@ -37,8 +37,9 @@ public sealed class PrimaryDisplayModule : IEnvironmentModule
 {
     private const int CurrentPayloadVersion = 1;
 
-    // Long enough for a driver that re-applies its own mode after the HDR switch (the
-    // next module) to have done so; the answer goes to the diagnostic log only.
+    // Long enough for anything that re-applies the display's saved mode right after the
+    // change (an HDR re-train, the driver) to have done so; the answer goes to the
+    // diagnostic log only (docs/adr/0010-hdr-antes-da-resolucao.md).
     private const int LateReadbackDelayMs = 3_000;
 
     private readonly IDiagnosticLog _log;
@@ -50,7 +51,9 @@ public sealed class PrimaryDisplayModule : IEnvironmentModule
 
     public string Id => "display";
 
-    public int Order => 1;
+    // After HdrModule (1): an HDR switch resets the display mode, so the resolution has
+    // to be set once HDR is settled (docs/adr/0010-hdr-antes-da-resolucao.md).
+    public int Order => 2;
 
     // Windows restores the user's own mode by itself; this module's state does not
     // survive a reboot.
