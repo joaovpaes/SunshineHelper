@@ -39,6 +39,12 @@ Rodada de 2026-11-23 no PC do autor (Sunshine 2026.914, RX 9070 XT, tela 2560x14
   resolução devolve a tela a 2560x1440. Corrigido no PR 34 (HDR antes da resolução, ADR 0010).
 
 **Ainda pendente**
+- **PR 12d (relatório de diagnóstico):** na tela Geral, escreva uma descrição qualquer (inclua um IP de teste,
+  como `192.168.1.10`), clique em **Gerar relatório de diagnóstico** e salve. Abra o arquivo: tem a versão
+  (sem `<ip>` no lugar dela), a descrição, `settings.json`, o fim do `app.log` e o fim do log do Sunshine; o IP
+  da descrição virou `<ip>` e seu nome de usuário do Windows não aparece. Teste também com o caminho do log do
+  Sunshine vazio (a seção diz "not configured"). No `app.log`, a linha `session-end` agora mostra
+  `elapsed -` e `client -`.
 - Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada). A resolução já está corrigida e o
   fechamento do Playnite foi confirmado; falta só medir.
 

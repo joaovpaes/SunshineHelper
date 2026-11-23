@@ -1,5 +1,6 @@
 using Shouldly;
 using SunshineHelper.Application.Channel;
+using SunshineHelper.Application.Diagnostics;
 using SunshineHelper.Application.Launcher;
 using SunshineHelper.Application.Session;
 using SunshineHelper.Application.Tests.Launcher;
@@ -179,6 +180,34 @@ public class TriggerChannelHandlerTests
 
         response.State.ShouldBe(ChannelState.Reverted);
         processes.Running.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public async Task O_log_mostra_o_cliente_e_o_tempo_de_uma_sessao_iniciada()
+    {
+        var test = new OrchestratorTest();
+        var profile = TestProfiles.FollowClient();
+        var log = new ListDiagnosticLog();
+        using var handler = new TriggerChannelHandler(test.Orchestrator, new FakeCurrentSettingsProvider(Settings(profile.Id, profile)), log);
+
+        await handler.HandleAsync(StartRequest(), TestContext.Current.CancellationToken);
+
+        log.Contains(DiagnosticLevel.Info, "client 'Sala' 3840x2160 hdr True").ShouldBeTrue();
+        log.Contains(DiagnosticLevel.Info, "elapsed ").ShouldBeTrue();
+        log.Contains(DiagnosticLevel.Info, " ms").ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task O_log_mostra_traco_quando_nao_ha_cliente_nem_tempo()
+    {
+        var test = new OrchestratorTest();
+        var log = new ListDiagnosticLog();
+        using var handler = new TriggerChannelHandler(test.Orchestrator, new FakeCurrentSettingsProvider(Settings(defaultProfileId: null)), log);
+
+        await handler.HandleAsync(EndRequest(), TestContext.Current.CancellationToken);
+
+        log.Contains(DiagnosticLevel.Info, "client -").ShouldBeTrue();
+        log.Contains(DiagnosticLevel.Info, "elapsed -").ShouldBeTrue();
     }
 
     private static TriggerChannelHandler NewHandler(OrchestratorTest test, AppSettings settings) =>
