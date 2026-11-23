@@ -70,7 +70,9 @@ public class LauncherSettingsTests
     {
         var names = LauncherSettings.ParseNames("Playnite.FullscreenApp.exe\r\n  Playnite.DesktopApp , playnite.fullscreenapp;\n\n");
 
-        names.ShouldBe(new[] { "Playnite.FullscreenApp", "Playnite.DesktopApp" });
+        names.Count.ShouldBe(2);
+        names[0].ShouldBe("Playnite.FullscreenApp");
+        names[1].ShouldBe("Playnite.DesktopApp");
     }
 
     [Theory]
