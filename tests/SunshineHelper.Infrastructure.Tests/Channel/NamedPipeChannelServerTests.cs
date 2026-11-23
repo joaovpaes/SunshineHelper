@@ -22,7 +22,7 @@ public sealed class NamedPipeChannelServerTests : IAsyncLifetime
     private TriggerChannelHandler? _handler;
     private NamedPipeChannelServer? _server;
 
-    public async ValueTask InitializeAsync()
+    public ValueTask InitializeAsync()
     {
         var orchestrator = new SessionOrchestrator(
             modules: [],
@@ -34,9 +34,9 @@ public sealed class NamedPipeChannelServerTests : IAsyncLifetime
         _server = new NamedPipeChannelServer(_handler);
         _server.Start();
 
-        // WaitForConnectionAsync needs to actually be listening before the first
-        // client connects; give the accept loop a tick to get there.
-        await Task.Delay(50);
+        // No sleep needed to let the accept loop get going: ConnectAsync with a timeout
+        // retries while the pipe does not exist yet, so the race is already covered.
+        return ValueTask.CompletedTask;
     }
 
     public async ValueTask DisposeAsync()
@@ -63,18 +63,27 @@ public sealed class NamedPipeChannelServerTests : IAsyncLifetime
     public async Task Linha_sem_fim_e_maior_que_o_limite_nao_derruba_o_servidor()
     {
         var cancellationToken = TestContext.Current.CancellationToken;
-        using var client = await ConnectAsync();
 
-        // No trailing '\n', well past MaxLineBytes: the server must give up on this
-        // connection instead of buffering forever.
-        byte[] junk = Encoding.UTF8.GetBytes(new string('x', NamedPipeChannelServer.MaxLineBytes + 1024));
-        await client.WriteAsync(junk, cancellationToken);
-        await client.FlushAsync(cancellationToken);
+        // No trailing '\n', well past MaxLineBytes: the server has to give up on this
+        // connection instead of buffering forever. It may do that by closing the pipe
+        // while the client is still writing, so a broken write here is a pass too — what
+        // must never happen is a reply to this, or a server that stops serving.
+        try
+        {
+            using var client = await ConnectAsync();
 
-        // The server closes its end rather than ever replying.
-        var readBuffer = new byte[1];
-        int read = await client.ReadAsync(readBuffer, cancellationToken);
-        read.ShouldBe(0);
+            byte[] junk = Encoding.UTF8.GetBytes(new string('x', NamedPipeChannelServer.MaxLineBytes + 1024));
+            await client.WriteAsync(junk, cancellationToken);
+            await client.FlushAsync(cancellationToken);
+
+            var readBuffer = new byte[1];
+            int read = await client.ReadAsync(readBuffer, cancellationToken);
+            read.ShouldBe(0, "o servidor não deveria responder a uma linha acima do limite");
+        }
+        catch (IOException)
+        {
+            // The server closed the pipe mid-write. Also correct.
+        }
 
         // And it is still accepting perfectly good connections afterward.
         var response = await SendAsync(new TriggerRequest { Op = TriggerOp.SessionEnd });

@@ -23,7 +23,13 @@ using SunshineHelper.Protocol;
 // (docs/adr/0002-arquitetura-do-nucleo.md, "Orçamento de tempo").
 const int DefaultWaitMs = 20_000;
 const int AbsoluteCeilingMs = 55_000;
-const int ConnectGraceMs = 2_000;
+const int ReplyGraceMs = 2_000;
+
+// Connecting gets its own, much shorter budget, separate from the barrier above. Whether
+// the app is listening is a sub-second question on a local pipe, and Sunshine runs this
+// command before the stream starts: spending the whole barrier here would add 20 s to
+// every single stream start whenever the app happens not to be running.
+const int ConnectTimeoutMs = 2_000;
 
 try
 {
@@ -51,18 +57,11 @@ static async Task RunAsync(string[] args)
 
     using var client = new NamedPipeClientStream(".", ChannelPipe.Name, PipeDirection.InOut, PipeOptions.Asynchronous);
 
-    // Connecting and the whole round trip share one hard ceiling
-    // (docs/adr/0002-arquitetura-do-nucleo.md, "Orçamento de tempo", teto absoluto):
-    // even if the app is up but something about the reply itself hangs, this process
-    // must still give up well before the client Sunshine is serving gives up on it.
-    int overallMs = Math.Min(request.WaitMs!.Value + ConnectGraceMs, AbsoluteCeilingMs);
-    using var overall = new CancellationTokenSource(TimeSpan.FromMilliseconds(overallMs));
-
     try
     {
-        await client.ConnectAsync(overall.Token).ConfigureAwait(false);
+        await client.ConnectAsync(ConnectTimeoutMs).ConfigureAwait(false);
     }
-    catch (OperationCanceledException)
+    catch (TimeoutException)
     {
         // The app isn't up to answer. The ADR calls for trying to start it once here
         // and waiting again, through the scheduled task the installer PR sets up
@@ -71,17 +70,24 @@ static async Task RunAsync(string[] args)
         return;
     }
 
+    // Waiting for the reply is the barrier itself, capped by the absolute ceiling
+    // (docs/adr/0002-arquitetura-do-nucleo.md, "Orçamento de tempo"): even if the app is
+    // up but something about the reply hangs, this process has to give up well before
+    // the client Sunshine is serving gives up on it.
+    int replyMs = Math.Min((request.WaitMs ?? DefaultWaitMs) + ReplyGraceMs, AbsoluteCeilingMs);
+    using var reply = new CancellationTokenSource(TimeSpan.FromMilliseconds(replyMs));
+
     string json = JsonSerializer.Serialize(request, ProtocolJsonContext.Default.TriggerRequest);
     byte[] requestBytes = Encoding.UTF8.GetBytes(json + "\n");
-    await client.WriteAsync(requestBytes, overall.Token).ConfigureAwait(false);
-    await client.FlushAsync(overall.Token).ConfigureAwait(false);
+    await client.WriteAsync(requestBytes, reply.Token).ConfigureAwait(false);
+    await client.FlushAsync(reply.Token).ConfigureAwait(false);
 
     // The reply is read but deliberately not acted on: whatever it says — applied,
     // timeout, even a failure — this process still exits 0 either way. Reading it here
     // is only so the connection closes cleanly instead of being torn down mid-write on
     // the app's side; a future PR may log it for diagnostics.
     using var reader = new StreamReader(client, Encoding.UTF8, leaveOpen: true);
-    await reader.ReadLineAsync(overall.Token).ConfigureAwait(false);
+    await reader.ReadLineAsync(reply.Token).ConfigureAwait(false);
 }
 
 static TriggerRequest? BuildRequest(string op) => op switch

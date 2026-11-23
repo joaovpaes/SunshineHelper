@@ -20,15 +20,12 @@
          structs it names, generated at build time from Microsoft's own Win32 metadata.
          No runtime assembly of its own. -->
     <PackageReference Include="Microsoft.Windows.CsWin32" PrivateAssets="all" />
-
-    <!-- NamedPipeChannelServer's pipe ACL (docs/adr/0002-arquitetura-do-nucleo.md).
-         NoWarn="NU1510": the SDK's package-pruning list claims this ships as part of the
-         platform and the reference is redundant, but without it PipeSecurity/
-         PipeAccessRule/NamedPipeServerStreamAcl fail to compile on this TFM
-         (net10.0-windows, no FrameworkReference to a desktop pack) with CS0234 — pruning's
-         claim does not hold for this project shape, so the reference stays and only the
-         one warning code is silenced. -->
-    <PackageReference Include="System.IO.Pipes.AccessControl" NoWarn="NU1510" />
   </ItemGroup>
+
+  <!-- No package is needed for the named-pipe ACL: PipeSecurity, PipeAccessRule and
+       NamedPipeServerStreamAcl live in the System.IO.Pipes *namespace* and ship with the
+       framework on a -windows TFM. "System.IO.Pipes.AccessControl" is the name of the
+       assembly (and of an old compat package), not of a namespace — referencing that
+       package here only earns NU1510. -->
 
 </Project>

@@ -1,5 +1,4 @@
 using System.IO.Pipes;
-using System.IO.Pipes.AccessControl;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
@@ -22,23 +21,29 @@ namespace SunshineHelper.Infrastructure.Channel;
 /// </summary>
 /// <remarks>
 /// <para>
-/// <b>ACL:</b> restricted to the interactive user, <c>SYSTEM</c> and
-/// <c>Administrators</c>, never any specific account — Sunshine may run as a service,
-/// and nothing about the author's own PC belongs in this code (CLAUDE.md). A machine
-/// with other local accounts must not be able to reach this pipe at all.
+/// <b>ACL:</b> restricted to the account running the app, the interactive user,
+/// <c>SYSTEM</c> and <c>Administrators</c> — never any specific account, because nothing
+/// about the author's own PC belongs in this code (CLAUDE.md). Sunshine may run as a
+/// service, hence <c>SYSTEM</c>; the app may be elevated, hence <c>Administrators</c>;
+/// and the running account is listed explicitly because an unelevated administrator's
+/// token carries the <c>Administrators</c> SID as deny-only, so that ACE alone would not
+/// let the app reach its own pipe. A machine with other local accounts cannot reach it.
 /// </para>
 /// <para>
 /// <b>Bounded reads:</b> <see cref="StreamReader.ReadLineAsync()"/> has no length cap,
 /// so a line with no terminator from a confused or hostile local process could grow
-/// without bound. <see cref="ReadBoundedLineAsync"/> reads byte by byte up to
-/// <see cref="MaxLineBytes"/> and gives up past it instead.
+/// without bound. <see cref="ReadBoundedLineAsync"/> reads up to
+/// <see cref="MaxLineBytes"/> and gives up past that. Each connection also gets
+/// <see cref="IoTimeout"/> to send its line and to take the reply, so a process that
+/// connects and then says nothing cannot sit on the channel either.
 /// </para>
 /// <para>
-/// <b>One connection at a time, many instances:</b> each accepted connection gets its
-/// own <see cref="NamedPipeServerStream"/> and its own handler task, so the auxiliary
-/// never has to queue behind another one just to open the pipe — the actual
-/// serialization against the orchestrator happens inside
-/// <see cref="TriggerChannelHandler"/>, not here.
+/// <b>One task per connection:</b> the accept loop goes straight back to listening as
+/// soon as a client connects, so the pipe is never busy while an earlier connection is
+/// still waiting out its <c>waitMs</c>. That matters: the auxiliary gives up on
+/// connecting in about two seconds (it cannot stall the stream start longer than that),
+/// which it could never do if a pending reply blocked the pipe. Serializing the real
+/// work is <see cref="TriggerChannelHandler"/>'s job, not this loop's.
 /// </para>
 /// </remarks>
 public sealed class NamedPipeChannelServer : IAsyncDisposable
@@ -47,6 +52,15 @@ public sealed class NamedPipeChannelServer : IAsyncDisposable
     /// <c>SUNSHINE_CLIENT_*</c> variables), tiny next to what a runaway write could
     /// otherwise reach.</summary>
     public const int MaxLineBytes = 64 * 1024;
+
+    /// <summary>How long one connection gets to send its request line, and separately to
+    /// take its reply. Both are immediate in practice — the long wait happens between
+    /// them, inside the handler, and is bounded by its own budget.</summary>
+    private static readonly TimeSpan IoTimeout = TimeSpan.FromSeconds(5);
+
+    /// <summary>Pause before rebuilding the pipe after a failure to create it at all, so
+    /// a lasting cause does not turn the accept loop into a busy loop.</summary>
+    private static readonly TimeSpan RetryDelay = TimeSpan.FromSeconds(1);
 
     private readonly TriggerChannelHandler _handler;
     private readonly CancellationTokenSource _stopping = new();
@@ -68,74 +82,136 @@ public sealed class NamedPipeChannelServer : IAsyncDisposable
     {
         while (!serverLifetime.IsCancellationRequested)
         {
-            NamedPipeServerStream pipe = CreateServerStream();
+            NamedPipeServerStream pipe;
+            try
+            {
+                pipe = CreateServerStream();
+            }
+            catch (Exception)
+            {
+                // The pipe could not be created at all — another process holding the
+                // name, or the OS refusing. Worth retrying, but not at full speed.
+                if (!await DelayAsync(RetryDelay, serverLifetime).ConfigureAwait(false))
+                {
+                    return;
+                }
+
+                continue;
+            }
+
             try
             {
                 await pipe.WaitForConnectionAsync(serverLifetime).ConfigureAwait(false);
             }
-            catch (OperationCanceledException)
+            catch (Exception)
             {
+                // Either the server is shutting down, or a client vanished mid-handshake.
                 await pipe.DisposeAsync().ConfigureAwait(false);
-                return;
-            }
-            catch (IOException)
-            {
-                // A client went away before the handshake finished. Not this loop's
-                // problem — wait for the next one.
-                await pipe.DisposeAsync().ConfigureAwait(false);
+
+                if (serverLifetime.IsCancellationRequested)
+                {
+                    return;
+                }
+
                 continue;
             }
 
-            _ = HandleConnectionAsync(pipe, serverLifetime);
+            // Deliberately not awaited: this connection finishes on its own while the
+            // loop goes back to listening (see the remarks above). ServeAsync owns the
+            // stream from here, disposes it, and never throws.
+            _ = ServeAsync(pipe, serverLifetime);
         }
     }
 
-    private async Task HandleConnectionAsync(NamedPipeServerStream pipe, CancellationToken serverLifetime)
+    private async Task ServeAsync(NamedPipeServerStream pipe, CancellationToken serverLifetime)
     {
-        await using (pipe)
+        try
         {
-            try
+            TriggerRequest? request = await ReadRequestAsync(pipe, serverLifetime).ConfigureAwait(false);
+            if (request is not null)
             {
-                string? line = await ReadBoundedLineAsync(pipe, serverLifetime).ConfigureAwait(false);
-                if (line is not { Length: > 0 })
-                {
-                    return;
-                }
+                // serverLifetime, never a per-connection token: the auxiliary going away
+                // must not abort the real apply/revert (see TriggerChannelHandler's own
+                // remarks on this exact point).
+                ChannelResponse response = await _handler
+                    .HandleAsync(request, serverLifetime)
+                    .ConfigureAwait(false);
 
-                var request = JsonSerializer.Deserialize(line, ProtocolJsonContext.Default.TriggerRequest);
-                if (request is null)
-                {
-                    return;
-                }
-
-                // serverLifetime, not a per-connection token: the auxiliary going away
-                // must never abort the real apply/revert (see TriggerChannelHandler's
-                // own remarks on this exact point).
-                ChannelResponse response = await _handler.HandleAsync(request, serverLifetime).ConfigureAwait(false);
-
-                string json = JsonSerializer.Serialize(response, ProtocolJsonContext.Default.ChannelResponse);
-                byte[] bytes = Encoding.UTF8.GetBytes(json + "\n");
-                await pipe.WriteAsync(bytes, serverLifetime).ConfigureAwait(false);
-                await pipe.FlushAsync(serverLifetime).ConfigureAwait(false);
+                await WriteResponseAsync(pipe, response, serverLifetime).ConfigureAwait(false);
             }
-            catch (JsonException)
-            {
-                // Malformed request: nothing sensible to reply with, and the auxiliary
-                // always exits 0 regardless (its own rule, not this server's to enforce).
-            }
-            catch (IOException)
-            {
-                // The auxiliary disconnected mid-write, most likely because it hit its
-                // own barrier first. TriggerChannelHandler.HandleAsync had already been
-                // given serverLifetime, so whatever it started keeps running.
-            }
-            catch (OperationCanceledException)
-            {
-                // Server shutting down.
-            }
+        }
+        catch (Exception)
+        {
+            // This task is deliberately unobserved, so it must not throw. There is
+            // nothing left to reply with by this point, and the auxiliary exits 0 either
+            // way; whatever the handler already started is the orchestrator's business,
+            // not this connection's.
+        }
+        finally
+        {
+            await pipe.DisposeAsync().ConfigureAwait(false);
         }
     }
 
+    /// <summary>Null for anything that is not a usable request: no line, a line past the
+    /// cap, malformed JSON, a client that connected and said nothing, or a disconnect.
+    /// None of those deserve a reply — the auxiliary exits 0 regardless.</summary>
+    private static async Task<TriggerRequest?> ReadRequestAsync(Stream stream, CancellationToken serverLifetime)
+    {
+        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(serverLifetime);
+        deadline.CancelAfter(IoTimeout);
+
+        string? line;
+        try
+        {
+            line = await ReadBoundedLineAsync(stream, deadline.Token).ConfigureAwait(false);
+        }
+        catch (Exception) when (!serverLifetime.IsCancellationRequested)
+        {
+            // Silent client, oversized line, or broken pipe.
+            return null;
+        }
+
+        if (line is not { Length: > 0 })
+        {
+            return null;
+        }
+
+        try
+        {
+            return JsonSerializer.Deserialize(line, ProtocolJsonContext.Default.TriggerRequest);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+    }
+
+    private static async Task WriteResponseAsync(
+        Stream stream,
+        ChannelResponse response,
+        CancellationToken serverLifetime)
+    {
+        string json = JsonSerializer.Serialize(response, ProtocolJsonContext.Default.ChannelResponse);
+        byte[] bytes = Encoding.UTF8.GetBytes(json + "\n");
+
+        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(serverLifetime);
+        deadline.CancelAfter(IoTimeout);
+
+        try
+        {
+            await stream.WriteAsync(bytes, deadline.Token).ConfigureAwait(false);
+            await stream.FlushAsync(deadline.Token).ConfigureAwait(false);
+        }
+        catch (Exception) when (!serverLifetime.IsCancellationRequested)
+        {
+            // The auxiliary hit its own barrier and closed the pipe, or stopped reading.
+            // Expected, and harmless: the real work was handed serverLifetime, not this.
+        }
+    }
+
+    /// <summary>One byte at a time, which is plenty for a request of a few hundred bytes
+    /// twice per streaming session, and keeps the cap obviously correct.</summary>
     private static async Task<string?> ReadBoundedLineAsync(Stream stream, CancellationToken cancellationToken)
     {
         using var buffer = new MemoryStream();
@@ -167,9 +243,31 @@ public sealed class NamedPipeChannelServer : IAsyncDisposable
         }
     }
 
-    private static NamedPipeServerStream CreateServerStream()
+    private static NamedPipeServerStream CreateServerStream() => NamedPipeServerStreamAcl.Create(
+        ChannelPipe.Name,
+        PipeDirection.InOut,
+        NamedPipeServerStream.MaxAllowedServerInstances,
+        PipeTransmissionMode.Byte,
+        PipeOptions.Asynchronous,
+        inBufferSize: 0,
+        outBufferSize: 0,
+        pipeSecurity: CreatePipeSecurity());
+
+    private static PipeSecurity CreatePipeSecurity()
     {
         var security = new PipeSecurity();
+
+        // The account this app is running as. Listed explicitly because an unelevated
+        // administrator's token carries the Administrators SID as deny-only, which would
+        // leave the app unable to use its own pipe through the ACE below.
+        using var current = WindowsIdentity.GetCurrent();
+        if (current.User is { } runningAs)
+        {
+            security.AddAccessRule(new PipeAccessRule(
+                runningAs,
+                PipeAccessRights.FullControl,
+                AccessControlType.Allow));
+        }
 
         // Interactive user: whoever is at the desktop Sunshine is streaming from.
         security.AddAccessRule(new PipeAccessRule(
@@ -191,17 +289,26 @@ public sealed class NamedPipeChannelServer : IAsyncDisposable
             PipeAccessRights.FullControl,
             AccessControlType.Allow));
 
-        return NamedPipeServerStreamAcl.Create(
-            ChannelPipe.Name,
-            PipeDirection.InOut,
-            NamedPipeServerStream.MaxAllowedServerInstances,
-            PipeTransmissionMode.Byte,
-            PipeOptions.Asynchronous,
-            inBufferSize: 0,
-            outBufferSize: 0,
-            pipeSecurity: security);
+        return security;
     }
 
+    /// <summary>False when the server is shutting down.</summary>
+    private static async Task<bool> DelayAsync(TimeSpan delay, CancellationToken serverLifetime)
+    {
+        try
+        {
+            await Task.Delay(delay, serverLifetime).ConfigureAwait(false);
+            return true;
+        }
+        catch (OperationCanceledException)
+        {
+            return false;
+        }
+    }
+
+    /// <summary>Stops listening. Connections already being served notice the cancelled
+    /// token and finish on their own; they are not waited for, because one of them may
+    /// legitimately still be applying a profile.</summary>
     public async ValueTask DisposeAsync()
     {
         await _stopping.CancelAsync().ConfigureAwait(false);

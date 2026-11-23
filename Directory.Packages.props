@@ -15,11 +15,6 @@
     <!-- Windows interop -->
     <PackageVersion Include="Microsoft.Windows.CsWin32" Version="0.3.106" />
 
-    <!-- PipeSecurity/PipeAccessRule/NamedPipeServerStreamAcl (named-pipe ACL) still ship
-         as this separate package even on modern .NET, not as part of System.IO.Pipes
-         itself. -->
-    <PackageVersion Include="System.IO.Pipes.AccessControl" Version="5.0.0" />
-
     <!-- NativeAOT (SunshineHelper.Trigger). Pinned above the SDK's own default
          (10.0.0) because that version has a known high-severity vulnerability
          (GHSA-p3jp-9v83-76w9, an out-of-bounds write in the Brotli decoder that can be

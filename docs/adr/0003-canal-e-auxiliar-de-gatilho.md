@@ -55,10 +55,38 @@ módulos (poderia deixar um módulo sendo revertido e aplicado ao mesmo tempo). 
 `SemaphoreSlim(1,1)` serializa essas chamadas reais; a próxima só espera a vez, do mesmo
 jeito que o auxiliar esperaria se continuasse perguntando.
 
-**Leitura de linha com limite.** `StreamReader.ReadLineAsync()` sozinho não tem limite de
-tamanho. O servidor do pipe lê byte a byte até achar `\n` ou atingir 64 KB
-(`NamedPipeChannelServer.MaxLineBytes`), o que é generoso para a maior mensagem prevista
-e pequeno ao lado do que um processo local malicioso ou com bug poderia tentar escrever.
+**Leitura de linha com limite, e prazo por conexão.**
+`StreamReader.ReadLineAsync()` sozinho não tem limite de tamanho. O servidor do pipe lê
+byte a byte até achar `\n` ou atingir 64 KB (`NamedPipeChannelServer.MaxLineBytes`), o que
+é generoso para a maior mensagem prevista e pequeno ao lado do que um processo local
+malicioso ou com bug poderia tentar escrever. Cada conexão também tem 5 s para mandar a
+linha e, separadamente, 5 s para receber a resposta: sem isso, um processo local que
+conecta e não fala nada seguraria o canal. A espera longa acontece **entre** os dois, dentro
+do handler, com o orçamento dele.
+
+**Uma tarefa por conexão.** O laço de `accept` volta a escutar assim que um cliente
+conecta, em vez de atender a conexão e só então criar a próxima instância do pipe. Isso é
+necessário por causa do item seguinte: se uma resposta pendente (até 20 s) deixasse o pipe
+ocupado, um auxiliar que só espera 2 s para conectar desistiria sem motivo. Serializar o
+trabalho real continua sendo papel do `TriggerChannelHandler`, não do laço.
+
+**Prazo de conexão do auxiliar separado da barreira (2 s).** O Sunshine roda o Do Command
+*antes* de começar a transmissão. Se o auxiliar gastasse a barreira inteira tentando
+conectar, um app que simplesmente não está rodando somaria 20 s a **toda** transmissão que
+começa. Saber se o app está escutando num pipe local é questão de milissegundos, então
+conectar tem orçamento próprio e curto; a barreira vale só para esperar a resposta.
+
+**ACL inclui a conta que roda o app, não só os três grupos do 0002.** O 0002 pede "usuário
+interativo, SYSTEM e Administradores". Na prática falta uma: o token de um administrador
+*não elevado* carrega o SID de Administradores como *deny-only*, então aquela ACE sozinha
+não deixaria o próprio app usar o pipe dele. A conta corrente entra explicitamente
+(`WindowsIdentity.GetCurrent().User`) — que continua sendo "quem roda o app", nunca uma
+conta fixa no código.
+
+**Nenhum pacote para a ACL do pipe.** `PipeSecurity`, `PipeAccessRule` e
+`NamedPipeServerStreamAcl` ficam no *namespace* `System.IO.Pipes` e vêm com o framework num
+TFM `-windows`. `System.IO.Pipes.AccessControl` é o nome do **assembly** (e de um pacote de
+compatibilidade antigo), não de um namespace: referenciar o pacote só rende `NU1510`.
 
 **Escolha de perfil nesta PR: nome do cliente, depois perfil padrão.**
 `ClientProfileSelector` (Domain, função pura) casa `ClientRequest.Name` sem diferenciar

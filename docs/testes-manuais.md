@@ -146,8 +146,10 @@ tela) para o auxiliar de verdade se conectar.
       administrador**: deve funcionar igual ao terminal comum — a ACL do
       pipe tem que deixar o usuário interativo e Administradores passarem.
 - [ ] Com o harness **fechado** (canal não escutando), rode `start`: o
-      auxiliar deve esperar o tempo de conexão e sair com código **0** de
-      qualquer forma, sem travar o terminal.
+      auxiliar deve desistir em cerca de **2 segundos** e sair com código **0**
+      de qualquer forma. Esse tempo é o que o Sunshine esperaria antes de
+      começar a transmissão com o app desligado, então se demorar muito mais
+      que isso é bug.
 - [ ] Publique o auxiliar de verdade em NativeAOT e repita o passo 2 com o
       `.exe` publicado em vez de `dotnet run` (o CI já faz esse publish a
       cada execução, mas vale confirmar que o binário também roda na sua
