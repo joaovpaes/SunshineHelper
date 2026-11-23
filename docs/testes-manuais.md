@@ -18,6 +18,8 @@ nas seções abaixo:
 - **PR 10b** — launcher: roteiro e tabela de calibração do atraso.
 - **Aviso de nível de log** — Painel avisa com o Sunshine em Info.
 - **PR 11b** — tela Perfis, incluindo o teste de ponta a ponta com o Moonlight.
+- **Portão da Fase 1** (`docs/fase1-portao.md`): encerrar o app à força com transmissão ativa,
+  reiniciar o PC com transmissão ativa e medir o tempo de aplicação (< 10 s).
 
 ## PR 5a — Módulo de vídeo: resolução (`PrimaryDisplayModule`)
 
