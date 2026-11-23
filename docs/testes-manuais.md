@@ -275,3 +275,10 @@ precisaria de um runner com monitor (self-hosted, ou aceitar que só valida a
 leitura/API sem mudar o modo de verdade). Decidir a abordagem (e se vale a
 pena antes da Fase 2, que é quando o `fase1-plano.md` já previa isso) fica
 para quando este item for puxado.
+
+## Aviso de nível de log
+
+- [ ] Com o Sunshine em **Debug** e o caminho do log salvo, o **Painel** só diz "Leitor do log
+      ativo." (sem aviso).
+- [ ] Mude o nível de log do Sunshine para **Info**, reinicie o Sunshine e o SunshineHelper: o
+      Painel mostra o aviso de nível baixo. Volte para Debug depois.

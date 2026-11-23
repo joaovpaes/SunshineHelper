@@ -5,6 +5,7 @@ using SunshineHelper.Application.Launcher;
 using SunshineHelper.Application.Monitoring;
 using SunshineHelper.Application.Session;
 using SunshineHelper.Application.Settings;
+using SunshineHelper.Domain.Monitoring;
 using SunshineHelper.Domain.Settings;
 using SunshineHelper.Infrastructure.Channel;
 using SunshineHelper.Infrastructure.Display;
@@ -63,6 +64,11 @@ internal sealed class AppHost : IAsyncDisposable
     /// <summary>False until the user sets the Sunshine log path; the log reader (resume
     /// and plain disconnect) is off until then, the pipe works regardless.</summary>
     public bool LogMonitorRunning => _monitorTask is not null;
+
+    /// <summary>What the Sunshine log level looks like, judged when the log reader starts.
+    /// <see cref="LogLevelVerdict.Insufficient"/> means /cancel and /resume would never
+    /// show up; the app only says so, it never edits Sunshine's configuration.</summary>
+    public LogLevelVerdict LogLevel { get; private set; } = LogLevelVerdict.Unknown;
 
     public static string SettingsPath { get; } = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -179,6 +185,8 @@ internal sealed class AppHost : IAsyncDisposable
             return;
         }
 
+        LogLevel = SunshineLogLevelCheck.Evaluate(SunshineLogSampler.Read(current.SunshineLogPath));
+
         _monitorStopping = CancellationTokenSource.CreateLinkedTokenSource(_stopping.Token);
         var token = _monitorStopping.Token;
 
@@ -189,6 +197,7 @@ internal sealed class AppHost : IAsyncDisposable
 
     private async Task StopLogMonitorAsync()
     {
+        LogLevel = LogLevelVerdict.Unknown;
         if (_monitorStopping is null || _monitorTask is null)
         {
             return;
