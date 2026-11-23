@@ -24,6 +24,12 @@
     <sys:String x:Key="Page.General.Description">Idioma, tema e caminho do log do Sunshine.</sys:String>
 
     <sys:String x:Key="Page.NotReady">Esta tela chega em um próximo PR.</sys:String>
+    <sys:String x:Key="Devices.Hint">Aparelhos que já conectaram, pelo nome que o Moonlight informa. Ficam guardados, neste PC (devices.json), só o nome, o número de conexões, a última vez e o perfil usado. Esquecer um aparelho só apaga esse registro: os perfis não são mexidos.</sys:String>
+    <sys:String x:Key="Devices.Empty">Nenhum aparelho conectou ainda. Eles aparecem aqui na primeira transmissão.</sys:String>
+    <sys:String x:Key="Devices.Item">{0}  ·  conexões: {1}  ·  última: {2}  ·  perfil: {3}</sys:String>
+    <sys:String x:Key="Devices.NoProfile">nenhum correspondeu</sys:String>
+    <sys:String x:Key="Devices.Forget">Esquecer aparelho</sys:String>
+    <sys:String x:Key="Devices.Forgotten">Aparelho removido da lista. Ele aparece de novo na próxima conexão.</sys:String>
 
     <sys:String x:Key="Panel.Status.Idle">Nenhuma transmissão ativa.</sys:String>
     <sys:String x:Key="Panel.Status.Active">Transmissão ativa: o ambiente está modificado.</sys:String>

@@ -1,10 +1,12 @@
 using Shouldly;
 using SunshineHelper.Application.Channel;
+using SunshineHelper.Application.Devices;
 using SunshineHelper.Application.Diagnostics;
 using SunshineHelper.Application.Launcher;
 using SunshineHelper.Application.Session;
 using SunshineHelper.Application.Tests.Launcher;
 using SunshineHelper.Application.Tests.Session;
+using SunshineHelper.Application.Tests.Settings;
 using SunshineHelper.Domain.Settings;
 using SunshineHelper.Protocol;
 using Xunit;
@@ -26,6 +28,41 @@ public class TriggerChannelHandlerTests
         response.State.ShouldBe(ChannelState.Applied);
         response.Profile.ShouldBe(profile.Name);
         response.ElapsedMs.ShouldNotBeNull();
+    }
+
+    [Fact]
+    public async Task SessionStart_anota_o_aparelho_e_o_perfil_usado()
+    {
+        var test = new OrchestratorTest();
+        var profile = TestProfiles.FollowClient();
+        using var devices = new DeviceRegistry(new FakeSettingsFileStore(), "devices.json");
+        using var handler = new TriggerChannelHandler(
+            test.Orchestrator,
+            new FakeCurrentSettingsProvider(Settings(defaultProfileId: profile.Id, profile)),
+            devices: devices);
+
+        await handler.HandleAsync(StartRequest(), TestContext.Current.CancellationToken);
+
+        devices.Devices.Count.ShouldBe(1);
+        devices.Devices[0].Name.ShouldBe("Sala");
+        devices.Devices[0].LastProfileName.ShouldBe(profile.Name);
+    }
+
+    [Fact]
+    public async Task SessionStart_sem_perfil_ainda_anota_o_aparelho()
+    {
+        var test = new OrchestratorTest();
+        using var devices = new DeviceRegistry(new FakeSettingsFileStore(), "devices.json");
+        using var handler = new TriggerChannelHandler(
+            test.Orchestrator,
+            new FakeCurrentSettingsProvider(Settings(defaultProfileId: null)),
+            devices: devices);
+
+        var response = await handler.HandleAsync(StartRequest(), TestContext.Current.CancellationToken);
+
+        response.Ok.ShouldBeFalse();
+        devices.Devices.Count.ShouldBe(1);
+        devices.Devices[0].LastProfileName.ShouldBeNull();
     }
 
     [Fact]

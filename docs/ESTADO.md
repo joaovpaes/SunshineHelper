@@ -1,7 +1,7 @@
 # Estado do projeto
 
 Uma página para retomar o trabalho sem reler tudo. O Claude atualiza este arquivo no fim de cada PR
-(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-23**, `main` após o PR 57.
+(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-23**, `main` após o PR 58.
 
 ## Onde estamos
 
@@ -11,7 +11,7 @@ leitor do log do Sunshine, bandeja e janela (Painel, Geral, Perfis), log de diag
 diagnóstico. As decisões D2 (falha de um módulo vira aviso) e D3 (sessão anterior presa é restaurada antes da
 nova) estão no ADR 0011 e passaram no teste do PC. Situação do portão: `docs/fase1-portao.md`.
 
-**Último PR mesclado:** #57 (iniciar com o Windows, minimizado na bandeja). **Pré-lançamento `v0.1.0-preview.1` publicado** em 2026-11-23 (zip com o app e o
+**Último PR mesclado:** #58 (notas de release em duas línguas e versão completa em Sobre). **Versão de testes atual:** `v0.1.0-preview.2`. **Pré-lançamento `v0.1.0-preview.1` publicado** em 2026-11-23 (zip com o app e o
 auxiliar de gatilho, gerado pelo workflow `preview-release.yml`; testado no PC do autor, tudo funcionou; o Windows mostra
 o aviso do SmartScreen porque não há assinatura de código).
 
@@ -21,8 +21,8 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 | PR | O quê | Modelo |
 | --- | --- | --- |
-| 59 | Tela Dispositivos: registro dos aparelhos que conectaram (`devices.json`) e lista | Sonnet · médio |
-| 60 | Botão "Criar perfil para este aparelho" na tela Dispositivos | Sonnet · médio |
+| 60 | Tela Dispositivos: registro dos aparelhos que conectaram (`devices.json`) e lista | Sonnet · médio |
+| 61 | Botão "Criar perfil para este aparelho" na tela Dispositivos | Sonnet · médio |
 | a seguir | Tela Log; depois o overlay pelo controle (Opus · alto, com ADR) | ver backlog |
 
 ## Decisões em aberto
@@ -34,7 +34,7 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 Lista viva em `docs/testes-manuais.md`, "Ainda pendente":
 
-- Versão no pacote de pré-lançamento (PR 56): conferir que "Sobre" mostra `0.1.0-preview.2`.
+- Tela Dispositivos (PR 60): testar na próxima versão de testes (passo a passo no arquivo).
 - Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada).
 - Opcional: relatório de diagnóstico com o caminho do log do Sunshine vazio.
 
@@ -53,6 +53,11 @@ Lista viva em `docs/testes-manuais.md`, "Ainda pendente":
 - **Aviso do SmartScreen:** some com assinatura de código (a Fundação SignPath assina projetos de código aberto de
   graça; o pedido é do autor e leva dias ou semanas) e, depois, com a reputação do programa; em certificado pago
   (validação estendida) a reputação vem mais rápido. Até lá o `LEIA-ME.md` do pré-lançamento explica como seguir.
+- **Longo prazo (só depois de todo o escopo pronto):** telemetria própria do app, no estilo do OSD do RivaTuner
+  (monitoramento de desempenho na tela; a decidir, sempre local, nada enviado pela internet), e um **limitador de FPS
+  próprio**, para o app não depender do RTSS. Para o limitador, a direção a investigar é o driver da placa de vídeo
+  (cada fabricante tem uma interface própria, a do autor é AMD), que não injeta código no jogo como o RTSS faz.
+  Pede ADR e Opus · esforço alto.
 - Reler o nível de log do Sunshine quando o arquivo for recriado (hoje só depois de reiniciar o app).
 - Modelo de pedido para abrir cada sessão (Etapa, Ler, Fora do escopo), a cargo do autor.
 

@@ -2,6 +2,7 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using SunshineHelper.Application.Channel;
+using SunshineHelper.Application.Devices;
 using SunshineHelper.Application.Diagnostics;
 using SunshineHelper.Application.Launcher;
 using SunshineHelper.Application.Monitoring;
@@ -48,7 +49,8 @@ internal sealed class AppHost : IAsyncDisposable
         NamedPipeChannelServer pipeServer,
         SettingsService settingsService,
         ISessionSnapshotStore store,
-        IDiagnosticLog diagnosticLog)
+        IDiagnosticLog diagnosticLog,
+        DeviceRegistry devices)
     {
         Settings = settings;
         Status = status;
@@ -58,9 +60,13 @@ internal sealed class AppHost : IAsyncDisposable
         _settingsService = settingsService;
         _store = store;
         _diagnosticLog = diagnosticLog;
+        Devices = devices;
     }
 
     public CurrentSettingsHolder Settings { get; }
+
+    /// <summary>The devices that have connected, for the Devices screen.</summary>
+    public DeviceRegistry Devices { get; }
 
     public SessionStatusReader Status { get; }
 
@@ -100,6 +106,11 @@ internal sealed class AppHost : IAsyncDisposable
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "SunshineHelper",
         "settings.json");
+
+    public static string DevicesPath { get; } = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "SunshineHelper",
+        "devices.json");
 
     public static async Task<AppHost> StartAsync(CancellationToken cancellationToken)
     {
@@ -157,9 +168,13 @@ internal sealed class AppHost : IAsyncDisposable
         var restore = await orchestrator.RestoreAsync(cancellationToken).ConfigureAwait(false);
         problems.AddRange(restore.Problems);
 
-        var handler = new TriggerChannelHandler(orchestrator, settings, diagnosticLog);
+        // Only for the Devices screen; a missing or broken devices.json just starts a new list.
+        var devices = new DeviceRegistry(new FileSettingsFileStore(), DevicesPath, TimeProvider.System, diagnosticLog);
+        await devices.LoadAsync(cancellationToken).ConfigureAwait(false);
+
+        var handler = new TriggerChannelHandler(orchestrator, settings, diagnosticLog, devices);
         var pipeServer = new NamedPipeChannelServer(handler);
-        var host = new AppHost(settings, new SessionStatusReader(store), problems, handler, pipeServer, settingsService, store, diagnosticLog);
+        var host = new AppHost(settings, new SessionStatusReader(store), problems, handler, pipeServer, settingsService, store, diagnosticLog, devices);
 
         pipeServer.Start();
         host.StartLogMonitor();
@@ -241,6 +256,7 @@ internal sealed class AppHost : IAsyncDisposable
 
         await _pipeServer.DisposeAsync().ConfigureAwait(false);
         _handler.Dispose();
+        Devices.Dispose();
         _updateGate.Dispose();
         _stopping.Dispose();
     }
