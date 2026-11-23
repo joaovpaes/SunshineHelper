@@ -104,7 +104,7 @@ duas vezes). Só perfis com FPS em "Deixar como está" funcionam.
   módulo que falhou não puder ser desfeito, o snapshot fica, como hoje. `CanApply` não é
   necessário agora: o RTSS já confere a permissão antes de mexer, então falha sem meio-termo.
   Muda o sentido do item 1 do portão de "volta na hora" para "volta ao fim da sessão": os testes
-  do portão são ajustados no mesmo PR. ADR 0010 complementa o 0002.
+  do portão são ajustados no mesmo PR. ADR 0011 complementa o 0002.
 - **D3 — sessão anterior não encerrada é restaurada antes da nova (prioridade 2).** A premissa da
   revisão é parcial: depois de uma desconexão o app do Sunshine continua aberto, e para abrir outro
   o Moonlight pede para encerrar (`/cancel`), o que restaura. O caso preso de verdade é o Sunshine
@@ -123,19 +123,22 @@ duas vezes). Só perfis com FPS em "Deixar como está" funcionam.
      no arquivo do perfil global** do RTSS; o app detecta quando ela some (reinstalação do RTSS) e
      oferece um botão "Reparar", que pede o UAC uma vez.
   Enquanto isso, a tela Perfis avisa quando o FPS não é "Deixar como está" e não há permissão.
-  ADR 0011 marca o 0002 como "substituído quanto à elevação".
+  ADR 0012 marca o 0002 como "substituído quanto à elevação".
 
 ## Próximos PRs (sequência)
 
 | # | PR | Entrega | Modelo |
 | --- | --- | --- | --- |
-| 13a | Falha de um módulo vira aviso (D2) | orquestrador, Painel, testes do portão ajustados, ADR 0010 | **Opus · alto** |
-| 13b | Sessão anterior restaurada antes da nova (D3) | handler do canal, Painel, testes, ADR 0010 | **Opus · alto** |
-| 14a | Segurança e limpeza do repositório | `SECURITY.md`; você liga reporte privado, Dependabot e exclusão de branches | Sonnet · baixo |
+| 12c | Log de diagnóstico do app (`app.log`) | feito (#33) | Sonnet · médio |
+| 13c | HDR antes da resolução | ordem dos módulos, ADR 0010; achado no teste manual de 2026-11-23 | **Opus · alto** |
+| 12d | Relatório de diagnóstico para ferramenta externa | botão na tela Geral, `docs/diagnostico.md`, regra no `CLAUDE.md` | Sonnet · médio |
+| 13a | Falha de um módulo vira aviso (D2) | orquestrador, Painel, testes do portão ajustados, ADR 0011 | **Opus · alto** |
+| 13b | Sessão anterior restaurada antes da nova (D3) | handler do canal, Painel, testes, ADR 0011 | **Opus · alto** |
+| 14a | Segurança e limpeza do repositório | `SECURITY.md`; você liga reporte privado e Dependabot (a exclusão automática de branches já foi ligada e as antigas apagadas em 2026-11-23) | Sonnet · baixo |
 | 14b | Armadilhas do compilador no `CLAUDE.md` + checklist do PR | itens 3 e 6 das melhorias | Sonnet · baixo |
 | 14c | `ESTADO.md` e índice de ADRs | itens 4 e 5 (depois de 13a/13b) | Sonnet · médio |
 | 15a | Teste do RTSS em memória (D1, passo 1) | modo novo na ferramenta `tools/manual-tests/rtss-module`; **roda na máquina do autor** | Sonnet · médio |
-| 15b | Permissão do RTSS (D1, passo 2, se precisar) | aviso na tela Perfis, botão "Reparar", ADR 0011 | **Opus · alto** |
+| 15b | Permissão do RTSS (D1, passo 2, se precisar) | aviso na tela Perfis, botão "Reparar", ADR 0012 | **Opus · alto** |
 
 A Fase 1 fecha quando 13a e 13b estiverem mesclados e o autor tiver feito os testes manuais
 pendentes (topo de `docs/testes-manuais.md`), incluindo os itens 2, 3 e 4 do portão.

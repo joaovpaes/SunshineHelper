@@ -60,7 +60,7 @@ public sealed class LauncherModule : IEnvironmentModule
 
     public string Id => ModuleId;
 
-    public int Order => 4; // After display (1), HDR (2) and FPS (3): reverted first.
+    public int Order => 4; // After HDR (1), display (2) and FPS (3): reverted first.
 
     /// <summary>Processes do not outlive a restart: after a reboot there is nothing to close.</summary>
     public bool SurvivesReboot => false;

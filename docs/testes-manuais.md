@@ -28,17 +28,19 @@ Rodada de 2026-11-23 no PC do autor (Sunshine 2026.914, RX 9070 XT, tela 2560x14
   `config: 'min_log_level' = 1` é Debug.
 - Restaurar ao encerrar a sessão: a tela voltou ao normal e o Playnite fechou depois do `/cancel`.
 
-**Falhou**
-- **A resolução do perfil nunca é aplicada** (perfil 1920x1080 fixo; o Sunshine continua vendo 2560x1440 um
-  segundo depois do `start`; o HDR liga normalmente). Causa ainda não conhecida. O PR 12c grava um log do app
-  com a releitura da resolução 3 s depois; repetir uma transmissão curta e analisar `app.log`.
+**Falhou (causa achada)**
+- **A resolução do perfil nunca era aplicada.** O `app.log` (PR 12c) mostrou que a troca para 1920x1080 funcionava
+  e era desfeita logo depois de o HDR ligar. Confirmado com `tools/manual-tests`: ligar o HDR depois de trocar a
+  resolução devolve a tela a 2560x1440. Corrigido no PR 13c (HDR antes da resolução, ADR 0010). Falta repetir a
+  transmissão com a correção.
 
 **Ainda pendente**
 - Digitar `30001` no atraso do launcher (só o `abc` foi visto).
 - Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada). Só vale depois de a resolução ser
   corrigida e de o fechamento do Playnite ser confirmado de novo.
-- Transmissão curta com o app do PR 12c: `%LOCALAPPDATA%\SunshineHelper\logs\app.log` mostra o `start`, o
-  resultado de cada módulo e a releitura da resolução; anexar o arquivo ao relato do problema.
+- **PR 13c:** transmissão curta com perfil 1920x1080 fixo e HDR ligado. A tela fica em 1920x1080 com HDR durante
+  a transmissão; o `app.log` mostra `apply module 'hdr'` antes de `apply module 'display'` e a releitura aos 3 s
+  **sem** "SOMETHING CHANGED IT". Ao encerrar, a tela volta a 2560x1440 sem HDR.
 
 Observação de uso: no Moonlight, só **encerrar a sessão** (Quit) faz o Sunshine rodar o comando Undo. Apenas
 sair/desconectar deixa tudo como está, a menos que o perfil tenha "Restaurar a tela ao desconectar".

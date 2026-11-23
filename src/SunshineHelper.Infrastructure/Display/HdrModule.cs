@@ -67,7 +67,10 @@ public sealed class HdrModule : IEnvironmentModule
 
     public string Id => "hdr";
 
-    public int Order => 2; // After the resolution module (PrimaryDisplayModule.Order).
+    // First of all modules: switching HDR makes the display re-train, and Windows then
+    // re-applies the saved display mode, silently undoing a resolution set before it
+    // (docs/adr/0010-hdr-antes-da-resolucao.md). PrimaryDisplayModule comes right after.
+    public int Order => 1;
 
     // Windows restores the user's own HDR setting by itself; this module's state does
     // not survive a reboot.
