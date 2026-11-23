@@ -7,9 +7,9 @@ namespace SunshineHelper.Application.Tests.Diagnostics;
 
 public class DiagnosticReportBuilderTests
 {
-    // Built at run time and low in variety, so secret scanners do not mistake test data for a key.
-    private static readonly string _fakeSecret1 = new string('q', 16);
-    private static readonly string _fakeSecret2 = new string('z', 16);
+    // Low in variety, so secret scanners do not mistake test data for a key.
+    private static readonly string _fakeSecret1 = "qqqqqqqqqqqqqqqq";
+    private static readonly string _fakeSecret2 = "zzzzzzzzzzzzzzzz";
 
     private static readonly DateTimeOffset _moment = new(2026, 11, 23, 14, 30, 0, TimeSpan.FromHours(-3));
 
