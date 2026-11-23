@@ -47,4 +47,5 @@
     <sys:String x:Key="General.SavedOff">Salvo. O leitor do log está desligado.</sys:String>
     <sys:String x:Key="General.PathInvalid">Caminho inválido: use o caminho completo, com a letra do disco (por exemplo C:\...\sunshine.log).</sys:String>
     <sys:String x:Key="General.SaveFailed">Não foi possível salvar o settings.json: {0}</sys:String>
+    <sys:String x:Key="Panel.Log.LowLevel">Atenção: o log do Sunshine parece estar num nível baixo demais e não mostra o fim da transmissão. No Sunshine, em Configuração > Geral, ajuste o nível de log mínimo para Debug (e reinicie o Sunshine). O app não muda isso sozinho.</sys:String>
 </ResourceDictionary>

@@ -8,6 +8,7 @@ using System.Windows.Threading;
 using SunshineHelper.App.Services;
 using SunshineHelper.Application.Session;
 using SunshineHelper.Domain.Localization;
+using SunshineHelper.Domain.Monitoring;
 using SunshineHelper.Domain.Settings;
 
 namespace SunshineHelper.App;
@@ -172,6 +173,10 @@ public partial class MainWindow : Window
             ClientText.Text = Formatted("Panel.Device", status.ClientName);
             ProfileText.Text = Formatted("Panel.Profile", status.ProfileId);
             LogText.Text = Text(_host.LogMonitorRunning ? "Panel.Log.On" : "Panel.Log.Off");
+            if (_host.LogLevel == LogLevelVerdict.Insufficient)
+            {
+                LogText.Text += " " + Text("Panel.Log.LowLevel");
+            }
 
             ProblemsText.Text = _host.StartupProblems.Count == 0
                 ? string.Empty

@@ -47,4 +47,5 @@
     <sys:String x:Key="General.SavedOff">Saved. The log reader is off.</sys:String>
     <sys:String x:Key="General.PathInvalid">Invalid path: use the full path, with the drive letter (for example C:\...\sunshine.log).</sys:String>
     <sys:String x:Key="General.SaveFailed">Could not save settings.json: {0}</sys:String>
+    <sys:String x:Key="Panel.Log.LowLevel">Warning: the Sunshine log looks set to a level too low to show when a stream ends. In Sunshine, under Configuration > General, set the minimum log level to Debug (and restart Sunshine). This app never changes it for you.</sys:String>
 </ResourceDictionary>
