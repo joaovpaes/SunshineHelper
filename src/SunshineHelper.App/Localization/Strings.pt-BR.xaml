@@ -92,4 +92,10 @@
     <sys:String x:Key="Profiles.Error.Resolution">Resolução inválida: use o formato 1920x1080.</sys:String>
     <sys:String x:Key="Profiles.Error.Fps">FPS inválido: use um número inteiro de 1 a 1000.</sys:String>
     <sys:String x:Key="Profiles.Error.Delay">Atraso inválido: deixe vazio ou use um número inteiro de 0 a 30000.</sys:String>
+    <sys:String x:Key="Profiles.Fps.NoPermission">Este perfil limita o FPS, mas o app ainda não tem permissão para gravar o perfil do RTSS (ele fica em Program Files). Clique em "Reparar": o Windows pede confirmação uma vez e libera só esse arquivo.</sys:String>
+    <sys:String x:Key="Profiles.Fps.Repair">Reparar</sys:String>
+    <sys:String x:Key="Profiles.Fps.Repairing">Aguardando a confirmação do Windows...</sys:String>
+    <sys:String x:Key="Profiles.Fps.Repaired">Pronto: o app já pode gravar o limite de FPS do RTSS.</sys:String>
+    <sys:String x:Key="Profiles.Fps.RepairFailed">Não foi possível liberar a permissão: {0}</sys:String>
+    <sys:String x:Key="Panel.RtssClosed">Aviso: este perfil limita o FPS, mas o RTSS não está aberto. O limite só vale depois que o RTSS abrir.</sys:String>
 </ResourceDictionary>

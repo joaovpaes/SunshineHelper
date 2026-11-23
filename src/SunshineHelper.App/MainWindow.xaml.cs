@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -238,6 +239,11 @@ public partial class MainWindow : Window
                     CultureInfo.CurrentCulture,
                     Text("Panel.NotApplied"),
                     string.Join(", ", status.NotAppliedModules.Select(id => Text("Module." + id))));
+            RtssClosedText.Text = status.Kind == SessionStatusKind.Active
+                && ProfileUsesFps(status.ProfileId)
+                && !IsRtssRunning()
+                    ? Text("Panel.RtssClosed")
+                    : string.Empty;
             LogText.Text = Text(_host.LogMonitorRunning ? "Panel.Log.On" : "Panel.Log.Off");
             if (_host.LogLevel == LogLevelVerdict.Insufficient)
             {
@@ -251,6 +257,28 @@ public partial class MainWindow : Window
         finally
         {
             _refreshing = false;
+        }
+    }
+
+    private bool ProfileUsesFps(string? profileId)
+    {
+        var profile = FindProfile(_host.Settings.Current, profileId);
+        return profile is not null && profile.Display.FpsLimit.Mode != ProfileValueMode.Leave;
+    }
+
+    private static bool IsRtssRunning()
+    {
+        var processes = Process.GetProcessesByName("RTSS");
+        try
+        {
+            return processes.Length > 0;
+        }
+        finally
+        {
+            foreach (var process in processes)
+            {
+                process.Dispose();
+            }
         }
     }
 
