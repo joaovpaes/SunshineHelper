@@ -14,9 +14,9 @@ public class TriggerChannelHandlerTests
     {
         var test = new OrchestratorTest();
         var profile = TestProfiles.FollowClient();
-        var handler = NewHandler(test, Settings(defaultProfileId: profile.Id, profile));
+        using var handler = NewHandler(test, Settings(defaultProfileId: profile.Id, profile));
 
-        var response = await handler.HandleAsync(StartRequest(), CancellationToken.None);
+        var response = await handler.HandleAsync(StartRequest(), TestContext.Current.CancellationToken);
 
         response.Ok.ShouldBeTrue();
         response.State.ShouldBe(ChannelState.Applied);
@@ -28,9 +28,9 @@ public class TriggerChannelHandlerTests
     public async Task SessionStart_sem_perfil_e_sem_padrao_responde_erro_sem_chamar_orquestrador()
     {
         var test = new OrchestratorTest();
-        var handler = NewHandler(test, Settings(defaultProfileId: null));
+        using var handler = NewHandler(test, Settings(defaultProfileId: null));
 
-        var response = await handler.HandleAsync(StartRequest(), CancellationToken.None);
+        var response = await handler.HandleAsync(StartRequest(), TestContext.Current.CancellationToken);
 
         response.Ok.ShouldBeFalse();
         response.State.ShouldBe(ChannelState.Failed);
@@ -42,9 +42,9 @@ public class TriggerChannelHandlerTests
     public async Task SessionEnd_sem_sessao_registrada_responde_nothing_to_do()
     {
         var test = new OrchestratorTest();
-        var handler = NewHandler(test, Settings(defaultProfileId: null));
+        using var handler = NewHandler(test, Settings(defaultProfileId: null));
 
-        var response = await handler.HandleAsync(EndRequest(), CancellationToken.None);
+        var response = await handler.HandleAsync(EndRequest(), TestContext.Current.CancellationToken);
 
         response.Ok.ShouldBeTrue();
         response.State.ShouldBe(ChannelState.NothingToDo);
@@ -55,10 +55,10 @@ public class TriggerChannelHandlerTests
     {
         var test = new OrchestratorTest();
         var profile = TestProfiles.FollowClient();
-        var handler = NewHandler(test, Settings(defaultProfileId: profile.Id, profile));
+        using var handler = NewHandler(test, Settings(defaultProfileId: profile.Id, profile));
 
-        await handler.HandleAsync(StartRequest(), CancellationToken.None);
-        var response = await handler.HandleAsync(EndRequest(), CancellationToken.None);
+        await handler.HandleAsync(StartRequest(), TestContext.Current.CancellationToken);
+        var response = await handler.HandleAsync(EndRequest(), TestContext.Current.CancellationToken);
 
         response.Ok.ShouldBeTrue();
         response.State.ShouldBe(ChannelState.Reverted);
@@ -68,11 +68,11 @@ public class TriggerChannelHandlerTests
     public async Task HandleAsync_versao_de_protocolo_nao_suportada_responde_erro()
     {
         var test = new OrchestratorTest();
-        var handler = NewHandler(test, Settings(defaultProfileId: null));
+        using var handler = NewHandler(test, Settings(defaultProfileId: null));
 
         var response = await handler.HandleAsync(
             new TriggerRequest { V = 99, Op = TriggerOp.SessionStart },
-            CancellationToken.None);
+            TestContext.Current.CancellationToken);
 
         response.Ok.ShouldBeFalse();
         response.Error.ShouldNotBeNullOrEmpty();
@@ -82,11 +82,11 @@ public class TriggerChannelHandlerTests
     public async Task HandleAsync_operacao_desconhecida_responde_erro()
     {
         var test = new OrchestratorTest();
-        var handler = NewHandler(test, Settings(defaultProfileId: null));
+        using var handler = NewHandler(test, Settings(defaultProfileId: null));
 
         var response = await handler.HandleAsync(
             new TriggerRequest { Op = "nunca-ouvi-falar" },
-            CancellationToken.None);
+            TestContext.Current.CancellationToken);
 
         response.Ok.ShouldBeFalse();
         response.Error.ShouldNotBeNullOrEmpty();
@@ -98,9 +98,9 @@ public class TriggerChannelHandlerTests
         var test = new OrchestratorTest();
         test.Modules[0].WhileApplying = () => Thread.Sleep(150);
         var profile = TestProfiles.FollowClient();
-        var handler = NewHandler(test, Settings(defaultProfileId: profile.Id, profile));
+        using var handler = NewHandler(test, Settings(defaultProfileId: profile.Id, profile));
 
-        var timeoutResponse = await handler.HandleAsync(StartRequest(waitMs: 10), CancellationToken.None);
+        var timeoutResponse = await handler.HandleAsync(StartRequest(waitMs: 10), TestContext.Current.CancellationToken);
 
         timeoutResponse.Ok.ShouldBeTrue();
         timeoutResponse.State.ShouldBe(ChannelState.Timeout);
@@ -109,7 +109,7 @@ public class TriggerChannelHandlerTests
         // the time it runs the apply that was "timed out" on has already finished for
         // real — exactly the behavior the ADR calls for: the reply races the client's
         // patience, never the actual work.
-        var endResponse = await handler.HandleAsync(EndRequest(), CancellationToken.None);
+        var endResponse = await handler.HandleAsync(EndRequest(), TestContext.Current.CancellationToken);
 
         endResponse.Ok.ShouldBeTrue();
         endResponse.State.ShouldBe(ChannelState.Reverted);

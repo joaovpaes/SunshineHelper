@@ -40,7 +40,7 @@ var orchestrator = new SessionOrchestrator(
     new InMemorySessionSnapshotStore(),
     new AlwaysUnknownBootIdentityProvider());
 
-var handler = new TriggerChannelHandler(orchestrator, new StaticSettingsProvider(settings));
+using var handler = new TriggerChannelHandler(orchestrator, new StaticSettingsProvider(settings));
 
 await using var server = new NamedPipeChannelServer(handler);
 server.Start();

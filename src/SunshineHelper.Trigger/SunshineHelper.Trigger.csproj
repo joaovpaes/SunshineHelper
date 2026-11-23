@@ -19,4 +19,10 @@
     <ProjectReference Include="..\SunshineHelper.Protocol\SunshineHelper.Protocol.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Overrides the SDK's default ILCompiler version — see Directory.Packages.props
+         for why. -->
+    <PackageReference Include="Microsoft.DotNet.ILCompiler" />
+  </ItemGroup>
+
 </Project>

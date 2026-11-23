@@ -34,7 +34,7 @@ namespace SunshineHelper.Application.Channel;
 /// waits its turn, same as the auxiliary would if it stayed around to ask again.
 /// </para>
 /// </remarks>
-public sealed class TriggerChannelHandler
+public sealed class TriggerChannelHandler : IDisposable
 {
     private readonly SessionOrchestrator _orchestrator;
     private readonly ICurrentSettingsProvider _settingsProvider;
@@ -45,6 +45,8 @@ public sealed class TriggerChannelHandler
         _orchestrator = orchestrator;
         _settingsProvider = settingsProvider;
     }
+
+    public void Dispose() => _gate.Dispose();
 
     /// <param name="serverLifetime">Cancelled only when the app itself is shutting down —
     /// never by the pipe connection going away, so a slow apply/revert is never abandoned
@@ -66,22 +68,22 @@ public sealed class TriggerChannelHandler
 
         return request.Op switch
         {
-            TriggerOp.SessionStart => await RaceAsync(request, serverLifetime, StartAsync).ConfigureAwait(false),
-            TriggerOp.SessionEnd => await RaceAsync(request, serverLifetime, EndAsync).ConfigureAwait(false),
+            TriggerOp.SessionStart => await RaceAsync(request, StartAsync, serverLifetime).ConfigureAwait(false),
+            TriggerOp.SessionEnd => await RaceAsync(request, EndAsync, serverLifetime).ConfigureAwait(false),
             _ => new ChannelResponse { Ok = false, Error = $"Operação desconhecida: '{request.Op}'." },
         };
     }
 
     private async Task<ChannelResponse> RaceAsync(
         TriggerRequest request,
-        CancellationToken serverLifetime,
-        Func<TriggerRequest, CancellationToken, Task<ChannelResponse>> work)
+        Func<TriggerRequest, CancellationToken, Task<ChannelResponse>> work,
+        CancellationToken serverLifetime)
     {
         // Waits its turn with whatever session-start/session-end is already running.
         // Cancelled only by server shutdown, never by this connection's own lifetime.
         await _gate.WaitAsync(serverLifetime).ConfigureAwait(false);
 
-        Task<ChannelResponse> workTask = RunGuardedAsync(request, serverLifetime, work);
+        Task<ChannelResponse> workTask = RunGuardedAsync(request, work, serverLifetime);
 
         var timing = _settingsProvider.Current.Timing;
         int waitMs = Math.Clamp(request.WaitMs ?? timing.BarrierDefaultMs, 0, timing.BarrierCeilingMs);
@@ -98,8 +100,8 @@ public sealed class TriggerChannelHandler
     /// observing this task after a timeout reply can never crash the process with it.</summary>
     private async Task<ChannelResponse> RunGuardedAsync(
         TriggerRequest request,
-        CancellationToken serverLifetime,
-        Func<TriggerRequest, CancellationToken, Task<ChannelResponse>> work)
+        Func<TriggerRequest, CancellationToken, Task<ChannelResponse>> work,
+        CancellationToken serverLifetime)
     {
         try
         {
