@@ -1,0 +1,27 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+    <!-- pt-BR. Same keys as Strings.en.xaml; the localization test fails if they drift.
+         Tone: a tool, not an assistant — direct, no exclamation marks. -->
+
+    <sys:String x:Key="App.Title">SunshineHelper</sys:String>
+
+    <sys:String x:Key="Nav.Panel">Painel</sys:String>
+    <sys:String x:Key="Nav.Profiles">Perfis</sys:String>
+    <sys:String x:Key="Nav.Devices">Dispositivos</sys:String>
+    <sys:String x:Key="Nav.Log">Log</sys:String>
+    <sys:String x:Key="Nav.General">Geral</sys:String>
+
+    <sys:String x:Key="Page.Panel.Title">Painel</sys:String>
+    <sys:String x:Key="Page.Panel.Description">Estado da transmissão, aparelho e perfil em uso.</sys:String>
+    <sys:String x:Key="Page.Profiles.Title">Perfis</sys:String>
+    <sys:String x:Key="Page.Profiles.Description">Resolução, HDR e limite de FPS de cada aparelho.</sys:String>
+    <sys:String x:Key="Page.Devices.Title">Dispositivos</sys:String>
+    <sys:String x:Key="Page.Devices.Description">Aparelhos que já se conectaram e o perfil de cada um.</sys:String>
+    <sys:String x:Key="Page.Log.Title">Log</sys:String>
+    <sys:String x:Key="Page.Log.Description">O que o app fez em cada sessão.</sys:String>
+    <sys:String x:Key="Page.General.Title">Geral</sys:String>
+    <sys:String x:Key="Page.General.Description">Idioma, tema e caminho do log do Sunshine.</sys:String>
+
+    <sys:String x:Key="Page.NotReady">Esta tela chega em um próximo PR.</sys:String>
+</ResourceDictionary>

@@ -171,6 +171,23 @@ cobertura inteira é automática: `tests/SunshineHelper.Domain.Tests/Monitoring/
 (acompanhar um arquivo de verdade crescendo, sendo truncado, ainda não existindo). Ver
 `docs/adr/0004-leitor-do-log.md`.
 
+## PR 9a — Casca da interface (janela principal, temas e idiomas)
+
+O CI confirma que o app compila e que as cores e os textos estão coerentes
+(`tests/SunshineHelper.Domain.Tests/Ui/`); só você vê se a janela ficou como
+deveria. Abra o app (`dotnet run --project src\SunshineHelper.App`):
+
+- [ ] A janela abre sem erro, com o menu lateral (Painel, Perfis, Dispositivos,
+      Log, Geral) e o título e a descrição de cada tela mudando ao clicar.
+- [ ] O item selecionado do menu tem a barra azul à esquerda (não só mudança de cor).
+- [ ] **Tema:** com o Windows no modo escuro a janela é escura; mude o Windows para
+      o modo claro (Configurações > Personalização > Cores) com o app aberto: a
+      janela passa para o claro sozinha, sem reabrir, e o texto continua legível.
+- [ ] **Idioma:** com o Windows em português a janela fala português; em inglês,
+      inglês. (Outro idioma qualquer cai em inglês.)
+- [ ] Nenhum texto fica cortado ou vazio em nenhuma das quatro combinações
+      (escuro/claro x português/inglês).
+
 ## Automatizar isto (pendência, sem PR ainda)
 
 Pedido do autor: transformar estes itens em testes automáticos de verdade, em
