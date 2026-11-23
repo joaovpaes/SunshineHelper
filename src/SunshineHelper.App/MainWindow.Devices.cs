@@ -8,7 +8,7 @@ namespace SunshineHelper.App;
 
 /// <summary>The Devices screen (docs/adr/0014-registro-de-aparelhos.md): the devices that
 /// have connected, as Moonlight names them. The list itself lives in
-/// <see cref="Application.Devices.DeviceRegistry"/>; this file only shows it.</summary>
+/// <c>DeviceRegistry</c> (Application); this file only shows it.</summary>
 public partial class MainWindow
 {
     /// <summary>The registry builds a new list on every change, so comparing the reference is
