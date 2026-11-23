@@ -50,6 +50,13 @@ internal sealed class FakeEnvironmentModule : IEnvironmentModule
 
     public bool ApplyDoesNothing { get; set; }
 
+    /// <summary>ApplyAsync never returns: the app "dies" right here, before this module
+    /// changes anything. Nothing after it runs, nothing is rolled back.</summary>
+    public bool ApplyHangs { get; set; }
+
+    /// <summary>RevertAsync never returns: the app "dies" while putting this module back.</summary>
+    public bool RevertHangs { get; set; }
+
     public Exception? RevertThrows { get; set; }
 
     public string? RevertFails { get; set; }
@@ -82,6 +89,11 @@ internal sealed class FakeEnvironmentModule : IEnvironmentModule
         Record("apply");
         WhileApplying?.Invoke();
 
+        if (ApplyHangs)
+        {
+            return new TaskCompletionSource<ApplyOutcome>().Task;
+        }
+
         if (ApplyThrows is not null)
         {
             throw ApplyThrows;
@@ -113,6 +125,11 @@ internal sealed class FakeEnvironmentModule : IEnvironmentModule
     {
         Record("revert");
         WhileReverting?.Invoke();
+
+        if (RevertHangs)
+        {
+            return new TaskCompletionSource<RevertOutcome>().Task;
+        }
 
         if (RevertThrows is not null)
         {
