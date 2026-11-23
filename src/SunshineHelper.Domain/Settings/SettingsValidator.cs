@@ -17,8 +17,34 @@ public static class SettingsValidator
 
         ValidateTiming(settings.Timing, errors);
         ValidateProfiles(settings, errors);
+        ValidateLauncher(settings.Launcher, errors);
 
         return errors.Count == 0 ? SettingsValidationResult.Valid : new SettingsValidationResult(errors);
+    }
+
+    private static void ValidateLauncher(LauncherSettings launcher, List<string> errors)
+    {
+        if (launcher.CloseTimeoutMs <= 0)
+        {
+            errors.Add("launcher.closeTimeoutMs deve ser maior que zero.");
+        }
+
+        foreach (var name in launcher.ProcessNames)
+        {
+            string normalized = name is null ? string.Empty : LauncherSettings.NormalizeName(name);
+            if (normalized.Length == 0)
+            {
+                errors.Add("launcher.processNames tem um nome vazio.");
+            }
+            else if (LauncherSettings.ForbiddenNames.Contains(normalized))
+            {
+                errors.Add($"launcher.processNames: '{normalized}' é um processo do Windows, do Sunshine ou deste app e nunca pode ser encerrado.");
+            }
+            else if (normalized.IndexOfAny(['\\', '/', ':', '*', '?', '"', '<', '>', '|']) >= 0)
+            {
+                errors.Add($"launcher.processNames: '{normalized}' não é um nome de processo (use só o nome, como no Gerenciador de Tarefas, sem pasta).");
+            }
+        }
     }
 
     private static void ValidateTiming(TimingSettings timing, List<string> errors)

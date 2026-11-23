@@ -25,7 +25,9 @@ public sealed record TriggerRequest
     /// </summary>
     public int? WaitMs { get; init; }
 
-    /// <summary><see cref="TriggerOp.SessionEnd"/> only — informational (the ADR's own
-    /// example uses <c>"cancel"</c>); nothing in the server's behavior branches on it.</summary>
+    /// <summary><see cref="TriggerOp.SessionEnd"/> only: one of <see cref="SessionEndReason"/>.
+    /// Absent means <see cref="SessionEndReason.Cancel"/>, which is what the auxiliary's Undo
+    /// Command always is; only <see cref="SessionEndReason.Disconnect"/> changes anything
+    /// (the launcher is left open).</summary>
     public string? Reason { get; init; }
 }

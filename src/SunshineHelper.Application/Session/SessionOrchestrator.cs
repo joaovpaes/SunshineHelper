@@ -194,8 +194,23 @@ public sealed class SessionOrchestrator
     /// of a session, the startup check and <c>--restore</c>: one way back means one set
     /// of ways to get it wrong.
     /// </summary>
-    public async Task<SessionRestoreResult> RestoreAsync(CancellationToken cancellationToken = default)
+    public Task<SessionRestoreResult> RestoreAsync(CancellationToken cancellationToken = default) =>
+        RestoreAsync(new HashSet<string>(StringComparer.Ordinal), cancellationToken);
+
+    /// <summary>
+    /// Same as <see cref="RestoreAsync(CancellationToken)"/>, but the modules in
+    /// <paramref name="modulesToLeave"/> are not reverted. Used for a plain disconnect
+    /// with "revert on disconnect" on: the screen goes back to the user, but the launcher
+    /// stays open so a <c>/resume</c> still has an app to return to
+    /// (docs/adr/0008-modulo-launcher.md). The snapshot is still cleared afterwards — what
+    /// was left alone is, from then on, the user's.
+    /// </summary>
+    public async Task<SessionRestoreResult> RestoreAsync(
+        IReadOnlySet<string> modulesToLeave,
+        CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(modulesToLeave);
+
         string? json;
         try
         {
@@ -237,7 +252,7 @@ public sealed class SessionOrchestrator
 
         _ = await TryWriteAsync(snapshot.WithState(SessionState.Reverting), cancellationToken).ConfigureAwait(false);
 
-        var (anyFailed, problems) = await RevertAsync(plan, cancellationToken).ConfigureAwait(false);
+        var (anyFailed, problems) = await RevertAsync(plan, modulesToLeave, cancellationToken).ConfigureAwait(false);
 
         if (anyFailed)
         {
@@ -271,7 +286,7 @@ public sealed class SessionOrchestrator
         CancellationToken cancellationToken)
     {
         var plan = RecoveryDecider.Decide(snapshot, CurrentBoot(), _timeProvider.GetUtcNow());
-        var (anyFailed, problems) = await RevertAsync(plan, cancellationToken).ConfigureAwait(false);
+        var (anyFailed, problems) = await RevertAsync(plan, new HashSet<string>(StringComparer.Ordinal), cancellationToken).ConfigureAwait(false);
 
         if (anyFailed)
         {
@@ -290,6 +305,7 @@ public sealed class SessionOrchestrator
 
     private async Task<(bool AnyFailed, List<string> Problems)> RevertAsync(
         RecoveryPlan plan,
+        IReadOnlySet<string> modulesToLeave,
         CancellationToken cancellationToken)
     {
         var problems = new List<string>();
@@ -297,6 +313,11 @@ public sealed class SessionOrchestrator
 
         foreach (var captured in plan.ModulesToRevert)
         {
+            if (modulesToLeave.Contains(captured.ModuleId))
+            {
+                continue;
+            }
+
             if (!_modulesById.TryGetValue(captured.ModuleId, out var module))
             {
                 // Nothing here can act on it any more, and keeping the snapshot for its
@@ -322,6 +343,10 @@ public sealed class SessionOrchestrator
                 // back should go back.
                 anyFailed = true;
                 problems.Add($"Não foi possível restaurar '{captured.ModuleId}': {outcome.ErrorMessage}");
+            }
+            else if (outcome.ErrorMessage is { } warning)
+            {
+                problems.Add($"'{captured.ModuleId}': {warning}");
             }
         }
 

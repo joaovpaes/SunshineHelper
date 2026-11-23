@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Threading;
+using SunshineHelper.Application.Launcher;
 using SunshineHelper.Application.Session;
 using SunshineHelper.Domain.Session;
 using SunshineHelper.Domain.Settings;
@@ -155,7 +156,13 @@ public sealed class TriggerChannelHandler : IDisposable
 
     private async Task<ChannelResponse> EndAsync(TriggerRequest request, CancellationToken cancellationToken)
     {
-        var result = await _orchestrator.RestoreAsync(cancellationToken).ConfigureAwait(false);
+        // A plain disconnect leaves the launcher open: the client may still /resume, and
+        // Sunshine ends the stream on its own if the app it launched is gone.
+        IReadOnlySet<string> modulesToLeave = string.Equals(request.Reason, SessionEndReason.Disconnect, StringComparison.Ordinal)
+            ? new HashSet<string>(StringComparer.Ordinal) { LauncherModule.ModuleId }
+            : new HashSet<string>(StringComparer.Ordinal);
+
+        var result = await _orchestrator.RestoreAsync(modulesToLeave, cancellationToken).ConfigureAwait(false);
 
         return result.Status switch
         {
