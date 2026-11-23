@@ -1,4 +1,5 @@
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using SunshineHelper.Application.Channel;
 using SunshineHelper.Application.Diagnostics;
@@ -78,8 +79,22 @@ internal sealed class AppHost : IAsyncDisposable
 
     /// <summary>Three numbers on purpose: the fourth one made "1.0.0.0" look like an IP
     /// address to the redactor.</summary>
-    public static string AppVersion { get; } =
-        typeof(AppHost).Assembly.GetName().Version?.ToString(3) ?? "unknown";
+    public static string AppVersion { get; } = ReadVersion();
+
+    /// <summary>The informational version keeps the "-preview.2" suffix that the numeric
+    /// assembly version drops; the "+commit" build metadata the SDK appends is cut off.</summary>
+    private static string ReadVersion()
+    {
+        var assembly = typeof(AppHost).Assembly;
+        string? informational = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+        if (!string.IsNullOrWhiteSpace(informational))
+        {
+            int plus = informational.IndexOf('+', StringComparison.Ordinal);
+            return plus >= 0 ? informational[..plus] : informational;
+        }
+
+        return assembly.GetName().Version?.ToString(3) ?? "unknown";
+    }
 
     public static string SettingsPath { get; } = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
