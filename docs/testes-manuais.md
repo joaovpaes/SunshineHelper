@@ -27,20 +27,20 @@ Rodada de 2026-11-23 no PC do autor (Sunshine 2026.914, RX 9070 XT, tela 2560x14
   Sunshine (melhoria futura: reler o log quando ele for recriado). O log do Sunshine confirma o formato real:
   `config: 'min_log_level' = 1` é Debug.
 - Restaurar ao encerrar a sessão: a tela voltou ao normal e o Playnite fechou depois do `/cancel`.
+- **PR 34 (HDR antes da resolução), 2026-11-23 14:26:** perfil 1920x1080 fixo com HDR ligado. Durante a
+  transmissão a tela ficou em 1920x1080 com HDR ativado. O `app.log` mostra `hdr` antes de `display` e a releitura
+  aos 3 s com "unchanged since" (antes: "SOMETHING CHANGED IT"). Ao encerrar (Quit), `launcher`, `display` e
+  `hdr` foram revertidos sem erro e a tela voltou a 2560x1440 sem HDR.
+- Atraso do launcher `30001`: aparece "Atraso inválido" (0 a 30000).
 
-**Falhou (causa achada)**
-- **A resolução do perfil nunca era aplicada.** O `app.log` (PR 12c) mostrou que a troca para 1920x1080 funcionava
+**Falhou e foi corrigido**
+- A resolução do perfil nunca era aplicada. O `app.log` (PR 12c) mostrou que a troca para 1920x1080 funcionava
   e era desfeita logo depois de o HDR ligar. Confirmado com `tools/manual-tests`: ligar o HDR depois de trocar a
-  resolução devolve a tela a 2560x1440. Corrigido no PR 13c (HDR antes da resolução, ADR 0010). Falta repetir a
-  transmissão com a correção.
+  resolução devolve a tela a 2560x1440. Corrigido no PR 34 (HDR antes da resolução, ADR 0010).
 
 **Ainda pendente**
-- Digitar `30001` no atraso do launcher (só o `abc` foi visto).
-- Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada). Só vale depois de a resolução ser
-  corrigida e de o fechamento do Playnite ser confirmado de novo.
-- **PR 13c:** transmissão curta com perfil 1920x1080 fixo e HDR ligado. A tela fica em 1920x1080 com HDR durante
-  a transmissão; o `app.log` mostra `apply module 'hdr'` antes de `apply module 'display'` e a releitura aos 3 s
-  **sem** "SOMETHING CHANGED IT". Ao encerrar, a tela volta a 2560x1440 sem HDR.
+- Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada). A resolução já está corrigida e o
+  fechamento do Playnite foi confirmado; falta só medir.
 
 Observação de uso: no Moonlight, só **encerrar a sessão** (Quit) faz o Sunshine rodar o comando Undo. Apenas
 sair/desconectar deixa tudo como está, a menos que o perfil tenha "Restaurar a tela ao desconectar".
