@@ -138,12 +138,22 @@ public sealed class RtssFpsLimitModule : IEnvironmentModule
                 "O RTSS estava instalado quando a sessão começou e não está mais; não foi possível restaurar o limite de FPS."));
         }
 
+        RtssHooks.EnsureResolver(directory);
+
+        // Already at the captured value — the usual case when the apply itself was refused
+        // for lack of permission — means there is nothing to put back. Reading needs no
+        // elevation, so this succeeds without admin rights, and the orchestrator can let
+        // the rest of the session go on (docs/adr/0011-falha-parcial-e-sessao-presa.md).
+        if (ReadFramerateLimit() == previous)
+        {
+            return Task.FromResult(RevertOutcome.Success());
+        }
+
         if (!HasWritePermission(directory))
         {
             return Task.FromResult(RevertOutcome.Failed(NoWritePermissionMessage));
         }
 
-        RtssHooks.EnsureResolver(directory);
         var outcome = SetFramerateLimit(previous);
         return Task.FromResult(outcome.Status == ApplyStatus.Failed
             ? RevertOutcome.Failed(outcome.ErrorMessage ?? "Falha desconhecida ao restaurar o limite de FPS.")

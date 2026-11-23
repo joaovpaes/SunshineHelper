@@ -18,4 +18,9 @@ public sealed record SessionStatus(
     SessionStatusKind Kind,
     string? ClientName = null,
     string? ProfileId = null,
-    DateTimeOffset? Since = null);
+    DateTimeOffset? Since = null)
+{
+    /// <summary>Ids of the modules that failed to apply and were put back on their own:
+    /// the session is running without them (docs/adr/0011).</summary>
+    public IReadOnlyList<string> NotAppliedModules { get; init; } = [];
+}

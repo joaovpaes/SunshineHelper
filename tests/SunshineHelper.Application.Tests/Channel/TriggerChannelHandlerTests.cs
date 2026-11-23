@@ -183,6 +183,21 @@ public class TriggerChannelHandlerTests
     }
 
     [Fact]
+    public async Task SessionStart_com_modulo_que_falha_responde_applied_com_o_aviso()
+    {
+        var test = new OrchestratorTest();
+        test.Modules[2].ApplyFails = "RTSS sem permissão.";
+        var profile = TestProfiles.FollowClient();
+        using var handler = NewHandler(test, Settings(defaultProfileId: profile.Id, profile));
+
+        var response = await handler.HandleAsync(StartRequest(), TestContext.Current.CancellationToken);
+
+        response.Ok.ShouldBeTrue();
+        response.State.ShouldBe(ChannelState.Applied);
+        response.Error.ShouldNotBeNull().ShouldContain("RTSS sem permissão.");
+    }
+
+    [Fact]
     public async Task O_log_mostra_o_cliente_e_o_tempo_de_uma_sessao_iniciada()
     {
         var test = new OrchestratorTest();

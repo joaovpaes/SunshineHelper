@@ -50,6 +50,15 @@ public sealed class SessionStatusReader
             ? SessionStatusKind.NeedsAttention
             : SessionStatusKind.Active;
 
-        return new SessionStatus(kind, snapshot.ClientName, snapshot.ProfileId, snapshot.CapturedAt);
+        return new SessionStatus(kind, snapshot.ClientName, snapshot.ProfileId, snapshot.CapturedAt)
+        {
+            NotAppliedModules =
+            [
+                .. snapshot.Modules
+                    .Where(entry => entry.ApplyState == ModuleApplyState.RolledBack)
+                    .OrderBy(entry => entry.Order)
+                    .Select(entry => entry.ModuleId),
+            ],
+        };
     }
 }

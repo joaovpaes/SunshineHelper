@@ -56,6 +56,7 @@
                     <TextBlock x:Name="StatusText" Style="{StaticResource Text.Body}" />
                     <TextBlock x:Name="ClientText" Margin="0,8,0,0" Style="{StaticResource Text.Dim}" />
                     <TextBlock x:Name="ProfileText" Margin="0,4,0,0" Style="{StaticResource Text.Dim}" />
+                    <TextBlock x:Name="NotAppliedText" Margin="0,8,0,0" Style="{StaticResource Text.Body}" TextWrapping="Wrap" />
                     <TextBlock x:Name="LogText" Margin="0,16,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap" />
                     <TextBlock x:Name="ProblemsText" Margin="0,16,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap" />
                 </StackPanel>

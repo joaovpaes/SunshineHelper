@@ -23,4 +23,11 @@ public enum ModuleApplyState
     /// <summary>Apply failed. Reverted anyway: a module that failed partway through is
     /// the most likely one to be half-applied.</summary>
     Failed,
+
+    /// <summary>Apply failed, and the module was put back on its own right away; the
+    /// rest of the session went on without it (docs/adr/0011-falha-parcial-e-sessao-presa.md).
+    /// Not reverted again at the end: it is already back, and a second revert of a module
+    /// that cannot work here (RTSS without permission, for instance) would only fail and
+    /// keep the snapshot for nothing.</summary>
+    RolledBack,
 }

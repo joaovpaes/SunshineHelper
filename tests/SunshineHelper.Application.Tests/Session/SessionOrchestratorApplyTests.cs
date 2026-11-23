@@ -93,10 +93,10 @@ public class SessionOrchestratorApplyTests
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(2)]
-    public async Task ApplyAsync_falha_em_qualquer_modulo_devolve_o_ambiente_ao_estado_capturado(int failingModule)
+    [InlineData(0, "original,applied,applied")]
+    [InlineData(1, "applied,original,applied")]
+    [InlineData(2, "applied,applied,original")]
+    public async Task ApplyAsync_modulo_que_falha_e_desfeito_sozinho_e_os_outros_continuam(int failingModule, string expected)
     {
         var test = new OrchestratorTest();
         test.Modules[failingModule].ApplyFails = "O módulo desistiu.";
@@ -104,38 +104,78 @@ public class SessionOrchestratorApplyTests
 
         var result = await test.Orchestrator.ApplyAsync(TestProfiles.FollowClient(), TestProfiles.Request(), TestContext.Current.CancellationToken);
 
-        result.Status.ShouldBe(SessionApplyStatus.Failed);
-        result.EnvironmentRestored.ShouldBeTrue();
-        test.Environment.ShouldBe("original,original,original");
-        test.Store.Content.ShouldBeNull();
+        result.Status.ShouldBe(SessionApplyStatus.Applied);
+        result.Problems.ShouldContain(problem => problem.Contains("O módulo desistiu.", StringComparison.Ordinal));
+        test.Environment.ShouldBe(expected);
+        var snapshot = SessionSnapshotSerializer.Deserialize(test.Store.Content.ShouldNotBeNull());
+        snapshot.State.ShouldBe(SessionState.Applied);
+        snapshot.Modules.Single(entry => entry.ModuleId == test.Modules[failingModule].Id).ApplyState.ShouldBe(ModuleApplyState.RolledBack);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
     [InlineData(2)]
-    public async Task ApplyAsync_modulo_que_lanca_excecao_devolve_o_ambiente_ao_estado_capturado(int failingModule)
+    public async Task ApplyAsync_modulo_que_lanca_excecao_vira_aviso(int failingModule)
     {
         var test = new OrchestratorTest();
         test.Modules[failingModule].ApplyThrows = new InvalidOperationException("Erro do Windows.");
 
         var result = await test.Orchestrator.ApplyAsync(TestProfiles.FollowClient(), TestProfiles.Request(), TestContext.Current.CancellationToken);
 
-        result.Status.ShouldBe(SessionApplyStatus.Failed);
-        result.ErrorMessage.ShouldNotBeNull().ShouldContain("Erro do Windows.");
-        result.EnvironmentRestored.ShouldBeTrue();
-        test.Environment.ShouldBe("original,original,original");
+        result.Status.ShouldBe(SessionApplyStatus.Applied);
+        result.Problems.ShouldContain(problem => problem.Contains("Erro do Windows.", StringComparison.Ordinal));
+        test.Modules[failingModule].Value.ShouldBe(FakeEnvironmentModule.Original);
     }
 
     [Fact]
-    public async Task ApplyAsync_desfaz_na_ordem_inversa_incluindo_o_modulo_que_falhou()
+    public async Task ApplyAsync_desfaz_na_hora_so_o_modulo_que_falhou()
     {
         var test = new OrchestratorTest();
-        test.Modules[2].ApplyFails = "O módulo desistiu.";
+        test.Modules[1].ApplyFails = "O módulo desistiu.";
 
         await test.Orchestrator.ApplyAsync(TestProfiles.FollowClient(), TestProfiles.Request(), TestContext.Current.CancellationToken);
 
-        test.StepsOf("revert").ShouldBe("c:revert,b:revert,a:revert");
+        test.StepsOf("apply").ShouldBe("a:apply,b:apply,c:apply");
+        test.StepsOf("revert").ShouldBe("b:revert");
+    }
+
+    [Fact]
+    public async Task No_fim_da_sessao_tudo_volta_e_o_modulo_que_falhou_nao_e_desfeito_de_novo()
+    {
+        var test = new OrchestratorTest();
+        test.Modules[1].ApplyFails = "Sem permissão.";
+        await test.Orchestrator.ApplyAsync(TestProfiles.FollowClient(), TestProfiles.Request(), TestContext.Current.CancellationToken);
+        test.Log.Clear();
+
+        // A second revert of a module that cannot work here would fail and keep the
+        // snapshot for nothing.
+        test.Modules[1].RevertFails = "Sem permissão.";
+        var restore = await test.Orchestrator.RestoreAsync(TestContext.Current.CancellationToken);
+
+        restore.Status.ShouldBe(RestoreStatus.Restored);
+        test.StepsOf("revert").ShouldBe("c:revert,a:revert");
+        test.Environment.ShouldBe("original,original,original");
+        test.Store.Content.ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task ApplyAsync_quando_todos_falham_a_sessao_segue_sem_nada_e_termina_limpa()
+    {
+        var test = new OrchestratorTest();
+        foreach (var module in test.Modules)
+        {
+            module.ApplyFails = "Não.";
+        }
+
+        var result = await test.Orchestrator.ApplyAsync(TestProfiles.FollowClient(), TestProfiles.Request(), TestContext.Current.CancellationToken);
+        var restore = await test.Orchestrator.RestoreAsync(TestContext.Current.CancellationToken);
+
+        result.Status.ShouldBe(SessionApplyStatus.Applied);
+        result.Problems.Count.ShouldBe(3);
+        restore.Status.ShouldBe(RestoreStatus.Restored);
+        test.Environment.ShouldBe("original,original,original");
+        test.Store.Content.ShouldBeNull();
     }
 
     [Fact]
@@ -146,36 +186,71 @@ public class SessionOrchestratorApplyTests
         test.Modules[2].ApplyFails = "O módulo desistiu.";
 
         await test.Orchestrator.ApplyAsync(TestProfiles.FollowClient(), TestProfiles.Request(), TestContext.Current.CancellationToken);
+        await test.Orchestrator.RestoreAsync(TestContext.Current.CancellationToken);
 
         test.StepsOf("revert").ShouldBe("c:revert,a:revert");
     }
 
     [Fact]
-    public async Task ApplyAsync_quando_o_rollback_falha_mantem_o_snapshot_para_o_restore()
+    public async Task ApplyAsync_modulo_que_falha_e_nao_volta_desfaz_tudo_e_mantem_o_snapshot()
     {
         var test = new OrchestratorTest();
         test.Modules[2].ApplyFails = "O módulo desistiu.";
-        test.Modules[0].RevertFails = "Não deu para voltar.";
+        test.Modules[2].ApplyFailsHalfway = true;
+        test.Modules[2].RevertFails = "Não deu para voltar.";
 
         var result = await test.Orchestrator.ApplyAsync(TestProfiles.FollowClient(), TestProfiles.Request(), TestContext.Current.CancellationToken);
 
+        result.Status.ShouldBe(SessionApplyStatus.Failed);
         result.EnvironmentRestored.ShouldBeFalse();
-        result.Problems.ShouldContain(problem => problem.Contains("Não deu para voltar.", StringComparison.Ordinal));
-        test.Store.Content.ShouldNotBeNull();
-        SessionSnapshotSerializer.Deserialize(test.Store.Content!).State.ShouldBe(SessionState.RevertFailed);
+        result.ErrorMessage.ShouldNotBeNull().ShouldContain("Não deu para voltar.");
+        test.Modules[0].Value.ShouldBe(FakeEnvironmentModule.Original);
+        test.Modules[1].Value.ShouldBe(FakeEnvironmentModule.Original);
+        SessionSnapshotSerializer.Deserialize(test.Store.Content.ShouldNotBeNull()).State.ShouldBe(SessionState.RevertFailed);
     }
 
     [Fact]
-    public async Task ApplyAsync_modulo_que_lanca_ao_desfazer_tambem_mantem_o_snapshot()
+    public async Task ApplyAsync_modulo_que_lanca_ao_desfazer_tambem_desfaz_tudo_e_mantem_o_snapshot()
     {
         var test = new OrchestratorTest();
         test.Modules[2].ApplyFails = "O módulo desistiu.";
-        test.Modules[0].RevertThrows = new InvalidOperationException("Erro ao restaurar.");
+        test.Modules[2].RevertThrows = new InvalidOperationException("Erro ao restaurar.");
+
+        var result = await test.Orchestrator.ApplyAsync(TestProfiles.FollowClient(), TestProfiles.Request(), TestContext.Current.CancellationToken);
+
+        result.Status.ShouldBe(SessionApplyStatus.Failed);
+        result.EnvironmentRestored.ShouldBeFalse();
+        test.Store.Content.ShouldNotBeNull();
+    }
+
+    [Fact]
+    public async Task ApplyAsync_modulo_que_volta_sozinho_mas_outro_falha_no_rollback_mantem_o_snapshot()
+    {
+        var test = new OrchestratorTest();
+        test.Modules[2].ApplyFails = "O módulo desistiu.";
+        test.Modules[2].RevertFails = "Não deu para voltar.";
+        test.Modules[0].RevertFails = "Também não.";
 
         var result = await test.Orchestrator.ApplyAsync(TestProfiles.FollowClient(), TestProfiles.Request(), TestContext.Current.CancellationToken);
 
         result.EnvironmentRestored.ShouldBeFalse();
+        result.Problems.ShouldContain(problem => problem.Contains("Também não.", StringComparison.Ordinal));
         test.Store.Content.ShouldNotBeNull();
+    }
+
+    [Fact]
+    public async Task ApplyAsync_cancelado_no_meio_desfaz_tudo_como_antes()
+    {
+        var test = new OrchestratorTest();
+        using var cancellation = new CancellationTokenSource();
+        test.Modules[1].WhileApplying = cancellation.Cancel;
+        test.Modules[1].ApplyThrows = new OperationCanceledException();
+
+        var result = await test.Orchestrator.ApplyAsync(TestProfiles.FollowClient(), TestProfiles.Request(), cancellation.Token);
+
+        result.Status.ShouldBe(SessionApplyStatus.Failed);
+        test.StepsOf("apply").ShouldBe("a:apply,b:apply");
+        test.Environment.ShouldBe("original,original,original");
     }
 
     [Fact]

@@ -174,6 +174,9 @@ public sealed class TriggerChannelHandler : IDisposable
                 State = ChannelState.Applied,
                 ElapsedMs = (int)result.Elapsed.TotalMilliseconds,
                 Profile = profile.Name,
+                // A module that could not be applied is a warning, not a failure: the
+                // stream goes on with the rest of the profile (docs/adr/0011).
+                Error = JoinProblems(result.Problems),
             },
             _ => new ChannelResponse
             {
