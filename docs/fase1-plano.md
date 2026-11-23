@@ -66,7 +66,7 @@ O parâmetro `--restore` sai desta lista e entra depois do PR 6: o motor de recu
 | — | Aviso de nível de log do Sunshine no Painel | mesclado; teste manual pendente |
 | 11a/11b | Tela de perfis (lógica do formulário e tela) | mesclado; teste manual pendente |
 | 12a | Cenários do portão: queda do app e reinício do PC com o snapshot real | mesclado |
-| 12b | Cobertura mínima de 80% (Domain e Application) exigida no CI | em revisão |
+| 12b | Cobertura mínima de 80% (Domain e Application) exigida no CI | mesclado (Domain 98,6%, Application 93,7%) |
 
 O que o autor ainda precisa testar na própria máquina está no topo de `docs/testes-manuais.md`; a situação de cada item do portão está em `docs/fase1-portao.md`.
 
@@ -87,8 +87,55 @@ Saíram da avaliação de uma revisão externa (2026-11-23), triadas item a item
 
 **Não adotadas** (e por quê): mover `fase0-*.md` e seções de `testes-manuais.md` para um arquivo morto (citados por caminho em comentários do código e em ADRs); trocar procedimentos do `CLAUDE.md` por skills (o aviso de troca de modelo precisa estar sempre carregado); uma issue por item do plano (duplica este arquivo; issues só para bug achado ou revisão externa aceita).
 
-## Decisões em aberto (precisam de ADR; análise em Opus alto)
+## Decisões D1–D3 (analisadas em Opus alto, 2026-11-23)
 
-- **D1.** O app roda como administrador? O ADR 0002 diz elevado, o 0006 adia e o 0008 diz sem admin; sem admin, o limite de FPS do RTSS (em Program Files) precisa de outro caminho.
-- **D2.** A falha de um módulo desfaz a sessão inteira? Avaliar uma checagem prévia (`CanApply`) e módulos "não essenciais", cuja falha vira só aviso.
-- **D3.** Como sair de uma sessão presa? Hoje, com snapshot de um cliente que desconectou e não voltou, as próximas transmissões são recusadas até o app reiniciar.
+Recomendações. Viram ADR no PR que as implementar; mesclar este plano é aprovar a direção.
+
+**Achado que liga D1 e D2:** o app roda **sem** administrador, e o módulo do RTSS só grava o
+perfil (em Program Files) com administrador. Hoje, **qualquer perfil com FPS em "Seguir o
+dispositivo" ou "Valor fixo" falha sempre**, e como a falha de um módulo desfaz a sessão inteira,
+a transmissão começa **sem perfil nenhum** (resolução e HDR aplicados e desfeitos: a tela pisca
+duas vezes). Só perfis com FPS em "Deixar como está" funcionam.
+
+- **D2 — falha de um módulo não derruba os outros (prioridade 1).** Na aplicação, um módulo que
+  falha é desfeito **sozinho** e vira aviso no Painel; os que deram certo continuam. No fim da
+  sessão tudo volta ao estado capturado, como hoje. Continuam "tudo ou nada": falha na captura e
+  falha ao gravar o snapshot (sem snapshot gravado não há como garantir a volta). Se o próprio
+  módulo que falhou não puder ser desfeito, o snapshot fica, como hoje. `CanApply` não é
+  necessário agora: o RTSS já confere a permissão antes de mexer, então falha sem meio-termo.
+  Muda o sentido do item 1 do portão de "volta na hora" para "volta ao fim da sessão": os testes
+  do portão são ajustados no mesmo PR. ADR 0010 complementa o 0002.
+- **D3 — sessão anterior não encerrada é restaurada antes da nova (prioridade 2).** A premissa da
+  revisão é parcial: depois de uma desconexão o app do Sunshine continua aberto, e para abrir outro
+  o Moonlight pede para encerrar (`/cancel`), o que restaura. O caso preso de verdade é o Sunshine
+  reiniciar ou cair sem rodar o Undo. Como o Sunshine só roda o Prep Command num lançamento novo,
+  um `session-start` com snapshot em disco prova que a sessão antiga morreu. Então: rodar a mesma
+  restauração da inicialização e só capturar se o snapshot tiver sumido. A condição que garante não
+  capturar por cima de um estado modificado é a regra que já existe: **o snapshot só é apagado
+  depois de uma reversão completa**. Se a restauração falhar, recusa como hoje e avisa no Painel.
+  Efeito de um Prep Command configurado em dobro: a tela pisca, mas o estado final fica certo.
+- **D1 — o app continua sem administrador (prioridade 3, precisa da máquina do autor).** App
+  elevado por tarefa agendada (ADR 0002) põe a interface inteira com privilégio alto por causa de
+  um arquivo só. Caminho para o RTSS, nesta ordem:
+  1. Teste rápido na máquina do autor: o limite vale só em memória (`SetProfileProperty`, sem
+     `SaveProfile`)? Se valer, não precisa de permissão nem sobrevive ao reinício.
+  2. Senão: o instalador (que já roda como administrador) dá ao usuário permissão de escrita **só
+     no arquivo do perfil global** do RTSS; o app detecta quando ela some (reinstalação do RTSS) e
+     oferece um botão "Reparar", que pede o UAC uma vez.
+  Enquanto isso, a tela Perfis avisa quando o FPS não é "Deixar como está" e não há permissão.
+  ADR 0011 marca o 0002 como "substituído quanto à elevação".
+
+## Próximos PRs (sequência)
+
+| # | PR | Entrega | Modelo |
+| --- | --- | --- | --- |
+| 13a | Falha de um módulo vira aviso (D2) | orquestrador, Painel, testes do portão ajustados, ADR 0010 | **Opus · alto** |
+| 13b | Sessão anterior restaurada antes da nova (D3) | handler do canal, Painel, testes, ADR 0010 | **Opus · alto** |
+| 14a | Segurança e limpeza do repositório | `SECURITY.md`; você liga reporte privado, Dependabot e exclusão de branches | Sonnet · baixo |
+| 14b | Armadilhas do compilador no `CLAUDE.md` + checklist do PR | itens 3 e 6 das melhorias | Sonnet · baixo |
+| 14c | `ESTADO.md` e índice de ADRs | itens 4 e 5 (depois de 13a/13b) | Sonnet · médio |
+| 15a | Teste do RTSS em memória (D1, passo 1) | modo novo na ferramenta `tools/manual-tests/rtss-module`; **roda na máquina do autor** | Sonnet · médio |
+| 15b | Permissão do RTSS (D1, passo 2, se precisar) | aviso na tela Perfis, botão "Reparar", ADR 0011 | **Opus · alto** |
+
+A Fase 1 fecha quando 13a e 13b estiverem mesclados e o autor tiver feito os testes manuais
+pendentes (topo de `docs/testes-manuais.md`), incluindo os itens 2, 3 e 4 do portão.
