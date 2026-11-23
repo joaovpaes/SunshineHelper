@@ -7,4 +7,6 @@
 
 ## Decisão
 
+## Alternativas consideradas
+
 ## Consequências

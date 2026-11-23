@@ -14,6 +14,7 @@ Arquitetura em camadas: Domain ← Application ← Infrastructure/UI. Módulos c
 - Commits em inglês (Conventional Commits); título do PR em inglês, corpo em português (O que mudou / Por quê / Como testar / Riscos / O que o usuário precisa fazer).
 - Só mesclar com CI verde **e** um "pode mesclar" explícito do usuário. Tags e releases só quando ele pedir.
 - O ambiente do Claude não tem .NET nem Windows: o CI é o compilador. Não afirmar que compila ou passa sem o CI confirmar.
+- No fim de cada PR mesclado, atualizar `docs/ESTADO.md` (último PR, próximos, pendências de teste), junto com o PR seguinte ou em um PR de docs.
 - Segredos nunca entram. Logs do Sunshine têm `rikey`, `uniqueid`, IPs e MACs: redigir antes de virarem fixture.
 - Ações do GitHub fixadas por SHA; `permissions:` mínimo por job.
 
