@@ -38,6 +38,12 @@ Rodada de 2026-11-23 no PC do autor (Sunshine 2026.914, RX 9070 XT, tela 2560x14
   `apply module 'fps': Failed` (sem permissão), `revert module 'fps': ok`, `with 1 warning(s)`; tela em
   1920x1080 com HDR; Painel com "Não foi aplicado nesta transmissão: Limite de FPS"; RTSS no limite original;
   ao encerrar, só `launcher`, `display` e `hdr` revertidos.
+- **PR 13b (sessão anterior presa), 2026-11-23 16:23:** transmissão normal às 16:21; com a tela em 1920x1080 + HDR,
+  `sunshinesvc.exe` foi finalizado pelo Gerenciador de Tarefas (sem Undo) e o SunshineHelper ficou aberto. Ao
+  iniciar o Sunshine e transmitir de novo, o `app.log` mostra `session-start found a previous session on disk;
+  restoring it first`, os 3 `revert module ... ok`, os `apply module` e a resposta `applied` com o aviso "Uma
+  sessão anterior que não foi encerrada foi restaurada antes desta.". O Quit seguinte voltou tudo ao normal.
+  (Reabrir o app antes, como numa tentativa anterior, testa só a restauração da inicialização, não o 13b.)
 
 **Falhou e foi corrigido**
 - A resolução do perfil nunca era aplicada. O `app.log` (PR 12c) mostrou que a troca para 1920x1080 funcionava
@@ -45,12 +51,6 @@ Rodada de 2026-11-23 no PC do autor (Sunshine 2026.914, RX 9070 XT, tela 2560x14
   resolução devolve a tela a 2560x1440. Corrigido no PR 34 (HDR antes da resolução, ADR 0010).
 
 **Ainda pendente**
-- **PR 13b (sessão anterior presa):** transmita com o perfil 1920x1080 + HDR. Durante a transmissão,
-  reinicie o Sunshine (interface web do Sunshine > Solução de problemas > Reiniciar, ou reinicie o serviço
-  "SunshineService" em Serviços). A tela fica em 1920x1080 com HDR (o Undo não rodou). Transmita de novo
-  pelo Moonlight: a transmissão começa, a tela pisca e fica em 1920x1080 com HDR. No `app.log`:
-  `session-start found a previous session on disk; restoring it first`, os `revert module` e depois os
-  `apply module`. Encerre (Quit): a tela volta a 2560x1440 sem HDR.
 - PR 12d, opcional: gerar o relatório com o caminho do log do Sunshine vazio (a seção diz "not configured").
 - Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada). A resolução já está corrigida e o
   fechamento do Playnite foi confirmado; falta só medir.
