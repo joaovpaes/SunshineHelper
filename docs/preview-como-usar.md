@@ -36,6 +36,13 @@ tem de ser igual ao do arquivo).
 
    O auxiliar lê sozinho o nome e as configurações do aparelho que o Sunshine envia. Funciona com ou sem
    "Run as elevated".
+   **Opcional, para o caso de esquecer o app fechado:** acrescente, **antes** do `Trigger start`, um comando
+   **Do** que abre o app sem travar o Sunshine (que espera cada comando terminar):
+   `cmd /c start "" "C:\caminho\da\pasta\SunshineHelper.exe"` (deixe "Run as elevated" **desmarcado**, para o app
+   abrir na sua conta). O app abre em alguns segundos e o auxiliar só espera 2 s, então, se o app estava fechado,
+   a primeira transmissão pode começar sem perfil. Para dar tempo, ponha entre os dois um comando de espera:
+   `cmd /c ping -n 6 127.0.0.1 >nul` (custa uns 5 s em toda transmissão). Ele não abre uma segunda cópia se o app
+   já estiver aberto. Na **Undo** não é preciso nada para o app.
 4. **Limite de FPS (RTSS):** se o perfil limita o FPS e o app ainda não pode gravar o perfil do RTSS, a tela
    Perfis mostra um aviso com o botão **Reparar**. O Windows pede confirmação uma vez e libera só esse arquivo.
    O RTSS precisa estar aberto para o limite valer.
