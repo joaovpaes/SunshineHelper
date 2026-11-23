@@ -8,7 +8,12 @@
     <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>SunshineHelper.App</RootNamespace>
     <AssemblyName>SunshineHelper</AssemblyName>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\app.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SunshineHelper.Infrastructure\SunshineHelper.Infrastructure.csproj" />

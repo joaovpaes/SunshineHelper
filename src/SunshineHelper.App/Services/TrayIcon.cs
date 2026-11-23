@@ -1,3 +1,5 @@
+using System.IO;
+
 namespace SunshineHelper.App.Services;
 
 /// <summary>
@@ -23,8 +25,7 @@ internal sealed class TrayIcon : IDisposable
 
         _icon = new System.Windows.Forms.NotifyIcon
         {
-            // Placeholder: the real icon is a design asset that comes with the fonts.
-            Icon = System.Drawing.SystemIcons.Application,
+            Icon = LoadIcon(),
             ContextMenuStrip = menu,
             Visible = true,
         };
@@ -40,6 +41,27 @@ internal sealed class TrayIcon : IDisposable
         _icon.Dispose();
         _openItem.Dispose();
         _exitItem.Dispose();
+    }
+
+    /// <summary>Loads the small size from the icon embedded in the assembly; falls back to the
+    /// system icon so a resource problem can never keep the app out of the tray.</summary>
+    private static System.Drawing.Icon LoadIcon()
+    {
+        try
+        {
+            var info = System.Windows.Application.GetResourceStream(new Uri("pack://application:,,,/Assets/app.ico"));
+            if (info is not null)
+            {
+                using var stream = info.Stream;
+                return new System.Drawing.Icon(stream, System.Windows.Forms.SystemInformation.SmallIconSize);
+            }
+        }
+        catch (Exception ex) when (ex is IOException or ArgumentException or UriFormatException)
+        {
+            // Falls through to the system icon.
+        }
+
+        return System.Drawing.SystemIcons.Application;
     }
 
     private static string Text(string key) =>

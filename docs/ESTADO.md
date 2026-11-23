@@ -1,7 +1,7 @@
 # Estado do projeto
 
 Uma página para retomar o trabalho sem reler tudo. O Claude atualiza este arquivo no fim de cada PR
-(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-23**, `main` após o PR 51.
+(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-23**, `main` após o PR 55.
 
 ## Onde estamos
 
@@ -11,7 +11,7 @@ leitor do log do Sunshine, bandeja e janela (Painel, Geral, Perfis), log de diag
 diagnóstico. As decisões D2 (falha de um módulo vira aviso) e D3 (sessão anterior presa é restaurada antes da
 nova) estão no ADR 0011 e passaram no teste do PC. Situação do portão: `docs/fase1-portao.md`.
 
-**Último PR mesclado:** #54 (roadmap). **Pré-lançamento `v0.1.0-preview.1` publicado** em 2026-11-23 (zip com o app e o
+**Último PR mesclado:** #55 (roadmap: ícone e SmartScreen). **Pré-lançamento `v0.1.0-preview.1` publicado** em 2026-11-23 (zip com o app e o
 auxiliar de gatilho, gerado pelo workflow `preview-release.yml`; testado no PC do autor, tudo funcionou; o Windows mostra
 o aviso do SmartScreen porque não há assinatura de código).
 
@@ -21,6 +21,8 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 | PR | O quê | Modelo |
 | --- | --- | --- |
+| 56 | Ícone do app (`.exe`, janela, bandeja) e versão na tela Geral | Sonnet · médio |
+| a seguir | Iniciar com o Windows minimizado na bandeja; telas Dispositivos e Log; depois o overlay pelo controle (Opus · alto, com ADR) | ver backlog |
 
 ## Decisões em aberto
 
@@ -43,13 +45,10 @@ Lista viva em `docs/testes-manuais.md`, "Ainda pendente":
 - Opção na tela Geral para **iniciar com o Windows e abrir já minimizado na bandeja** (pedido do autor em 2026-11-23).
   Hoje, na versão de testes, isso é feito à mão com um atalho em `shell:startup`. Combina com a tarefa agendada do
   instalador (acima): as duas resolvem o mesmo problema, o app estar aberto antes da transmissão.
-- Mostrar a **versão do app** na janela (por exemplo na tela Geral, "Sobre"), para o usuário saber qual versão está
-  usando (pedido do autor em 2026-11-23). A versão já existe no código (`AppHost.AppVersion`, usada no relatório de
-  diagnóstico e no `app.log`); falta só exibi-la. O pré-lançamento já grava a versão da tag no `.exe`.
 - Depois do instalador: release oficial com `release-please` e atestado de procedência (o `SHA256SUMS.txt` e o zip já saem
   do workflow do pré-lançamento); assinatura de código (SignPath) a cargo do autor.
-- **Ícone do produto** (pedido do autor em 2026-11-23, o app ainda não tem): no `.exe`, na janela, na bandeja e, depois, no
-  instalador. Entra no pacote de design com as fontes embutidas e a opção manual de tema (claro/escuro).
+- Ícone no instalador (o `.exe`, a janela e a bandeja já têm o ícone; o instalador ainda não existe). Fontes embutidas e
+  opção manual de tema (claro/escuro) seguem no pacote de design.
 - **Aviso do SmartScreen:** some com assinatura de código (a Fundação SignPath assina projetos de código aberto de
   graça; o pedido é do autor e leva dias ou semanas) e, depois, com a reputação do programa; em certificado pago
   (validação estendida) a reputação vem mais rápido. Até lá o `LEIA-ME.md` do pré-lançamento explica como seguir.
