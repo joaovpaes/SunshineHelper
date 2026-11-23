@@ -42,6 +42,10 @@ O Claude não troca o próprio modelo nem o esforço; quem troca é o usuário. 
 - **Sonnet/Haiku, esforço baixo:** textos, commits, ajustes triviais.
 - Uma sessão por PR; `/clear` ao trocar de assunto; plano antes de mudanças em mais de 2 ou 3 arquivos.
 
+## Diagnóstico prévio (para economizar tokens)
+
+Quando um problema ficar complexo (falhou 2 vezes, ou o `app.log` não explica a causa), **parar e recomendar** ao usuário gerar o relatório pelo botão "Gerar relatório de diagnóstico" (tela Geral) e passá-lo à ferramenta externa dele, que lê só o código-fonte baixado. Como funciona e o modelo de pedido: `docs/diagnostico.md`. Só tentar uma terceira correção depois da resposta dessa ferramenta. O relatório é redigido (IP, MAC, chaves do Sunshine, usuário do Windows), mas o Claude lembra o usuário de ler o arquivo antes de compartilhar.
+
 ## Estilo
 
 Português para falar com o usuário (frases curtas; dizer "mesclar" e "versão"). Código, commits e identificadores em inglês. UI com arquivos de idioma (pt-BR e en).

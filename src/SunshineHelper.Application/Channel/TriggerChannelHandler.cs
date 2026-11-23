@@ -73,12 +73,17 @@ public sealed class TriggerChannelHandler : IDisposable
             };
         }
 
+        string clientText = request.Client is null
+            ? "-"
+            : string.Create(
+                CultureInfo.InvariantCulture,
+                $"'{request.Client.Name}' {request.Client.Width}x{request.Client.Height} hdr {request.Client.Hdr}");
         _log.Write(
             DiagnosticLevel.Info,
             "channel",
             string.Create(
                 CultureInfo.InvariantCulture,
-                $"request received: op '{request.Op}', reason '{request.Reason ?? "-"}', client '{request.Client?.Name ?? "-"}' {request.Client?.Width}x{request.Client?.Height} hdr {request.Client?.Hdr}"));
+                $"request received: op '{request.Op}', reason '{request.Reason ?? "-"}', client {clientText}"));
 
         var response = request.Op switch
         {
@@ -87,12 +92,15 @@ public sealed class TriggerChannelHandler : IDisposable
             _ => new ChannelResponse { Ok = false, Error = $"Operação desconhecida: '{request.Op}'." },
         };
 
+        string elapsedText = response.ElapsedMs is { } elapsedMs
+            ? string.Create(CultureInfo.InvariantCulture, $"{elapsedMs} ms")
+            : "-";
         _log.Write(
             response.Ok ? DiagnosticLevel.Info : DiagnosticLevel.Error,
             "channel",
             string.Create(
                 CultureInfo.InvariantCulture,
-                $"request answered: op '{request.Op}', ok {response.Ok}, state '{response.State}', profile '{response.Profile ?? "-"}', elapsed {response.ElapsedMs} ms{(response.Error is { } error ? ", error: " + error : string.Empty)}"));
+                $"request answered: op '{request.Op}', ok {response.Ok}, state '{response.State}', profile '{response.Profile ?? "-"}', elapsed {elapsedText}{(response.Error is { } error ? ", error: " + error : string.Empty)}"));
 
         return response;
     }

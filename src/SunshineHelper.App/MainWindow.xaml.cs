@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -163,6 +164,33 @@ public partial class MainWindow : Window
         {
             LauncherNamesBox.Text = string.Join(Environment.NewLine, names);
             GeneralMessage.Text = Text("General.Launcher.Saved");
+        }
+    }
+
+    private void OnGenerateReport(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.SaveFileDialog
+        {
+            Filter = "*.txt|*.txt",
+            DefaultExt = ".txt",
+            FileName = string.Create(CultureInfo.InvariantCulture, $"sunshinehelper-diagnostic-{DateTime.Now:yyyyMMdd-HHmmss}.txt"),
+            InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),
+        };
+
+        if (dialog.ShowDialog(this) != true)
+        {
+            return;
+        }
+
+        try
+        {
+            string report = _host.BuildDiagnosticReport(ReportDescriptionBox.Text);
+            File.WriteAllText(dialog.FileName, report, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+            GeneralMessage.Text = string.Format(CultureInfo.CurrentCulture, Text("General.Report.Saved"), dialog.FileName);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            GeneralMessage.Text = string.Format(CultureInfo.CurrentCulture, Text("General.Report.Failed"), ex.Message);
         }
     }
 

@@ -177,6 +177,16 @@
                             Style="{StaticResource Button.Primary}"
                             Content="{DynamicResource General.Save}" Click="OnSaveLauncher" />
 
+                    <Border Margin="0,24,0,0" BorderBrush="{DynamicResource Brush.Line}" BorderThickness="0,1,0,0" />
+                    <TextBlock Margin="0,24,0,0" Style="{StaticResource Text.Label}" Text="{DynamicResource General.Report}" />
+                    <TextBlock Margin="0,8,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap"
+                               Text="{DynamicResource General.Report.Hint}" />
+                    <TextBox x:Name="ReportDescriptionBox" Margin="0,8,0,0" Padding="6,4" Height="96"
+                             AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" />
+                    <Button Margin="0,16,0,0" Padding="16,8" HorizontalAlignment="Left"
+                            Style="{StaticResource Button.Secondary}"
+                            Content="{DynamicResource General.Report.Generate}" Click="OnGenerateReport" />
+
                     <TextBlock x:Name="GeneralMessage" Margin="0,16,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
