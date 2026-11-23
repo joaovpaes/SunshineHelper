@@ -20,6 +20,7 @@ public partial class App : System.Windows.Application
 
     private Mutex? _singleInstance;
     private ThemeManager? _theme;
+    private LocalizationManager? _localization;
     private AppHost? _host;
     private TrayIcon? _tray;
     private MainWindow? _window;
@@ -46,12 +47,15 @@ public partial class App : System.Windows.Application
         _theme = new ThemeManager(new DictionarySlot(Resources));
         _theme.Apply();
 
-        new LocalizationManager(new DictionarySlot(Resources)).Apply();
+        _localization = new LocalizationManager(new DictionarySlot(Resources));
+        _localization.Apply();
 
         // Windows switching between light and dark while the app is open.
         SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
 
         _host = await AppHost.StartAsync(CancellationToken.None);
+        // Settings are loaded by now: the saved language wins over Windows' own.
+        ApplyLanguage(_host.Settings.Current.Language);
         _tray = new TrayIcon(ShowMainWindow, ExitApp);
 
         _window = new MainWindow(_host);
@@ -77,6 +81,9 @@ public partial class App : System.Windows.Application
 
         base.OnExit(e);
     }
+
+    /// <summary>Switches the UI language live; null follows Windows.</summary>
+    internal void ApplyLanguage(string? preference) => _localization?.Apply(preference);
 
     private void ShowMainWindow()
     {

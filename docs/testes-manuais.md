@@ -209,6 +209,26 @@ O CI só prova que compila e que a lógica do estado está certa. Abra o app
 - [ ] `settings.json` com texto quebrado (apague uma chave `}`): o app abre mesmo assim e o
       Painel lista o problema.
 
+## PR 9c — Tela Geral (idioma e caminho do log)
+
+Abra o app e vá em **Geral**:
+
+- [ ] O seletor de idioma mostra "Seguir o Windows" (ou o que foi salvo). Escolha
+      **English**: a janela inteira passa para inglês na hora, sem reabrir. Feche o app
+      (**Sair** na bandeja), abra de novo: continua em inglês. Volte para "Seguir o Windows".
+- [ ] Digite um caminho sem letra do disco (por exemplo `sunshine.log`) e clique **Salvar**:
+      aparece "Caminho inválido" e nada é salvo.
+- [ ] Cole o caminho completo do `sunshine.log` do seu Sunshine (pode colar com aspas) e
+      clique **Salvar**: aparece "Salvo". No **Painel**, "Leitor do log ativo." (sem reabrir).
+- [ ] "Procurar..." abre a janela de arquivo e preenche a caixa com o que você escolher.
+- [ ] Esvazie a caixa e **Salvar**: "O leitor do log está desligado" e o Painel volta a dizer
+      que está desligado.
+- [ ] Com o caminho salvo, abra `%LOCALAPPDATA%\SunshineHelper\settings.json`: tem `language`
+      e `sunshineLogPath` com o que você escolheu. O resto do arquivo não foi estragado.
+- [ ] **Leitor de verdade:** com o caminho certo e o app aberto, conecte pelo Moonlight com um
+      perfil configurado e desconecte/retome: o log do app (ou o Painel) acompanha. (Só vale
+      se você já tem um perfil no `settings.json`.)
+
 ## Automatizar isto (pendência, sem PR ainda)
 
 Pedido do autor: transformar estes itens em testes automáticos de verdade, em

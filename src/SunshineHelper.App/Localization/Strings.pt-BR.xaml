@@ -36,4 +36,15 @@
 
     <sys:String x:Key="Tray.Open">Abrir</sys:String>
     <sys:String x:Key="Tray.Exit">Sair</sys:String>
+
+    <sys:String x:Key="General.Language">Idioma</sys:String>
+    <sys:String x:Key="General.Language.System">Seguir o Windows</sys:String>
+    <sys:String x:Key="General.LogPath">Arquivo de log do Sunshine</sys:String>
+    <sys:String x:Key="General.LogPath.Hint">Caminho completo do sunshine.log. Deixe vazio para desligar o leitor do log (retomar e desconexão simples deixam de ser detectadas).</sys:String>
+    <sys:String x:Key="General.Browse">Procurar...</sys:String>
+    <sys:String x:Key="General.Save">Salvar</sys:String>
+    <sys:String x:Key="General.Saved">Salvo. O leitor do log já usa o novo caminho.</sys:String>
+    <sys:String x:Key="General.SavedOff">Salvo. O leitor do log está desligado.</sys:String>
+    <sys:String x:Key="General.PathInvalid">Caminho inválido: use o caminho completo, com a letra do disco (por exemplo C:\...\sunshine.log).</sys:String>
+    <sys:String x:Key="General.SaveFailed">Não foi possível salvar o settings.json: {0}</sys:String>
 </ResourceDictionary>

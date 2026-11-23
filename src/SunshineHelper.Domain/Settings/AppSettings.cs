@@ -22,6 +22,12 @@ public sealed record AppSettings
     /// installation to default to, and this app must not assume the author's own.</summary>
     public string? SunshineLogPath { get; init; }
 
+    /// <summary>UI language the user chose in the General screen: <c>pt-BR</c> or
+    /// <c>en</c>. Null follows Windows (<see cref="Localization.LanguageResolver"/>); an
+    /// unknown value in a hand-edited file is not an error, the resolver falls back.
+    /// Optional, so older files load unchanged — no schema bump.</summary>
+    public string? Language { get; init; }
+
     /// <summary>What a brand-new installation starts with: no profiles yet, schema
     /// at the current version, default timing. The UI (Phase 1, PR "Casca da
     /// interface") is where the user actually sets up their first profile.</summary>
@@ -32,5 +38,6 @@ public sealed record AppSettings
         Timing = new TimingSettings(),
         Profiles = [],
         SunshineLogPath = null,
+        Language = null,
     };
 }

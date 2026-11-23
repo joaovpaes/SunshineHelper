@@ -59,6 +59,38 @@
                     <TextBlock x:Name="ProblemsText" Margin="0,16,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
+
+            <!-- General: language and the Sunshine log path. -->
+            <Border x:Name="GeneralCard" Margin="0,32,0,0" Padding="16" Visibility="Collapsed"
+                    Background="{DynamicResource Brush.Panel}"
+                    BorderBrush="{DynamicResource Brush.Line}"
+                    BorderThickness="1"
+                    CornerRadius="{StaticResource Radius.Medium}">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource Text.Label}" Text="{DynamicResource General.Language}" />
+                    <ComboBox x:Name="LanguageBox" Margin="0,8,0,0" Width="260" HorizontalAlignment="Left"
+                              SelectionChanged="OnLanguageChanged">
+                        <ComboBoxItem Tag="" Content="{DynamicResource General.Language.System}" />
+                        <ComboBoxItem Tag="pt-BR" Content="Português" />
+                        <ComboBoxItem Tag="en" Content="English" />
+                    </ComboBox>
+
+                    <TextBlock Margin="0,24,0,0" Style="{StaticResource Text.Label}" Text="{DynamicResource General.LogPath}" />
+                    <DockPanel Margin="0,8,0,0">
+                        <Button DockPanel.Dock="Right" Margin="8,0,0,0" Padding="12,6"
+                                Style="{StaticResource Button.Secondary}"
+                                Content="{DynamicResource General.Browse}" Click="OnBrowseLog" />
+                        <TextBox x:Name="LogPathBox" VerticalContentAlignment="Center" Padding="6,4" />
+                    </DockPanel>
+                    <TextBlock Margin="0,8,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap"
+                               Text="{DynamicResource General.LogPath.Hint}" />
+                    <Button Margin="0,16,0,0" Padding="16,8" HorizontalAlignment="Left"
+                            Style="{StaticResource Button.Primary}"
+                            Content="{DynamicResource General.Save}" Click="OnSaveLogPath" />
+
+                    <TextBlock x:Name="GeneralMessage" Margin="0,16,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
         </StackPanel>
     </Grid>
 </Window>

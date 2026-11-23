@@ -1,11 +1,14 @@
 using System.ComponentModel;
 using System.Globalization;
+using System.IO;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using SunshineHelper.App.Services;
 using SunshineHelper.Application.Session;
+using SunshineHelper.Domain.Localization;
+using SunshineHelper.Domain.Settings;
 
 namespace SunshineHelper.App;
 
@@ -14,6 +17,7 @@ public partial class MainWindow : Window
     private readonly AppHost _host;
     private readonly DispatcherTimer _statusTimer = new() { Interval = TimeSpan.FromSeconds(1) };
     private bool _refreshing;
+    private bool _loadingGeneral;
 
     internal MainWindow(AppHost host)
     {
@@ -53,11 +57,95 @@ public partial class MainWindow : Window
 
         bool isPanel = page == "Panel";
         PanelCard.Visibility = isPanel ? Visibility.Visible : Visibility.Collapsed;
-        NotReadyCard.Visibility = isPanel ? Visibility.Collapsed : Visibility.Visible;
+        bool isGeneral = page == "General";
+        GeneralCard.Visibility = isGeneral ? Visibility.Visible : Visibility.Collapsed;
+        NotReadyCard.Visibility = isPanel || isGeneral ? Visibility.Collapsed : Visibility.Visible;
+
+        if (isGeneral)
+        {
+            LoadGeneral();
+        }
 
         if (isPanel)
         {
             await RefreshPanelAsync();
+        }
+    }
+
+    private void LoadGeneral()
+    {
+        // Filling the controls must not count as the user changing them.
+        _loadingGeneral = true;
+        var current = _host.Settings.Current;
+        LanguageBox.SelectedIndex = current.Language switch
+        {
+            LanguageResolver.Portuguese => 1,
+            LanguageResolver.English => 2,
+            _ => 0,
+        };
+        LogPathBox.Text = current.SunshineLogPath ?? string.Empty;
+        GeneralMessage.Text = string.Empty;
+        _loadingGeneral = false;
+    }
+
+    private async void OnLanguageChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_loadingGeneral || LanguageBox.SelectedItem is not ComboBoxItem { Tag: string tag })
+        {
+            return;
+        }
+
+        string? language = tag.Length == 0 ? null : tag;
+        if (await TrySaveAsync(settings => settings with { Language = language }))
+        {
+            ((App)System.Windows.Application.Current).ApplyLanguage(language);
+            GeneralMessage.Text = string.Empty;
+        }
+    }
+
+    private void OnBrowseLog(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Filter = "sunshine.log|*.log|*.*|*.*",
+            CheckFileExists = false,
+        };
+
+        if (dialog.ShowDialog(this) == true)
+        {
+            LogPathBox.Text = dialog.FileName;
+        }
+    }
+
+    private async void OnSaveLogPath(object sender, RoutedEventArgs e)
+    {
+        var check = LogPathRule.Check(LogPathBox.Text);
+        if (!check.IsValid)
+        {
+            GeneralMessage.Text = Text("General.PathInvalid");
+            return;
+        }
+
+        if (await TrySaveAsync(settings => settings with { SunshineLogPath = check.Path }))
+        {
+            LogPathBox.Text = check.Path ?? string.Empty;
+            GeneralMessage.Text = Text(check.Path is null ? "General.SavedOff" : "General.Saved");
+        }
+    }
+
+    /// <summary>Saves through the host; a disk problem is shown on screen, never thrown
+    /// out of an event handler (which would close the app).</summary>
+    private async Task<bool> TrySaveAsync(Func<AppSettings, AppSettings> change)
+    {
+        try
+        {
+            await _host.UpdateSettingsAsync(change, CancellationToken.None);
+            return true;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException)
+        {
+            GeneralMessage.Text = string.Format(CultureInfo.CurrentCulture, Text("General.SaveFailed"), ex.Message);
+            return false;
         }
     }
 
