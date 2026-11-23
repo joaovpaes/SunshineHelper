@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Threading;
+using SunshineHelper.Application.Devices;
 using SunshineHelper.Application.Diagnostics;
 using SunshineHelper.Application.Launcher;
 using SunshineHelper.Application.Session;
@@ -42,15 +43,18 @@ public sealed class TriggerChannelHandler : IDisposable
     private readonly ICurrentSettingsProvider _settingsProvider;
     private readonly SemaphoreSlim _gate = new(1, 1);
     private readonly IDiagnosticLog _log;
+    private readonly DeviceRegistry? _devices;
 
     public TriggerChannelHandler(
         SessionOrchestrator orchestrator,
         ICurrentSettingsProvider settingsProvider,
-        IDiagnosticLog? log = null)
+        IDiagnosticLog? log = null,
+        DeviceRegistry? devices = null)
     {
         _orchestrator = orchestrator;
         _settingsProvider = settingsProvider;
         _log = log ?? NullDiagnosticLog.Instance;
+        _devices = devices;
     }
 
     public void Dispose() => _gate.Dispose();
@@ -215,6 +219,14 @@ public sealed class TriggerChannelHandler : IDisposable
         var clientRequest = ToClientRequest(request.Client);
         var settings = _settingsProvider.Current;
         var profile = ClientProfileSelector.Select(settings, clientRequest);
+
+        // For the Devices screen only. The registry swallows its own I/O errors, so this can
+        // never keep the stream from starting; with no profile it still notes the device,
+        // which is how the user finds the name to give a new profile.
+        if (_devices is not null)
+        {
+            await _devices.RecordConnectionAsync(clientRequest.Name, profile?.Name, cancellationToken).ConfigureAwait(false);
+        }
 
         if (profile is null)
         {
