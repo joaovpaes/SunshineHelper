@@ -1,7 +1,7 @@
 # Estado do projeto
 
 Uma página para retomar o trabalho sem reler tudo. O Claude atualiza este arquivo no fim de cada PR
-(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-23**, `main` após o PR 49.
+(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-23**, `main` após o PR 51.
 
 ## Onde estamos
 
@@ -11,7 +11,7 @@ leitor do log do Sunshine, bandeja e janela (Painel, Geral, Perfis), log de diag
 diagnóstico. As decisões D2 (falha de um módulo vira aviso) e D3 (sessão anterior presa é restaurada antes da
 nova) estão no ADR 0011 e passaram no teste do PC. Situação do portão: `docs/fase1-portao.md`.
 
-**Último PR mesclado:** #49 (avisos de permissão e de RTSS fechado, botão "Reparar"; testado no PC ponta a ponta).
+**Último PR mesclado:** #51 (o app restaura sozinho quando o Sunshine encerra, ADR 0013; testado no PC).
 
 ## Próximos PRs
 
@@ -19,7 +19,7 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 | PR | O quê | Modelo |
 | --- | --- | --- |
-| 16 | O app percebe que o Sunshine morreu e restaura sozinho (ADR 0013); em revisão no #51 | Opus · alto |
+| 53 | Workflow manual de pré-lançamento (`v0.1.0-preview.1`): zip com o app, o auxiliar de gatilho e SHA256 | Sonnet · médio |
 
 ## Decisões em aberto
 
@@ -30,7 +30,6 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 Lista viva em `docs/testes-manuais.md`, "Ainda pendente":
 
-- 16: finalizar o Sunshine no meio da transmissão e ver a tela voltar sozinha (roteiro em `docs/testes-manuais.md`).
 - Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada).
 - Opcional: relatório de diagnóstico com o caminho do log do Sunshine vazio.
 

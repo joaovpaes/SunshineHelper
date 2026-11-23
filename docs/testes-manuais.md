@@ -61,19 +61,19 @@ Rodada de 2026-11-23 no PC do autor (Sunshine 2026.914, RX 9070 XT, tela 2560x14
   RTSS seguiu mostrando 171 no campo "Framerate limit" mesmo com o limite valendo (a janela não relê o perfil);
   não clicar nela durante a transmissão.
 
+- **PR 16 (restaurar sozinho quando o Sunshine encerra, ADR 0013), 19:14-19:15:** transmissão com o perfil "Sala TV 4k"
+  (1920x1080, HDR, FPS 60); `sunshine.exe` finalizado pelo Gerenciador de Tarefas com o SunshineHelper aberto. O
+  `app.log` mostra `watching 1 Sunshine process(es)` 1 s depois do início, `the Sunshine process of this session is
+  gone` e, em seguida, os 4 `revert module ... ok` e `in-process end answered: reason 'sunshine-exited', ok True,
+  state 'reverted'`. Tudo voltou em cerca de 4 s, sem reabrir nada, e o Painel mostrou "Nenhuma transmissão ativa". O
+  serviço reabriu o Sunshine sozinho com outro PID (27216 para 2088), o caso que a comparação por PID cobre.
+
 **Falhou e foi corrigido**
 - A resolução do perfil nunca era aplicada. O `app.log` (PR 12c) mostrou que a troca para 1920x1080 funcionava
   e era desfeita logo depois de o HDR ligar. Confirmado com `tools/manual-tests`: ligar o HDR depois de trocar a
   resolução devolve a tela a 2560x1440. Corrigido no PR 34 (HDR antes da resolução, ADR 0010).
 
 **Ainda pendente**
-- **PR 16 (restaurar sozinho quando o Sunshine encerra, ADR 0013):** com o app novo (compilado depois do PR 51),
-  inicie uma transmissão com o perfil aplicado (resolução e HDR mudam). Com o SunshineHelper aberto, finalize o
-  `sunshine.exe` no Gerenciador de Tarefas (aba Detalhes; precisa do botão "Finalizar tarefa" como administrador,
-  ou pare o serviço "Sunshine Service" em Serviços). Em uns 5 s a tela deve voltar ao normal **sem reabrir nada**,
-  e o Painel deve mostrar "Nenhuma transmissão ativa". No `app.log`: `the Sunshine process of this session is gone`
-  e `in-process end answered: reason 'sunshine-exited', ok True, state 'reverted'`. Depois, inicie o Sunshine e
-  transmita de novo: deve funcionar normalmente.
 - PR 12d, opcional: gerar o relatório com o caminho do log do Sunshine vazio (a seção diz "not configured").
 - Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada). A resolução já está corrigida e o
   fechamento do Playnite foi confirmado; falta só medir.

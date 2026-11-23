@@ -1,6 +1,6 @@
 # 0013. Restaurar sozinho quando o Sunshine encerra no meio da sessão
 
-- Status: proposta (vira "aceita" depois do teste no PC do autor)
+- Status: aceita (testada no PC do autor em 2026-11-23, PR 51)
 - Data: 2026-11-23
 
 ## Contexto
