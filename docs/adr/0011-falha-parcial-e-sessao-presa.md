@@ -1,6 +1,6 @@
 # 0011. Falha de um módulo vira aviso (e sessão anterior presa)
 
-- Status: aceita (parte D2); a parte D3 entra no PR 13b
+- Status: aceita (D2 no PR 38, D3 no PR 39)
 - Data: 2026-11-23
 - Complementa: 0002 (passo 4 de "Aplicar")
 
@@ -67,4 +67,36 @@ Passo 4 de "Aplicar" do ADR 0002 passa a ser:
 
 ## D3 — sessão anterior presa
 
-A decidir no PR 13b (restaurar um snapshot que sobrou antes de aplicar uma sessão nova).
+### Contexto
+
+Depois de uma desconexão simples o app do Sunshine continua aberto, e para abrir outro o Moonlight
+pede para encerrar (`/cancel`), o que roda o Undo e restaura. O caso preso de verdade é o Sunshine
+reiniciar ou cair sem rodar o Undo: o snapshot fica em disco e, até agora, a sessão seguinte era
+recusada ("já existe uma sessão registrada") e a tela ficava no modo da transmissão antiga.
+
+### Decisão
+
+- O Sunshine só roda o Prep Command num lançamento novo. Então um `session-start` vindo do
+  auxiliar (sem motivo) com snapshot em disco prova que a sessão antiga morreu.
+- Nesse caso o canal roda **a mesma restauração da inicialização** (tudo, inclusive fechar o
+  launcher da sessão antiga) e só então aplica o perfil novo.
+- A condição que impede capturar por cima de um ambiente modificado é a regra que já existe: o
+  snapshot só é apagado depois de uma reversão completa. Se a restauração falhar, a sessão nova
+  não começa (como antes), o snapshot fica e o Painel mostra "Atenção".
+- A restauração prévia acontece mesmo se nenhum perfil corresponder ao cliente: a sessão antiga
+  está morta de qualquer jeito.
+- O `session-start` do "retomar" (`/resume`, enviado pelo leitor do log) leva o motivo `resume` e
+  **não** restaura: ele não prova que a sessão em disco morreu. Continua recusado como antes.
+- A resposta ao auxiliar leva o aviso "Uma sessão anterior que não foi encerrada foi restaurada
+  antes desta." no campo `error`, e o `app.log` registra `restoring it first`.
+
+### Consequências
+
+- A tela pisca uma vez a mais nesse caso (volta ao normal e entra no perfil novo), mas o estado
+  final fica certo.
+- Prep Command configurado em dobro (global e no app): o segundo `session-start` desfaz e reaplica
+  a sessão do primeiro. A tela pisca, o estado final fica certo.
+- O launcher da sessão antiga é fechado antes de o Sunshine abrir o novo, porque o Sunshine espera
+  o Prep Command terminar antes de iniciar o app. Se o auxiliar desistir de esperar (tempo do
+  canal esgotado) e o Sunshine abrir o launcher antes da restauração terminar, o novo launcher pode
+  ser fechado junto. A restauração leva menos de 1 s e o tempo de espera padrão é 20 s.

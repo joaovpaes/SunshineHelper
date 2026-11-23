@@ -64,6 +64,10 @@ public sealed class SessionOrchestrator
         _log = log ?? NullDiagnosticLog.Instance;
     }
 
+    /// <summary>True when a session snapshot is on disk: a session is in progress, or one
+    /// was left behind that was never put back.</summary>
+    public bool HasSessionOnDisk => _store.Exists();
+
     /// <summary>Applies <paramref name="profile"/> for the client in
     /// <paramref name="request"/>, after writing down everything it is about to
     /// change.</summary>

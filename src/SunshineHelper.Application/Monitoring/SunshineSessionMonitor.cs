@@ -181,6 +181,7 @@ public sealed class SunshineSessionMonitor
                 new TriggerRequest
                 {
                     Op = TriggerOp.SessionStart,
+                    Reason = SessionStartReason.Resume,
                     Client = new ClientInfo { Name = clientName },
                 },
                 cancellationToken)
