@@ -42,6 +42,10 @@ jobs:
           --results-directory TestResults
           -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
 
+      - name: Check coverage (Phase 1 gate, item 5)
+        shell: pwsh
+        run: ./scripts/check-coverage.ps1 -ResultsDirectory TestResults -Minimum 80
+
       - name: Publish SunshineHelper.Trigger with NativeAOT
         # SunshineHelper.Trigger is meant to publish as a native binary
         # (docs/adr/0002-arquitetura-do-nucleo.md). The trimmer/AOT analyzer only runs
