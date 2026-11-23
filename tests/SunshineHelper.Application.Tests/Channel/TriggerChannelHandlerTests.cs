@@ -1,5 +1,6 @@
 using Shouldly;
 using SunshineHelper.Application.Channel;
+using SunshineHelper.Application.Session;
 using SunshineHelper.Application.Tests.Session;
 using SunshineHelper.Domain.Settings;
 using SunshineHelper.Protocol;
@@ -95,21 +96,31 @@ public class TriggerChannelHandlerTests
     [Fact]
     public async Task SessionStart_estourando_o_waitMs_responde_timeout_mas_o_trabalho_real_continua()
     {
-        var test = new OrchestratorTest();
-        test.Modules[0].WhileApplying = () => Thread.Sleep(150);
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var gated = new GatedApplyModule();
+        var orchestrator = new SessionOrchestrator(
+            [gated],
+            new FakeSessionSnapshotStore(),
+            new FakeBootIdentityProvider());
         var profile = TestProfiles.FollowClient();
-        using var handler = NewHandler(test, Settings(defaultProfileId: profile.Id, profile));
+        using var handler = new TriggerChannelHandler(
+            orchestrator,
+            new FakeCurrentSettingsProvider(Settings(defaultProfileId: profile.Id, profile)));
 
-        var timeoutResponse = await handler.HandleAsync(StartRequest(waitMs: 10), TestContext.Current.CancellationToken);
+        // The apply is stuck inside the module, so the barrier is what answers.
+        var timeoutResponse = await handler.HandleAsync(StartRequest(waitMs: 10), cancellationToken);
 
         timeoutResponse.Ok.ShouldBeTrue();
         timeoutResponse.State.ShouldBe(ChannelState.Timeout);
 
-        // session-end waits its turn on the same gate as the still-running apply, so by
-        // the time it runs the apply that was "timed out" on has already finished for
-        // real — exactly the behavior the ADR calls for: the reply races the client's
-        // patience, never the actual work.
-        var endResponse = await handler.HandleAsync(EndRequest(), TestContext.Current.CancellationToken);
+        // Let the real apply finish. session-end then waits its turn on the same gate,
+        // so it can only run once that apply is genuinely done — which is the behavior
+        // the ADR asks for: the reply races the client's patience, never the work. If
+        // the "timeout" reply had abandoned the apply, there would be no session left
+        // to revert here and this would come back as nothing-to-do.
+        gated.Release();
+
+        var endResponse = await handler.HandleAsync(EndRequest(), cancellationToken);
 
         endResponse.Ok.ShouldBeTrue();
         endResponse.State.ShouldBe(ChannelState.Reverted);

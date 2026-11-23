@@ -34,7 +34,7 @@ namespace SunshineHelper.Infrastructure.Channel;
 /// so a line with no terminator from a confused or hostile local process could grow
 /// without bound. <see cref="ReadBoundedLineAsync"/> reads up to
 /// <see cref="MaxLineBytes"/> and gives up past that. Each connection also gets
-/// <see cref="IoTimeout"/> to send its line and to take the reply, so a process that
+/// <see cref="IoTimeoutMs"/> to send its line and to take the reply, so a process that
 /// connects and then says nothing cannot sit on the channel either.
 /// </para>
 /// <para>
@@ -56,11 +56,11 @@ public sealed class NamedPipeChannelServer : IAsyncDisposable
     /// <summary>How long one connection gets to send its request line, and separately to
     /// take its reply. Both are immediate in practice — the long wait happens between
     /// them, inside the handler, and is bounded by its own budget.</summary>
-    private static readonly TimeSpan IoTimeout = TimeSpan.FromSeconds(5);
+    private const int IoTimeoutMs = 5_000;
 
     /// <summary>Pause before rebuilding the pipe after a failure to create it at all, so
     /// a lasting cause does not turn the accept loop into a busy loop.</summary>
-    private static readonly TimeSpan RetryDelay = TimeSpan.FromSeconds(1);
+    private const int RetryDelayMs = 1_000;
 
     private readonly TriggerChannelHandler _handler;
     private readonly CancellationTokenSource _stopping = new();
@@ -91,7 +91,7 @@ public sealed class NamedPipeChannelServer : IAsyncDisposable
             {
                 // The pipe could not be created at all — another process holding the
                 // name, or the OS refusing. Worth retrying, but not at full speed.
-                if (!await DelayAsync(RetryDelay, serverLifetime).ConfigureAwait(false))
+                if (!await DelayAsync(RetryDelayMs, serverLifetime).ConfigureAwait(false))
                 {
                     return;
                 }
@@ -159,7 +159,7 @@ public sealed class NamedPipeChannelServer : IAsyncDisposable
     private static async Task<TriggerRequest?> ReadRequestAsync(Stream stream, CancellationToken serverLifetime)
     {
         using var deadline = CancellationTokenSource.CreateLinkedTokenSource(serverLifetime);
-        deadline.CancelAfter(IoTimeout);
+        deadline.CancelAfter(IoTimeoutMs);
 
         string? line;
         try
@@ -196,7 +196,7 @@ public sealed class NamedPipeChannelServer : IAsyncDisposable
         byte[] bytes = Encoding.UTF8.GetBytes(json + "\n");
 
         using var deadline = CancellationTokenSource.CreateLinkedTokenSource(serverLifetime);
-        deadline.CancelAfter(IoTimeout);
+        deadline.CancelAfter(IoTimeoutMs);
 
         try
         {
@@ -293,11 +293,11 @@ public sealed class NamedPipeChannelServer : IAsyncDisposable
     }
 
     /// <summary>False when the server is shutting down.</summary>
-    private static async Task<bool> DelayAsync(TimeSpan delay, CancellationToken serverLifetime)
+    private static async Task<bool> DelayAsync(int delayMs, CancellationToken serverLifetime)
     {
         try
         {
-            await Task.Delay(delay, serverLifetime).ConfigureAwait(false);
+            await Task.Delay(delayMs, serverLifetime).ConfigureAwait(false);
             return true;
         }
         catch (OperationCanceledException)
