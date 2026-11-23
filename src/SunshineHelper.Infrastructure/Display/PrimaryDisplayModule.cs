@@ -1,6 +1,6 @@
+using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text.Json.Nodes;
-using System.Globalization;
 using System.Threading;
 using SunshineHelper.Application.Diagnostics;
 using SunshineHelper.Application.Session;
