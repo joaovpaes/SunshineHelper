@@ -1,8 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Threading;
 using System.Windows;
 using Microsoft.Win32;
 using SunshineHelper.App.Services;
+using SunshineHelper.Infrastructure.Startup;
 
 // "Application" is qualified below because this project transitively references
 // SunshineHelper.Application (via Infrastructure), and C# resolves an unqualified
@@ -58,8 +60,16 @@ public partial class App : System.Windows.Application
         ApplyLanguage(_host.Settings.Current.Language);
         _tray = new TrayIcon(ShowMainWindow, ExitApp);
 
+        KeepStartupEntryCurrent();
+
         _window = new MainWindow(_host);
-        _window.Show();
+
+        // Started by Windows at sign-in (--minimized): stay in the tray. The tray's Open and
+        // a double click on its icon show the window later.
+        if (!WindowsStartupRegistration.IsMinimizedLaunch(e.Args))
+        {
+            _window.Show();
+        }
     }
 
     protected override void OnExit(ExitEventArgs e)
@@ -84,6 +94,26 @@ public partial class App : System.Windows.Application
 
     /// <summary>Switches the UI language live; null follows Windows.</summary>
     internal void ApplyLanguage(string? preference) => _localization?.Apply(preference);
+
+    /// <summary>If "start with Windows" is on and the app was moved, points the entry at this copy.
+    /// A failure here must never keep the app from opening.</summary>
+    private static void KeepStartupEntryCurrent()
+    {
+        string? exePath = Environment.ProcessPath;
+        if (exePath is null)
+        {
+            return;
+        }
+
+        try
+        {
+            new WindowsStartupRegistration().RefreshIfStale(exePath);
+        }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or System.Security.SecurityException or IOException)
+        {
+            // Left as it was; the Geral page shows the state and lets the user retry.
+        }
+    }
 
     private void ShowMainWindow()
     {

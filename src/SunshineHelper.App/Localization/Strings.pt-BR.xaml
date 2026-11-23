@@ -44,6 +44,12 @@
 
     <sys:String x:Key="General.Language">Idioma</sys:String>
     <sys:String x:Key="General.Language.System">Seguir o Windows</sys:String>
+    <sys:String x:Key="General.Startup">Iniciar com o Windows, minimizado na bandeja</sys:String>
+    <sys:String x:Key="General.Startup.Hint">O app abre sozinho quando você entra no Windows e fica na bandeja, pronto antes de você iniciar uma transmissão. Também dá para desligar em Configurações do Windows, Aplicativos, Inicializar. Abrir à mão continua mostrando a janela.</sys:String>
+    <sys:String x:Key="General.Startup.On">O app agora vai iniciar com o Windows.</sys:String>
+    <sys:String x:Key="General.Startup.Off">O app não vai mais iniciar com o Windows.</sys:String>
+    <sys:String x:Key="General.Startup.NoPath">Não foi possível descobrir onde o app está instalado.</sys:String>
+    <sys:String x:Key="General.Startup.Failed">Não foi possível alterar a opção: {0}</sys:String>
     <sys:String x:Key="General.LogPath">Arquivo de log do Sunshine</sys:String>
     <sys:String x:Key="General.LogPath.Hint">Caminho completo do sunshine.log. Deixe vazio para desligar o leitor do log (retomar e desconexão simples deixam de ser detectadas).</sys:String>
     <sys:String x:Key="General.Browse">Procurar...</sys:String>

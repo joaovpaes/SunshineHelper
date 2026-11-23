@@ -10,6 +10,7 @@ using System.Windows.Threading;
 using SunshineHelper.App.Services;
 using SunshineHelper.Application.Session;
 using SunshineHelper.Domain.Localization;
+using SunshineHelper.Infrastructure.Startup;
 using SunshineHelper.Domain.Monitoring;
 using SunshineHelper.Domain.Settings;
 
@@ -18,6 +19,7 @@ namespace SunshineHelper.App;
 public partial class MainWindow : Window
 {
     private readonly AppHost _host;
+    private readonly WindowsStartupRegistration _startup = new();
     private readonly DispatcherTimer _statusTimer = new() { Interval = TimeSpan.FromSeconds(1) };
     private bool _refreshing;
     private bool _loadingGeneral;
@@ -93,12 +95,58 @@ public partial class MainWindow : Window
             LanguageResolver.English => 2,
             _ => 0,
         };
+        StartWithWindowsBox.IsChecked = SafeStartupEnabled();
         LogPathBox.Text = current.SunshineLogPath ?? string.Empty;
         LauncherNamesBox.Text = string.Join(Environment.NewLine, current.Launcher.ProcessNames);
         LauncherDelayBox.Text = current.Timing.LauncherDelayMs.ToString(CultureInfo.InvariantCulture);
         AppVersionText.Text = string.Format(CultureInfo.CurrentCulture, Text("General.About.Version"), AppHost.AppVersion);
         GeneralMessage.Text = string.Empty;
         _loadingGeneral = false;
+    }
+
+    private bool SafeStartupEnabled()
+    {
+        try
+        {
+            return _startup.IsEnabled();
+        }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or System.Security.SecurityException or IOException)
+        {
+            return false;
+        }
+    }
+
+    private void OnStartWithWindowsChanged(object sender, RoutedEventArgs e)
+    {
+        if (_loadingGeneral)
+        {
+            return;
+        }
+
+        bool wanted = StartWithWindowsBox.IsChecked == true;
+        try
+        {
+            if (wanted)
+            {
+                string exePath = Environment.ProcessPath
+                    ?? throw new InvalidOperationException(Text("General.Startup.NoPath"));
+                _startup.Enable(exePath);
+            }
+            else
+            {
+                _startup.Disable();
+            }
+
+            GeneralMessage.Text = Text(wanted ? "General.Startup.On" : "General.Startup.Off");
+        }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or System.Security.SecurityException or IOException or InvalidOperationException)
+        {
+            // Put the box back to what is really in the registry.
+            _loadingGeneral = true;
+            StartWithWindowsBox.IsChecked = !wanted;
+            _loadingGeneral = false;
+            GeneralMessage.Text = string.Format(CultureInfo.CurrentCulture, Text("General.Startup.Failed"), ex.Message);
+        }
     }
 
     private async void OnLanguageChanged(object sender, SelectionChangedEventArgs e)
