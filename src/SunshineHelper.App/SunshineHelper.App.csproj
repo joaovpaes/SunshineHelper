@@ -4,10 +4,10 @@
     <TargetFramework>net10.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
     <UseWPF>true</UseWPF>
+    <!-- Only for the tray icon (NotifyIcon): WPF has none of its own. -->
+    <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>SunshineHelper.App</RootNamespace>
     <AssemblyName>SunshineHelper</AssemblyName>
-    <!-- Not yet an app the user can run: no window, no tray icon, no DI host.
-         Those land as Phase 1 PRs land. See docs/fase1-plano.md. -->
   </PropertyGroup>
 
   <ItemGroup>

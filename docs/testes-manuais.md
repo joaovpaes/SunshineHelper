@@ -188,6 +188,27 @@ deveria. Abra o app (`dotnet run --project src\SunshineHelper.App`):
 - [ ] Nenhum texto fica cortado ou vazio em nenhuma das quatro combinações
       (escuro/claro x português/inglês).
 
+## PR 9b — App ligado, bandeja e Painel
+
+O CI só prova que compila e que a lógica do estado está certa. Abra o app
+(`dotnet run --project src\SunshineHelper.App`) e confira:
+
+- [ ] Aparece um ícone na bandeja (perto do relógio). Clique direito: **Abrir** e **Sair**
+      (em inglês: Open / Exit, conforme o idioma do Windows).
+- [ ] Clicar no X da janela só esconde; duplo clique no ícone (ou **Abrir**) traz de volta.
+- [ ] **Sair** fecha de verdade e o ícone some da bandeja.
+- [ ] Abrir o app uma segunda vez não abre outra janela nem outro ícone.
+- [ ] Painel mostra "Nenhuma transmissão ativa." e "Leitor do log desligado" (ainda não há
+      como definir o caminho; isso é o 9c).
+- [ ] **Canal de verdade:** com o app aberto, rode o auxiliar (`SunshineHelper.Trigger`) com o
+      argumento `start` (defina antes `SUNSHINE_CLIENT_NAME=Sala` no terminal) e um perfil no
+      `settings.json`; o Painel passa a "Transmissão ativa"
+      com o nome do dispositivo e o perfil. O argumento `end` volta a "Nenhuma transmissão".
+- [ ] **Restauração na abertura:** com uma sessão ativa, encerre o app pelo Gerenciador de
+      Tarefas (encerrar tarefa), abra de novo: o ambiente volta ao que era sozinho.
+- [ ] `settings.json` com texto quebrado (apague uma chave `}`): o app abre mesmo assim e o
+      Painel lista o problema.
+
 ## Automatizar isto (pendência, sem PR ainda)
 
 Pedido do autor: transformar estes itens em testes automáticos de verdade, em

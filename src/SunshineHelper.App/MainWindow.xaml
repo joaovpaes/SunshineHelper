@@ -37,12 +37,27 @@
         <StackPanel Grid.Column="1" Margin="32">
             <TextBlock x:Name="PageTitle" Style="{StaticResource Text.Title}" />
             <TextBlock x:Name="PageDescription" Margin="0,8,0,0" Style="{StaticResource Text.Dim}" />
-            <Border Margin="0,32,0,0" Padding="16"
+            <Border x:Name="NotReadyCard" Margin="0,32,0,0" Padding="16"
                     Background="{DynamicResource Brush.Panel}"
                     BorderBrush="{DynamicResource Brush.Line}"
                     BorderThickness="1"
                     CornerRadius="{StaticResource Radius.Medium}">
                 <TextBlock Style="{StaticResource Text.Dim}" Text="{DynamicResource Page.NotReady}" />
+            </Border>
+
+            <!-- Dashboard: what the app is doing right now. -->
+            <Border x:Name="PanelCard" Margin="0,32,0,0" Padding="16" Visibility="Collapsed"
+                    Background="{DynamicResource Brush.Panel}"
+                    BorderBrush="{DynamicResource Brush.Line}"
+                    BorderThickness="1"
+                    CornerRadius="{StaticResource Radius.Medium}">
+                <StackPanel>
+                    <TextBlock x:Name="StatusText" Style="{StaticResource Text.Body}" />
+                    <TextBlock x:Name="ClientText" Margin="0,8,0,0" Style="{StaticResource Text.Dim}" />
+                    <TextBlock x:Name="ProfileText" Margin="0,4,0,0" Style="{StaticResource Text.Dim}" />
+                    <TextBlock x:Name="LogText" Margin="0,16,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="ProblemsText" Margin="0,16,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap" />
+                </StackPanel>
             </Border>
         </StackPanel>
     </Grid>
