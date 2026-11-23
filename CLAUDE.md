@@ -16,6 +16,7 @@ Arquitetura em camadas: Domain ← Application ← Infrastructure/UI. Módulos c
 - O ambiente do Claude não tem .NET nem Windows: o CI é o compilador. Não afirmar que compila ou passa sem o CI confirmar.
 - No fim de cada PR mesclado, atualizar `docs/ESTADO.md` (último PR, próximos, pendências de teste), junto com o PR seguinte ou em um PR de docs.
 - **Notas de release:** toda versão publicada, mesmo de testes, tem `docs/releases/<tag>.md`, bem explicada (o que mudou, como atualizar, limites, como conferir) e **em inglês e português (inglês primeiro)**. O workflow recusa criar a release sem esse arquivo. Modelo em `docs/releases/_modelo.md`.
+- **Versão nova:** depois de mesclar um PR importante com funcionalidade nova, **perguntar ao usuário se quer uma versão nova** (nunca publicar sem ele pedir). Só vale a pena se o app mudou desde a última versão. Dar as notas em `docs/releases/` num PR pequeno antes de disparar o workflow; o GitHub impede o Claude de editar uma release já publicada (o usuário edita pelo lápis).
 - Segredos nunca entram. Logs do Sunshine têm `rikey`, `uniqueid`, IPs e MACs: redigir antes de virarem fixture.
 - Ações do GitHub fixadas por SHA; `permissions:` mínimo por job.
 
