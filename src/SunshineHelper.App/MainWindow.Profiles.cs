@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using SunshineHelper.Domain.Settings;
+using SunshineHelper.Infrastructure.Fps;
 
 namespace SunshineHelper.App;
 
@@ -109,6 +110,35 @@ public partial class MainWindow
         ResolutionBox.IsEnabled = ModeOf(ResolutionModeBox) == ProfileValueMode.Fixed;
         HdrOnBox.IsEnabled = ModeOf(HdrModeBox) == ProfileValueMode.Fixed;
         FpsBox.IsEnabled = ModeOf(FpsModeBox) == ProfileValueMode.Fixed;
+        UpdateFpsPermissionNotice();
+    }
+
+    /// <summary>Shown only when the profile touches FPS and RTSS is there but not writable.</summary>
+    private void UpdateFpsPermissionNotice()
+    {
+        bool usesFps = ModeOf(FpsModeBox) != ProfileValueMode.Leave;
+        FpsPermissionPanel.Visibility = usesFps && RtssProfileAccess.Check() == RtssProfileAccessStatus.Missing
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+    }
+
+    private async void OnRepairRtss(object sender, RoutedEventArgs e)
+    {
+        RepairButton.IsEnabled = false;
+        ProfilesMessage.Text = Text("Profiles.Fps.Repairing");
+        try
+        {
+            // Blocks until the UAC prompt is answered (up to 60 s): never on the UI thread.
+            var result = await Task.Run(RtssProfileAccess.RequestGrant);
+            ProfilesMessage.Text = result.Outcome == RtssGrantOutcome.Granted
+                ? Text("Profiles.Fps.Repaired")
+                : string.Format(CultureInfo.CurrentCulture, Text("Profiles.Fps.RepairFailed"), result.Message);
+        }
+        finally
+        {
+            RepairButton.IsEnabled = true;
+            UpdateFpsPermissionNotice();
+        }
     }
 
     private async void OnSaveProfile(object sender, RoutedEventArgs e)

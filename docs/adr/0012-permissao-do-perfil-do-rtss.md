@@ -50,6 +50,7 @@ mas o jogo continua sem limite, e o arquivo não muda. O RTSS só aplica o que e
 - Risco residual: qualquer programa rodando como o usuário pode alterar o perfil global do RTSS
   (limite de FPS, OSD e outras opções do RTSS). Não dá acesso a outros arquivos nem a execução de
   código elevado. Fica registrado no `SECURITY.md` como parte do escopo "arquivos que o app grava".
-- **Suposição a confirmar no PC do autor:** o RTSS regrava `Profiles\Global` no mesmo lugar. Se ele
+- **Suposição confirmada no PC do autor (2026-11-23, PR 15b-1):** o RTSS regrava `Profiles\Global` no mesmo lugar.
+  Se ele
   gravar um arquivo novo e renomear, a permissão só no arquivo não basta; aí esta decisão é revista
   (sem passar a dar permissão na pasta, pelo motivo acima).

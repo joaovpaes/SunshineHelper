@@ -52,8 +52,8 @@ public sealed class RtssFpsLimitModule : IEnvironmentModule
     private const int CurrentPayloadVersion = 1;
     private const string NoWritePermissionMessage =
         "Sem permissão para gravar o perfil do RTSS (a pasta dele fica em Program Files, "
-        + "protegida pelo Windows). Abra o SunshineHelper como administrador para aplicar "
-        + "ou restaurar o limite de FPS.";
+        + "protegida pelo Windows). Na tela Perfis, clique em \"Reparar\": o Windows pede "
+        + "confirmação uma vez e libera só esse arquivo.";
 
     // NUL-terminated ASCII, because RTSS's exports take LPCSTR (see RtssHooks). The empty
     // name is RTSS's own convention for "the global profile" — the one that applies to

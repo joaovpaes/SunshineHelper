@@ -92,4 +92,10 @@
     <sys:String x:Key="Profiles.Error.Resolution">Invalid resolution: use the format 1920x1080.</sys:String>
     <sys:String x:Key="Profiles.Error.Fps">Invalid FPS: use a whole number from 1 to 1000.</sys:String>
     <sys:String x:Key="Profiles.Error.Delay">Invalid delay: leave empty or use a whole number from 0 to 30000.</sys:String>
+    <sys:String x:Key="Profiles.Fps.NoPermission">This profile caps FPS, but the app is not yet allowed to write the RTSS profile (it lives in Program Files). Click "Repair": Windows asks for confirmation once and unlocks only that file.</sys:String>
+    <sys:String x:Key="Profiles.Fps.Repair">Repair</sys:String>
+    <sys:String x:Key="Profiles.Fps.Repairing">Waiting for the Windows confirmation...</sys:String>
+    <sys:String x:Key="Profiles.Fps.Repaired">Done: the app can now write the RTSS FPS limit.</sys:String>
+    <sys:String x:Key="Profiles.Fps.RepairFailed">Could not grant the permission: {0}</sys:String>
+    <sys:String x:Key="Panel.RtssClosed">Warning: this profile caps FPS, but RTSS is not running. The limit only applies once RTSS is open.</sys:String>
 </ResourceDictionary>

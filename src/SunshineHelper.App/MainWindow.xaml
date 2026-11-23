@@ -57,6 +57,7 @@
                     <TextBlock x:Name="ClientText" Margin="0,8,0,0" Style="{StaticResource Text.Dim}" />
                     <TextBlock x:Name="ProfileText" Margin="0,4,0,0" Style="{StaticResource Text.Dim}" />
                     <TextBlock x:Name="NotAppliedText" Margin="0,8,0,0" Style="{StaticResource Text.Body}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="RtssClosedText" Margin="0,8,0,0" Style="{StaticResource Text.Body}" TextWrapping="Wrap" />
                     <TextBlock x:Name="LogText" Margin="0,16,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap" />
                     <TextBlock x:Name="ProblemsText" Margin="0,16,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap" />
                 </StackPanel>
@@ -117,6 +118,14 @@
                             <ComboBoxItem Tag="Leave" Content="{DynamicResource Profiles.Mode.Leave}" />
                         </ComboBox>
                         <TextBox x:Name="FpsBox" Margin="8,0,0,0" Width="80" Padding="6,4" VerticalContentAlignment="Center" />
+                    </StackPanel>
+
+                    <StackPanel x:Name="FpsPermissionPanel" Margin="0,8,0,0" Visibility="Collapsed">
+                        <TextBlock Style="{StaticResource Text.Body}" TextWrapping="Wrap"
+                                   Text="{DynamicResource Profiles.Fps.NoPermission}" />
+                        <Button x:Name="RepairButton" Margin="0,8,0,0" Padding="12,6" HorizontalAlignment="Left"
+                                Style="{StaticResource Button.Secondary}"
+                                Content="{DynamicResource Profiles.Fps.Repair}" Click="OnRepairRtss" />
                     </StackPanel>
 
                     <CheckBox x:Name="RevertOnDisconnectBox" Margin="0,16,0,0"

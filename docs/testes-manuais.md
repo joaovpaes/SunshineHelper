@@ -49,20 +49,20 @@ Rodada de 2026-11-23 no PC do autor (Sunshine 2026.914, RX 9070 XT, tela 2560x14
   aceitou e a releitura confirmou, mas o jogo seguiu em ~170 FPS e o arquivo `Profiles\Global` não mudou (mesmo
   hash). Conclusão: o caminho só em memória não serve; segue para o 15b (ADR 0012). A ferramenta compilou e rodou.
 
+- **PR 15b-1 (permissão só no perfil global do RTSS, ADR 0012), 18:21:** sem administrador, opção 7 pediu o UAC
+  (aceito) e terminou com "seu usuário já pode gravar"; opção 3 com 60: o jogo travou em 60 FPS; opção 5 devolveu
+  o limite (estava em 171). A suposição do ADR 0012 (o RTSS regrava o arquivo no mesmo lugar) está confirmada.
+
 **Falhou e foi corrigido**
 - A resolução do perfil nunca era aplicada. O `app.log` (PR 12c) mostrou que a troca para 1920x1080 funcionava
   e era desfeita logo depois de o HDR ligar. Confirmado com `tools/manual-tests`: ligar o HDR depois de trocar a
   resolução devolve a tela a 2560x1440. Corrigido no PR 34 (HDR antes da resolução, ADR 0010).
 
 **Ainda pendente**
-- **PR 15b-1 (permissão só no perfil global do RTSS, ADR 0012):** com o RTSS aberto e um jogo mostrando o FPS no
-  OSD, num PowerShell **comum** rode `powershell -ExecutionPolicy Bypass -File .\tools\manual-tests\rtss-module\run.ps1`.
-  1. Opção **7**: deve dizer "falta permissão" e abrir a janela do UAC; aceite. Deve terminar com "seu usuário
-     já pode gravar".
-  2. Ainda sem administrador: opção **2** (capturar), opção **3** com `60`: "Aplicado" e o jogo trava em 60 FPS.
-  3. Opção **5**: "Revertido" e o jogo volta ao FPS normal.
-  4. Se a opção 3 falhar mesmo com a 7 dizendo "já pode gravar", copie a mensagem: é o sinal de que o RTSS grava
-     em arquivo novo e renomeia (ADR 0012, "Suposição a confirmar").
+- **PR 15b-2 (avisos e botão "Reparar"), ponta a ponta:** com o app novo (compilado depois do PR 49) e **sem**
+  administrador. Na tela Perfis, escolha FPS "Valor fixo" 60: se faltar a permissão, aparece o aviso com o botão
+  "Reparar" (o UAC pede uma vez). Depois, com o RTSS **fechado**, transmita: o Painel deve avisar que o RTSS não
+  está aberto. Com o RTSS aberto e o jogo rodando, o limite de 60 FPS deve valer e voltar ao normal no Quit.
 - PR 12d, opcional: gerar o relatório com o caminho do log do Sunshine vazio (a seção diz "not configured").
 - Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada). A resolução já está corrigida e o
   fechamento do Playnite foi confirmado; falta só medir.
