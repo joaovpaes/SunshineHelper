@@ -46,6 +46,23 @@ O Claude não troca o próprio modelo nem o esforço; quem troca é o usuário. 
 
 Quando um problema ficar complexo (falhou 2 vezes, ou o `app.log` não explica a causa), **parar e recomendar** ao usuário gerar o relatório pelo botão "Gerar relatório de diagnóstico" (tela Geral) e passá-lo à ferramenta externa dele, que lê só o código-fonte baixado. Como funciona e o modelo de pedido: `docs/diagnostico.md`. Só tentar uma terceira correção depois da resposta dessa ferramenta. O relatório é redigido (IP, MAC, chaves do Sunshine, usuário do Windows), mas o Claude lembra o usuário de ler o arquivo antes de compartilhar.
 
+## Armadilhas conhecidas do compilador e do CI
+
+O ambiente do Claude não compila, então cada erro aqui custa um ciclo de CI. Antes de dar push, reler o código novo contra esta lista. Avisos são erros (`TreatWarningsAsErrors`).
+
+- **Ordem dos `using`** (`dotnet format`): `System.*` primeiro, depois `SunshineHelper.*`. Nos testes: `Shouldly`, `SunshineHelper.*`, `Xunit`.
+- **CA1305:** texto com número ou data usa `string.Create(CultureInfo.InvariantCulture, $"...")`. Sem interpolação aninhada: calcular antes em variáveis locais (`clientText`, `elapsedText`).
+- **CA1861:** array constante em argumento (`new[] { "a", "b" }`) vira campo `static readonly`.
+- **CA1826 e CA1859:** usar o indexador ou propriedade em vez de LINQ em lista/array, e o tipo concreto em campo ou variável privada quando der.
+- **IDE1006:** campo privado `static readonly` também leva prefixo `_` (`_fakeSecret1`).
+- **xUnit1051:** nos testes, passar `TestContext.Current.CancellationToken` a quem aceita token.
+- **`T?` em tipo valor:** `int?` e `T?` com struct são `Nullable<T>`, não anotação. Conferir `.Value` e `is { } x`. Evitar `new(...)` de tipo-alvo quando o tipo for ambíguo.
+- **WPF e WinForms:** nomes ambíguos (`ComboBox`, `MessageBox`) pedem o nome completo (`System.Windows.Controls.ComboBox`). Os usings implícitos do projeto WPF não incluem `System.IO`.
+- **Cobertura:** o CI exige 80% em Domain e Application (`scripts/check-coverage.ps1`). Código novo nessas camadas sem teste derruba o CI.
+- **gitleaks lê todos os commits do PR**, não só o último. Texto falso de teste que pareça segredo (`rikey=ABC...`) precisa ser plano e de pouca variedade (`qqqqqqqqqqqqqqqq`). Se um valor ruim já entrou num commit, recriar o branch a partir de um commit limpo e abrir outro PR. Nunca force-push nem arquivo de ignorar.
+- **Actions e permissões:** ação nova fixada por SHA e `permissions:` mínimo por job.
+- **CI só roda em PR com base `main`:** não empilhar PRs. Depois de outro merge, atualizar o branch (`update-branch`) antes de mesclar.
+
 ## Estilo
 
 Português para falar com o usuário (frases curtas; dizer "mesclar" e "versão"). Código, commits e identificadores em inglês. UI com arquivos de idioma (pt-BR e en).
