@@ -51,6 +51,14 @@ foreach ($assembly in $Assemblies) {
     $percent = if ($total -eq 0) { 0 } else { [math]::Round(100 * $covered / $total, 1) }
     $summary += "| $assembly | $covered | $total | $percent% |"
     Write-Host "$assembly`: $covered/$total linhas ($percent%)"
+    # Where the missing lines are, so the next tests can go straight there.
+    $seen.GetEnumerator() |
+        Where-Object { -not $_.Value } |
+        Group-Object { $_.Key.Substring(0, $_.Key.LastIndexOf(':')) } |
+        Sort-Object Count -Descending |
+        Select-Object -First 15 |
+        ForEach-Object { Write-Host ("    {0,4} sem teste  {1}" -f $_.Count, $_.Name) }
+
     if ($total -eq 0 -or $percent -lt $Minimum) {
         Write-Host "::error::$assembly com $percent% de cobertura, abaixo do minimo de $Minimum%."
         $failed = $true
