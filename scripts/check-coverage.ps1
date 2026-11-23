@@ -28,12 +28,23 @@ foreach ($assembly in $Assemblies) { $lines[$assembly] = @{} }
 
 foreach ($file in $files) {
     [xml] $xml = Get-Content -Raw -Path $file.FullName
+    # Coverlet writes class file names relative to a <source> root in some reports and as
+    # full paths in others; the same file must count once, so every name is made full.
+    $roots = @($xml.coverage.sources.source | Where-Object { $_ })
     foreach ($package in $xml.coverage.packages.package) {
         if (-not $lines.ContainsKey($package.name)) { continue }
         $seen = $lines[$package.name]
         foreach ($class in $package.classes.class) {
+            $path = $class.filename
+            if (-not [System.IO.Path]::IsPathRooted($path)) {
+                foreach ($root in $roots) {
+                    $candidate = Join-Path $root $path
+                    if (Test-Path -LiteralPath $candidate) { $path = $candidate; break }
+                }
+            }
+            $path = [System.IO.Path]::GetFullPath($path).ToLowerInvariant()
             foreach ($line in $class.lines.line) {
-                $key = "$($class.filename):$($line.number)"
+                $key = "$($path):$($line.number)"
                 $hit = [int] $line.hits -gt 0
                 if ($seen.ContainsKey($key)) { $seen[$key] = $seen[$key] -or $hit }
                 else { $seen[$key] = $hit }
