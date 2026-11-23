@@ -1,0 +1,131 @@
+name: Preview release
+
+# Builds the app and the Sunshine trigger into one zip. On a pull request that touches
+# this file it only builds (a dry run, so a broken workflow is caught before anyone needs
+# it). A release is created only when a person starts the workflow by hand and types the
+# tag (docs/preview-como-usar.md).
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag of the preview, e.g. v0.1.0-preview.1"
+        required: true
+        default: v0.1.0-preview.1
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/preview-release.yml
+      - docs/preview-como-usar.md
+
+permissions:
+  contents: read
+
+concurrency:
+  group: preview-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build preview package
+    runs-on: windows-latest
+    permissions:
+      contents: read
+    env:
+      TAG: ${{ inputs.tag || 'v0.1.0-preview.0' }}
+    steps:
+      - name: Check the tag
+        shell: pwsh
+        # The tag is typed by a person: only this exact shape goes any further.
+        run: |
+          if ($env:TAG -notmatch '^v\d+\.\d+\.\d+-preview\.\d+$') {
+            throw "Invalid tag '$env:TAG': use the shape v0.1.0-preview.1"
+          }
+          "VERSION=$($env:TAG.Substring(1))" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Check out repository
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.1.0
+        with:
+          persist-credentials: false
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
+        with:
+          global-json-file: global.json
+
+      - name: Publish the app (self-contained, single file)
+        run: >
+          dotnet publish src/SunshineHelper.App/SunshineHelper.App.csproj
+          --configuration Release
+          --runtime win-x64
+          --self-contained true
+          --output publish/app
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true
+          -p:DebugType=none
+          -p:DebugSymbols=false
+          -p:Version=${{ env.VERSION }}
+
+      - name: Publish the Sunshine trigger (NativeAOT)
+        # PublishAot lives in the .csproj, not here (see ci.yml).
+        run: >
+          dotnet publish src/SunshineHelper.Trigger/SunshineHelper.Trigger.csproj
+          --configuration Release
+          --runtime win-x64
+          --output publish/trigger
+          -p:Version=${{ env.VERSION }}
+
+      - name: Make the zip and the checksums
+        shell: pwsh
+        run: |
+          $name = "SunshineHelper-$env:TAG-win-x64"
+          $stage = Join-Path 'dist' $name
+          New-Item -ItemType Directory -Path $stage -Force | Out-Null
+          Copy-Item 'publish/app/SunshineHelper.exe' $stage
+          Copy-Item 'publish/trigger/SunshineHelper.Trigger.exe' $stage
+          Copy-Item 'docs/preview-como-usar.md' (Join-Path $stage 'LEIA-ME.md')
+          Copy-Item 'LICENSE' $stage
+          Compress-Archive -Path $stage -DestinationPath "dist/$name.zip"
+          Remove-Item $stage -Recurse -Force
+          $sums = Get-ChildItem 'dist/*.zip' | ForEach-Object {
+            $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+            "$hash  $($_.Name)"
+          }
+          $sums | Out-File -FilePath 'dist/SHA256SUMS.txt' -Encoding ascii
+          Get-ChildItem dist | Format-Table Name, Length
+
+      - name: Upload the package
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: preview-package
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 7
+
+  release:
+    name: Create the pre-release
+    # Only when a person started it by hand; a pull request never gets here.
+    if: github.event_name == 'workflow_dispatch'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ inputs.tag }}
+      REPO: ${{ github.repository }}
+      SHA: ${{ github.sha }}
+      RUN_ID: ${{ github.run_id }}
+    steps:
+      - name: Download the package built above
+        run: gh run download "$RUN_ID" --repo "$REPO" --name preview-package --dir dist
+
+      - name: Create the pre-release
+        run: |
+          gh release create "$TAG" dist/* \
+            --repo "$REPO" \
+            --target "$SHA" \
+            --prerelease \
+            --title "SunshineHelper $TAG (preview)" \
+            --notes "Versão de testes. Sem instalador e sem assinatura de código (o Windows mostra o aviso do SmartScreen). Leia o LEIA-ME.md dentro do zip antes de usar. Confira o arquivo com o SHA256SUMS.txt."
