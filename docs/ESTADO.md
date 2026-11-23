@@ -1,7 +1,7 @@
 # Estado do projeto
 
 Uma página para retomar o trabalho sem reler tudo. O Claude atualiza este arquivo no fim de cada PR
-(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-23**, `main` após o PR 46.
+(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-23**, `main` após o PR 47.
 
 ## Onde estamos
 
@@ -11,7 +11,7 @@ leitor do log do Sunshine, bandeja e janela (Painel, Geral, Perfis), log de diag
 diagnóstico. As decisões D2 (falha de um módulo vira aviso) e D3 (sessão anterior presa é restaurada antes da
 nova) estão no ADR 0011 e passaram no teste do PC. Situação do portão: `docs/fase1-portao.md`.
 
-**Último PR mesclado:** #46 (teste do RTSS só em memória: não serve, o RTSS só aplica o que está gravado).
+**Último PR mesclado:** #47 (ADR 0012: permissão só no perfil global do RTSS; falta testar no PC).
 
 ## Próximos PRs
 
@@ -20,7 +20,7 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 | PR | O quê | Modelo |
 | --- | --- | --- |
 | 15b-1 | Permissão só no perfil global do RTSS (ADR 0012), opção 7 na ferramenta; teste no PC | Opus · alto |
-| 15b-2 | Aviso na tela Perfis e botão "Reparar" | Sonnet · médio |
+| 15b-2 | Aviso na tela Perfis, botão "Reparar" e aviso no Painel de RTSS fechado | Sonnet · médio |
 | 16 | O app percebe que o Sunshine morreu e restaura sozinho (ADR novo) | Opus · alto |
 
 ## Decisões em aberto
@@ -38,6 +38,10 @@ Lista viva em `docs/testes-manuais.md`, "Ainda pendente":
 
 ## Backlog (sem PR marcado)
 
+- Instalador (PR próprio, ainda não existe): tarefa agendada para o auxiliar iniciar o SunshineHelper quando ele não
+  estiver aberto (ADR 0002 e 0003; hoje o auxiliar desiste em 2 s e a transmissão começa sem perfil, então o app
+  precisa estar aberto antes), concessão da permissão do RTSS (ADR 0012) e, a decidir, abrir o RTSS sozinho se ele
+  estiver fechado.
 - Depois do instalador: release com `release-please`, `SHA256SUMS.txt`, atestado de procedência; assinatura de
   código (SignPath) a cargo do autor.
 - Fontes embutidas, ícone do produto e opção manual de tema.
