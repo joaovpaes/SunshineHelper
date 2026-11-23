@@ -68,6 +68,22 @@ public sealed class SessionOrchestrator
     /// was left behind that was never put back.</summary>
     public bool HasSessionOnDisk => _store.Exists();
 
+    /// <summary>Id of the session in the snapshot on disk; null when there is none or it
+    /// cannot be read. Lets a caller that decided to end "this" session check, once it
+    /// has its turn, that it is still the same one.</summary>
+    public async Task<string?> ReadSessionIdAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            string? content = await _store.ReadAsync(cancellationToken).ConfigureAwait(false);
+            return content is null ? null : SessionSnapshotSerializer.Deserialize(content).SessionId;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SnapshotFormatException)
+        {
+            return null;
+        }
+    }
+
     /// <summary>Applies <paramref name="profile"/> for the client in
     /// <paramref name="request"/>, after writing down everything it is about to
     /// change.</summary>

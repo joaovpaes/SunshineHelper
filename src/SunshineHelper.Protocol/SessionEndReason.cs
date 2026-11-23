@@ -12,4 +12,10 @@ public static class SessionEndReason
     /// client may still <c>/resume</c>, so the launcher stays open
     /// (docs/adr/0008-modulo-launcher.md). Only sent in-process, by the log reader.</summary>
     public const string Disconnect = "disconnect";
+
+    /// <summary>The Sunshine process that was running when the session started is gone,
+    /// so its Undo Command will never run: everything goes back, like <see cref="Cancel"/>
+    /// (docs/adr/0013-sunshine-encerrado-restaura.md). Only sent in-process, by the
+    /// watchdog.</summary>
+    public const string SunshineExited = "sunshine-exited";
 }

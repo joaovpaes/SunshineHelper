@@ -67,6 +67,13 @@ Rodada de 2026-11-23 no PC do autor (Sunshine 2026.914, RX 9070 XT, tela 2560x14
   resolução devolve a tela a 2560x1440. Corrigido no PR 34 (HDR antes da resolução, ADR 0010).
 
 **Ainda pendente**
+- **PR 16 (restaurar sozinho quando o Sunshine encerra, ADR 0013):** com o app novo (compilado depois do PR 51),
+  inicie uma transmissão com o perfil aplicado (resolução e HDR mudam). Com o SunshineHelper aberto, finalize o
+  `sunshine.exe` no Gerenciador de Tarefas (aba Detalhes; precisa do botão "Finalizar tarefa" como administrador,
+  ou pare o serviço "Sunshine Service" em Serviços). Em uns 5 s a tela deve voltar ao normal **sem reabrir nada**,
+  e o Painel deve mostrar "Nenhuma transmissão ativa". No `app.log`: `the Sunshine process of this session is gone`
+  e `in-process end answered: reason 'sunshine-exited', ok True, state 'reverted'`. Depois, inicie o Sunshine e
+  transmita de novo: deve funcionar normalmente.
 - PR 12d, opcional: gerar o relatório com o caminho do log do Sunshine vazio (a seção diz "not configured").
 - Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada). A resolução já está corrigida e o
   fechamento do Playnite foi confirmado; falta só medir.
