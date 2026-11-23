@@ -145,6 +145,17 @@ public static class ProfileForm
         return new ProfileFormResult(profile, []);
     }
 
+    /// <summary>A blank profile for a device seen on the Devices screen: the name and the
+    /// client name are filled in with what Moonlight reported, everything else is the same
+    /// as a new profile. Nothing is saved until the user clicks Save.</summary>
+    public static ProfileFormInput NewForDevice(string deviceName)
+    {
+        ArgumentNullException.ThrowIfNull(deviceName);
+
+        string name = deviceName.Trim();
+        return new ProfileFormInput { Name = name, ClientNamesText = name };
+    }
+
     public static ProfileFormInput FromProfile(ClientProfile profile)
     {
         ArgumentNullException.ThrowIfNull(profile);

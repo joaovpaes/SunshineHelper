@@ -94,6 +94,13 @@ aberta na bandeja faz a cópia nova sair em silêncio; foi o que confundiu o pri
   5. Selecione um aparelho e clique em **Esquecer aparelho**: ele sai da lista e aparece de novo na próxima conexão.
   6. Feche e abra o app: a lista continua (o arquivo é `%LOCALAPPDATA%\SunshineHelper\devices.json`).
   7. Confira que a transmissão continua igual: o registro não deve atrasar nem impedir nada.
+- Botão "Criar perfil para este aparelho" (PR 62), na próxima versão de testes:
+  1. Tela **Dispositivos**, selecione um aparelho que **ainda não tem perfil** e clique em "Criar perfil para este aparelho".
+  2. O app abre a tela **Perfis** num perfil novo, com o nome do aparelho já preenchido em "Nome do perfil" e em
+     "Nomes dos dispositivos". Aparece o aviso de que nada foi salvo ainda.
+  3. Escolha resolução, HDR e FPS e clique em **Salvar perfil**. Volte em Dispositivos: o botão do mesmo aparelho agora diz
+     "Abrir o perfil deste aparelho" e abre esse perfil.
+  4. Feche a tela sem salvar em outro teste: nenhum perfil deve ser criado.
 
 Observação de uso: no Moonlight, só **encerrar a sessão** (Quit) faz o Sunshine rodar o comando Undo. Apenas
 sair/desconectar deixa tudo como está, a menos que o perfil tenha "Restaurar a tela ao desconectar".

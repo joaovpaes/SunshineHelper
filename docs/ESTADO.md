@@ -23,7 +23,7 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 | --- | --- | --- |
 | 60 | Tela Dispositivos: registro dos aparelhos que conectaram (`devices.json`) e lista | Sonnet · médio |
 | 61 | Botão "Criar perfil para este aparelho" na tela Dispositivos | Sonnet · médio |
-| a seguir | Tela Log; depois o overlay pelo controle (Opus · alto, com ADR) | ver backlog |
+| a seguir | Tela Log (PR 63); depois o overlay pelo controle (Opus · alto, com ADR) | ver backlog |
 
 ## Decisões em aberto
 
@@ -53,6 +53,10 @@ Lista viva em `docs/testes-manuais.md`, "Ainda pendente":
 - **Aviso do SmartScreen:** some com assinatura de código (a Fundação SignPath assina projetos de código aberto de
   graça; o pedido é do autor e leva dias ou semanas) e, depois, com a reputação do programa; em certificado pago
   (validação estendida) a reputação vem mais rápido. Até lá o `LEIA-ME.md` do pré-lançamento explica como seguir.
+- **Atualização automática do app** (pedido do autor em 2026-11-23, deixada para uma etapa mais consolidada). Plano em dois
+  PRs: (1) só avisar que há versão nova, consultando as releases do GitHub, com opção de desligar a consulta; (2) baixar,
+  conferir o SHA256 e trocar os dois `.exe`, que pede ADR, Opus · esforço alto e revisão de segurança. Sem assinatura de
+  código e sem instalador, o SHA256 só garante que o arquivo não veio corrompido, não quem o publicou.
 - **Longo prazo (só depois de todo o escopo pronto):** telemetria própria do app, no estilo do OSD do RivaTuner
   (monitoramento de desempenho na tela; a decidir, sempre local, nada enviado pela internet), e um **limitador de FPS
   próprio**, para o app não depender do RTSS. Para o limitador, a direção a investigar é o driver da placa de vídeo

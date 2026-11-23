@@ -45,12 +45,14 @@ public partial class MainWindow
     private static ClientProfile? FindProfile(AppSettings settings, string? id) =>
         id is null ? null : settings.Profiles.FirstOrDefault(p => string.Equals(p.Id, id, StringComparison.Ordinal));
 
-    private void FillProfileForm(ClientProfile? profile)
+    /// <param name="preset">Starting text for a new profile (the Devices screen passes the
+    /// device's name); ignored when an existing profile is shown.</param>
+    private void FillProfileForm(ClientProfile? profile, ProfileFormInput? preset = null)
     {
         _loadingProfiles = true;
         _editingProfileId = profile?.Id;
 
-        var input = profile is null ? new ProfileFormInput() : ProfileForm.FromProfile(profile);
+        var input = profile is null ? preset ?? new ProfileFormInput() : ProfileForm.FromProfile(profile);
         ProfileNameBox.Text = input.Name;
         ProfileClientsBox.Text = input.ClientNamesText;
         SelectMode(ResolutionModeBox, input.ResolutionMode);

@@ -30,6 +30,9 @@
     <sys:String x:Key="Devices.NoProfile">none matched</sys:String>
     <sys:String x:Key="Devices.Forget">Forget device</sys:String>
     <sys:String x:Key="Devices.Forgotten">Device removed from the list. It shows up again on its next connection.</sys:String>
+    <sys:String x:Key="Devices.CreateProfile">Create profile for this device</sys:String>
+    <sys:String x:Key="Devices.OpenProfile">Open this device's profile</sys:String>
+    <sys:String x:Key="Devices.ProfileDraft">New profile for "{0}": choose the resolution, HDR and FPS limit and click Save profile. Nothing is saved until then.</sys:String>
 
     <sys:String x:Key="Panel.Status.Idle">No active stream.</sys:String>
     <sys:String x:Key="Panel.Status.Active">Stream active: the environment is modified.</sys:String>
