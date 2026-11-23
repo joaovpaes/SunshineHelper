@@ -42,6 +42,9 @@ Lista viva em `docs/testes-manuais.md`, "Ainda pendente":
 - Opção na tela Geral para **iniciar com o Windows e abrir já minimizado na bandeja** (pedido do autor em 2026-11-23).
   Hoje, na versão de testes, isso é feito à mão com um atalho em `shell:startup`. Combina com a tarefa agendada do
   instalador (acima): as duas resolvem o mesmo problema, o app estar aberto antes da transmissão.
+- Mostrar a **versão do app** na janela (por exemplo na tela Geral, "Sobre"), para o usuário saber qual versão está
+  usando (pedido do autor em 2026-11-23). A versão já existe no código (`AppHost.AppVersion`, usada no relatório de
+  diagnóstico e no `app.log`); falta só exibi-la. O pré-lançamento já grava a versão da tag no `.exe`.
 - Depois do instalador: release com `release-please`, `SHA256SUMS.txt`, atestado de procedência; assinatura de
   código (SignPath) a cargo do autor.
 - Fontes embutidas, ícone do produto e opção manual de tema.
