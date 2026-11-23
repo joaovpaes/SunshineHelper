@@ -62,6 +62,9 @@ jobs:
           if ($text -notmatch '(?m)^## Português' -or $text -notmatch '(?m)^## English') {
             throw "$path must have both '## Português' and '## English' sections."
           }
+          if ($text.IndexOf('## English') -gt $text.IndexOf('## Português')) {
+            throw "$path must have the English section first, then the Portuguese one."
+          }
           if ($text.Length -lt 800) {
             throw "$path is too short: explain what changed, how to update and the known limits."
           }
