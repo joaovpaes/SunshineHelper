@@ -118,6 +118,38 @@ public class SunshineLogFileSourceTests
     }
 
     [Fact]
+    public async Task ReadLinesAsync_sobrevive_ao_arquivo_sumir_e_le_quando_ele_volta()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        string path = NewTempPath();
+        try
+        {
+            await WriteAsync(path, "linha antiga bem mais longa que a que vai voltar\n", cancellationToken);
+
+            var source = new SunshineLogFileSource(path, PollIntervalMs);
+            await using var enumerator = source.ReadLinesAsync(cancellationToken).GetAsyncEnumerator(cancellationToken);
+
+            Task<bool> pending = enumerator.MoveNextAsync().AsTask();
+            await Task.Delay(300, cancellationToken); // baseline at the end of the old file
+
+            // Every poll now fails to open the file. None of them may end the watch.
+            File.Delete(path);
+            var finishedEarly = await Task.WhenAny(pending, Task.Delay(300, cancellationToken));
+            finishedEarly.ShouldNotBe(pending, "o arquivo sumir não pode encerrar nem travar a leitura");
+
+            // Sunshine starting again with a fresh, shorter log.
+            await WriteAsync(path, "volta\n", cancellationToken);
+
+            (await pending).ShouldBeTrue();
+            enumerator.Current.ShouldBe("volta");
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    [Fact]
     public async Task ReadLinesAsync_espera_o_arquivo_ser_criado_antes_de_ler()
     {
         var cancellationToken = TestContext.Current.CancellationToken;

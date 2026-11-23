@@ -82,13 +82,23 @@ guardar o `ClientRequest` inteiro, não só o nome.
 
 `SunshineLogFileSource` (Infrastructure) faz *polling* (padrão 500 ms,
 `TimingSettings.LogPollIntervalMs`), não usa `FileSystemWatcher`. Reabre o arquivo a cada
-rodada, lê só os bytes novos desde a última posição, e só entrega uma linha depois de
-achar o `\n` que a termina — uma linha sendo escrita no meio de uma rodada de leitura
-fica para a próxima, nunca é entregue cortada. Se o arquivo some, está sem permissão, ou
-encolheu desde a última posição (o Sunshine foi reiniciado e recriou o log), a próxima
-leitura começa do zero. Começar a observar sempre pela **ponta final** do arquivo evita
-reprocessar `CLIENT DISCONNECTED`/`Session ended`/`/resume` de sessões antigas como se
-tivessem acabado de acontecer.
+rodada, lê só os bytes novos desde a última posição e fecha o arquivo **antes** de
+entregar qualquer linha (quem consome pode levar segundos aplicando um perfil). Só
+entrega uma linha depois de achar o `\n` que a termina — uma linha sendo escrita no meio
+de uma rodada de leitura fica para a próxima, nunca é entregue cortada.
+
+- **Arquivo sumiu, travado ou sem permissão:** a rodada é pulada e a posição fica onde
+  estava. Voltar ao zero aqui faria um bloqueio passageiro (antivírus, por exemplo)
+  reprocessar o log inteiro como se fosse novo.
+- **Arquivo encolheu desde a última posição** (o Sunshine foi reiniciado e recriou o
+  log): a leitura recomeça do zero, no arquivo novo.
+- **Nenhum erro de I/O encerra a leitura.** Uma rodada ruim — inclusive o arquivo
+  encolher entre medir o tamanho e ler os bytes — vira só uma rodada vazia; se
+  derrubasse o leitor, o app pararia de ver desconexões até ser reiniciado, sem aviso.
+
+Começar a observar sempre pela **ponta final** do arquivo evita reprocessar
+`CLIENT DISCONNECTED`/`Session ended`/`/resume` de sessões antigas como se tivessem
+acabado de acontecer.
 
 `FileSystemWatcher` foi descartado por ser notoriamente propenso a perder eventos sob
 carga (buffer interno limitado) e por precisar de tratamento separado para o arquivo

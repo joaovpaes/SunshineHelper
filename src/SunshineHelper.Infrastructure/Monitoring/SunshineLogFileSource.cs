@@ -14,6 +14,11 @@ namespace SunshineHelper.Infrastructure.Monitoring;
 /// </summary>
 public sealed class SunshineLogFileSource : ISunshineLogSource
 {
+    /// <summary>Upper bound on one read. Sunshine appends a few lines per second at
+    /// most; this only matters right after a rotation, when a large new file would
+    /// otherwise be read in one allocation.</summary>
+    private const int MaxChunkBytes = 1024 * 1024;
+
     private readonly string _path;
     private readonly int _pollIntervalMs;
 
@@ -38,50 +43,45 @@ public sealed class SunshineLogFileSource : ISunshineLogSource
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            using FileStream? stream = TryOpen();
-            if (stream is null)
-            {
-                // Momentarily gone or locked — by a brief exclusive lock while something
-                // else rotates it, or an antivirus scan, for instance. Position is left
-                // untouched: resetting it here on every transient failure would replay
-                // old lines as if they just happened. A real rotation (the file coming
-                // back shorter) is detected below, once it can be opened again.
-                await DelayAsync(cancellationToken).ConfigureAwait(false);
-                continue;
-            }
+            // Read first, with the file closed again before any line is handed out: the
+            // consumer may spend seconds applying or reverting a profile per line, and
+            // there is no reason to hold Sunshine's log open through that.
+            AppendedChunk? chunk = await TryReadAppendedAsync(position, cancellationToken).ConfigureAwait(false);
 
-            if (stream.Length < position)
+            // Null: momentarily gone, locked or unreadable — a brief exclusive lock while
+            // something rotates it, or an antivirus scan, for instance. Position is left
+            // untouched: resetting it on every transient failure would replay old lines
+            // as if they just happened. A real rotation (the file coming back shorter)
+            // is detected once it can be read again.
+            if (chunk is { } read)
             {
-                // Sunshine replaced the file with a shorter one (restarted, log
-                // rotated): the position from the old file means nothing here.
-                position = 0;
-            }
-
-            int appended = checked((int)(stream.Length - position));
-            if (appended > 0)
-            {
-                stream.Seek(position, SeekOrigin.Begin);
-                byte[] buffer = new byte[appended];
-                await stream.ReadExactlyAsync(buffer, cancellationToken).ConfigureAwait(false);
+                position = read.Start;
 
                 int consumed = 0;
                 int lineStart = 0;
-                for (int i = 0; i < buffer.Length; i++)
+                for (int i = 0; i < read.Count; i++)
                 {
-                    if (buffer[i] != (byte)'\n')
+                    if (read.Buffer[i] != (byte)'\n')
                     {
                         continue;
                     }
 
                     int lineLength = i - lineStart;
-                    if (lineLength > 0 && buffer[lineStart + lineLength - 1] == (byte)'\r')
+                    if (lineLength > 0 && read.Buffer[lineStart + lineLength - 1] == (byte)'\r')
                     {
                         lineLength--;
                     }
 
-                    yield return Encoding.UTF8.GetString(buffer, lineStart, lineLength);
+                    yield return Encoding.UTF8.GetString(read.Buffer, lineStart, lineLength);
                     lineStart = i + 1;
                     consumed = lineStart;
+                }
+
+                if (consumed == 0 && read.Count == MaxChunkBytes)
+                {
+                    // A whole chunk with no line break in it: not a log line this reader
+                    // could ever match. Skipped, or it would be re-read forever.
+                    consumed = read.Count;
                 }
 
                 // A trailing, not-yet-newline-terminated chunk is not a line yet — it is
@@ -91,6 +91,56 @@ public sealed class SunshineLogFileSource : ISunshineLogSource
             }
 
             await DelayAsync(cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    /// <summary>Reads whatever was appended since <paramref name="position"/>, at most
+    /// <see cref="MaxChunkBytes"/> at a time. Null when the file cannot be read right now,
+    /// for any I/O reason — never throws for one, because a single bad poll must not end
+    /// the watch for the rest of the app's lifetime.</summary>
+    private async Task<AppendedChunk?> TryReadAppendedAsync(long position, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var stream = new FileStream(
+                _path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+            await using (stream.ConfigureAwait(false))
+            {
+                // Read once: the file can keep changing while this runs.
+                long length = stream.Length;
+                if (length < position)
+                {
+                    // Sunshine replaced the file with a shorter one (restarted, log
+                    // rotated): the position from the old file means nothing here.
+                    position = 0;
+                }
+
+                int toRead = (int)Math.Min(length - position, MaxChunkBytes);
+                if (toRead <= 0)
+                {
+                    return new AppendedChunk(position, [], 0);
+                }
+
+                stream.Seek(position, SeekOrigin.Begin);
+                byte[] buffer = new byte[toRead];
+
+                // Not ReadExactly: if the file shrinks between reading its length and
+                // reading its bytes, fewer come back. Whatever did is still valid from
+                // this position.
+                int count = await stream
+                    .ReadAtLeastAsync(buffer, toRead, throwOnEndOfStream: false, cancellationToken)
+                    .ConfigureAwait(false);
+
+                return new AppendedChunk(position, buffer, count);
+            }
+        }
+        catch (IOException)
+        {
+            return null;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return null;
         }
     }
 
@@ -114,22 +164,10 @@ public sealed class SunshineLogFileSource : ISunshineLogSource
         }
     }
 
-    private FileStream? TryOpen()
-    {
-        try
-        {
-            return new FileStream(_path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
-        }
-        catch (IOException)
-        {
-            return null;
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return null;
-        }
-    }
-
     private Task DelayAsync(CancellationToken cancellationToken) =>
         Task.Delay(_pollIntervalMs, cancellationToken);
+
+    /// <summary>The first <c>Count</c> bytes of <c>Buffer</c>, read from <c>Start</c> in
+    /// the file — <c>Start</c> is zero when the file was found to have shrunk.</summary>
+    private readonly record struct AppendedChunk(long Start, byte[] Buffer, int Count);
 }
