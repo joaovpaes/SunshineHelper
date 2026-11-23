@@ -156,4 +156,20 @@ public class SettingsValidatorTests
         result.IsValid.ShouldBeFalse();
         result.Errors.ShouldContain(e => e.Contains("launcherDelayMs"));
     }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void Validate_logPollIntervalMs_nao_positivo_falha(int logPollIntervalMs)
+    {
+        var settings = ValidSettings() with
+        {
+            Timing = new TimingSettings { LogPollIntervalMs = logPollIntervalMs },
+        };
+
+        var result = SettingsValidator.Validate(settings);
+
+        result.IsValid.ShouldBeFalse();
+        result.Errors.ShouldContain(e => e.Contains("logPollIntervalMs"));
+    }
 }

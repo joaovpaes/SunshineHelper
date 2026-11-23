@@ -16,4 +16,10 @@ public sealed record TimingSettings
     /// whether the orchestrator's own safety net makes this unnecessary (ADR 0002,
     /// "Fechamento do launcher"). Zero disables it.</summary>
     public int LauncherDelayMs { get; init; }
+
+    /// <summary>How often the Sunshine log reader checks the log file for new lines
+    /// (docs/adr/0004-leitor-do-log.md). Polling, not a file-system watcher, because it
+    /// behaves the same way across log rotation, file locks, and network/removable
+    /// drives, at the cost of up to this much latency on a real event.</summary>
+    public int LogPollIntervalMs { get; init; } = 500;
 }

@@ -42,6 +42,11 @@ public static class SettingsValidator
         {
             errors.Add("timing.launcherDelayMs não pode ser negativo.");
         }
+
+        if (timing.LogPollIntervalMs <= 0)
+        {
+            errors.Add("timing.logPollIntervalMs deve ser maior que zero.");
+        }
     }
 
     private static void ValidateProfiles(AppSettings settings, List<string> errors)
