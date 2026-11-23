@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Windows;
 using Microsoft.Win32;
@@ -9,6 +10,9 @@ using SunshineHelper.App.Services;
 // namespace) before it considers types brought in by a `using` directive.
 namespace SunshineHelper.App;
 
+// The mutex and the tray icon live exactly as long as the process and are released in
+// OnExit; an Application subclass is not something anyone disposes.
+[SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable", Justification = "Released in OnExit.")]
 public partial class App : System.Windows.Application
 {
     // One copy only: a second would fail to open the pipe and fight over the snapshot.
