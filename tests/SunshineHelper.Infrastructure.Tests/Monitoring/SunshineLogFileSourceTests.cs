@@ -31,8 +31,7 @@ public class SunshineLogFileSourceTests
             await WriteAsync(path, "linha antiga 1\nlinha antiga 2\n", cancellationToken);
 
             var source = new SunshineLogFileSource(path, PollIntervalMs);
-            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-            await using var enumerator = source.ReadLinesAsync(cts.Token).GetAsyncEnumerator();
+            await using var enumerator = source.ReadLinesAsync(cancellationToken).GetAsyncEnumerator();
 
             // The source only reads its own "where does the log start" position once
             // MoveNextAsync actually runs — started here, before anything new is
@@ -67,8 +66,7 @@ public class SunshineLogFileSourceTests
             await WriteAsync(path, string.Empty, cancellationToken);
 
             var source = new SunshineLogFileSource(path, PollIntervalMs);
-            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-            await using var enumerator = source.ReadLinesAsync(cts.Token).GetAsyncEnumerator();
+            await using var enumerator = source.ReadLinesAsync(cancellationToken).GetAsyncEnumerator();
 
             Task<bool> pending = enumerator.MoveNextAsync().AsTask();
             await Task.Delay(300, cancellationToken); // baseline: empty file, position 0
@@ -101,8 +99,7 @@ public class SunshineLogFileSourceTests
             await WriteAsync(path, "linha antiga bem mais longa que a próxima\n", cancellationToken);
 
             var source = new SunshineLogFileSource(path, PollIntervalMs);
-            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-            await using var enumerator = source.ReadLinesAsync(cts.Token).GetAsyncEnumerator();
+            await using var enumerator = source.ReadLinesAsync(cancellationToken).GetAsyncEnumerator();
 
             Task<bool> pending = enumerator.MoveNextAsync().AsTask();
             await Task.Delay(300, cancellationToken); // baseline at the end of the old file
@@ -127,8 +124,7 @@ public class SunshineLogFileSourceTests
         string path = NewTempPath(); // deliberately never created before this point
 
         var source = new SunshineLogFileSource(path, PollIntervalMs);
-        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-        await using var enumerator = source.ReadLinesAsync(cts.Token).GetAsyncEnumerator();
+        await using var enumerator = source.ReadLinesAsync(cancellationToken).GetAsyncEnumerator();
 
         Task<bool> pending = enumerator.MoveNextAsync().AsTask();
 
