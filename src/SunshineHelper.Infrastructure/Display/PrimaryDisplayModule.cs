@@ -1,6 +1,8 @@
 using System.Runtime.InteropServices;
 using System.Text.Json.Nodes;
+using System.Globalization;
 using System.Threading;
+using SunshineHelper.Application.Diagnostics;
 using SunshineHelper.Application.Session;
 using SunshineHelper.Domain.Session;
 using Windows.Win32;
@@ -35,6 +37,17 @@ public sealed class PrimaryDisplayModule : IEnvironmentModule
 {
     private const int CurrentPayloadVersion = 1;
 
+    // Long enough for a driver that re-applies its own mode after the HDR switch (the
+    // next module) to have done so; the answer goes to the diagnostic log only.
+    private const int LateReadbackDelayMs = 3_000;
+
+    private readonly IDiagnosticLog _log;
+
+    public PrimaryDisplayModule(IDiagnosticLog? log = null)
+    {
+        _log = log ?? NullDiagnosticLog.Instance;
+    }
+
     public string Id => "display";
 
     public int Order => 1;
@@ -67,8 +80,41 @@ public sealed class PrimaryDisplayModule : IEnvironmentModule
         // The refresh rate always comes from what the display is running right now, never
         // from the profile: this module has no setting of its own for it.
         var current = QueryCurrentMode();
-        return Task.FromResult(ChangeMode(target.Width, target.Height, (int)current.dmDisplayFrequency));
+        var outcome = ChangeMode(target.Width, target.Height, (int)current.dmDisplayFrequency);
+        Log(
+            outcome.Status == ApplyStatus.Failed ? DiagnosticLevel.Error : DiagnosticLevel.Info,
+            string.Create(
+                CultureInfo.InvariantCulture,
+                $"requested {target.Width}x{target.Height} (was {current.dmPelsWidth}x{current.dmPelsHeight} at {current.dmDisplayFrequency} Hz): {outcome.Status}{(outcome.ErrorMessage is { } failure ? " - " + failure : string.Empty)}"));
+
+        if (outcome.Status == ApplyStatus.Changed)
+        {
+            _ = ReadBackLaterAsync(target.Width, target.Height);
+        }
+
+        return Task.FromResult(outcome);
     }
+
+    private async Task ReadBackLaterAsync(int expectedWidth, int expectedHeight)
+    {
+        try
+        {
+            await Task.Delay(LateReadbackDelayMs).ConfigureAwait(false);
+            var later = QueryCurrentMode();
+            bool stillThere = later.dmPelsWidth == (uint)expectedWidth && later.dmPelsHeight == (uint)expectedHeight;
+            Log(
+                stillThere ? DiagnosticLevel.Info : DiagnosticLevel.Warning,
+                string.Create(
+                    CultureInfo.InvariantCulture,
+                    $"mode {LateReadbackDelayMs} ms after the change: {later.dmPelsWidth}x{later.dmPelsHeight} (expected {expectedWidth}x{expectedHeight}) - {(stillThere ? "unchanged since" : "SOMETHING CHANGED IT")}"));
+        }
+        catch (Exception ex)
+        {
+            Log(DiagnosticLevel.Warning, "late readback failed: " + ex.Message);
+        }
+    }
+
+    private void Log(DiagnosticLevel level, string message) => _log.Write(level, "display", message);
 
     public Task<RevertOutcome> RevertAsync(ModuleSnapshot snapshot, CancellationToken cancellationToken)
     {

@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Threading;
+using SunshineHelper.Application.Diagnostics;
 using SunshineHelper.Application.Launcher;
 using SunshineHelper.Application.Session;
 using SunshineHelper.Domain.Session;
@@ -40,11 +41,16 @@ public sealed class TriggerChannelHandler : IDisposable
     private readonly SessionOrchestrator _orchestrator;
     private readonly ICurrentSettingsProvider _settingsProvider;
     private readonly SemaphoreSlim _gate = new(1, 1);
+    private readonly IDiagnosticLog _log;
 
-    public TriggerChannelHandler(SessionOrchestrator orchestrator, ICurrentSettingsProvider settingsProvider)
+    public TriggerChannelHandler(
+        SessionOrchestrator orchestrator,
+        ICurrentSettingsProvider settingsProvider,
+        IDiagnosticLog? log = null)
     {
         _orchestrator = orchestrator;
         _settingsProvider = settingsProvider;
+        _log = log ?? NullDiagnosticLog.Instance;
     }
 
     public void Dispose() => _gate.Dispose();
@@ -67,12 +73,28 @@ public sealed class TriggerChannelHandler : IDisposable
             };
         }
 
-        return request.Op switch
+        _log.Write(
+            DiagnosticLevel.Info,
+            "channel",
+            string.Create(
+                CultureInfo.InvariantCulture,
+                $"request received: op '{request.Op}', reason '{request.Reason ?? "-"}', client '{request.Client?.Name ?? "-"}' {request.Client?.Width}x{request.Client?.Height} hdr {request.Client?.Hdr}"));
+
+        var response = request.Op switch
         {
             TriggerOp.SessionStart => await RaceAsync(request, StartAsync, serverLifetime).ConfigureAwait(false),
             TriggerOp.SessionEnd => await RaceAsync(request, EndAsync, serverLifetime).ConfigureAwait(false),
             _ => new ChannelResponse { Ok = false, Error = $"Operação desconhecida: '{request.Op}'." },
         };
+
+        _log.Write(
+            response.Ok ? DiagnosticLevel.Info : DiagnosticLevel.Error,
+            "channel",
+            string.Create(
+                CultureInfo.InvariantCulture,
+                $"request answered: op '{request.Op}', ok {response.Ok}, state '{response.State}', profile '{response.Profile ?? "-"}', elapsed {response.ElapsedMs} ms{(response.Error is { } error ? ", error: " + error : string.Empty)}"));
+
+        return response;
     }
 
     private async Task<ChannelResponse> RaceAsync(

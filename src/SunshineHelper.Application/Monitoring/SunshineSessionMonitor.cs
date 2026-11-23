@@ -1,5 +1,7 @@
+using System.Globalization;
 using System.Threading;
 using SunshineHelper.Application.Channel;
+using SunshineHelper.Application.Diagnostics;
 using SunshineHelper.Application.Session;
 using SunshineHelper.Domain.Monitoring;
 using SunshineHelper.Domain.Session;
@@ -35,6 +37,7 @@ public sealed class SunshineSessionMonitor
     private readonly TriggerChannelHandler _handler;
     private readonly ISessionSnapshotStore _store;
     private readonly ICurrentSettingsProvider _settingsProvider;
+    private readonly IDiagnosticLog _log;
 
     private SunshineSessionEvent? _lastEndingSignal;
     private string? _pendingResumeClientName;
@@ -43,8 +46,10 @@ public sealed class SunshineSessionMonitor
         ISunshineLogSource source,
         TriggerChannelHandler handler,
         ISessionSnapshotStore store,
-        ICurrentSettingsProvider settingsProvider)
+        ICurrentSettingsProvider settingsProvider,
+        IDiagnosticLog? log = null)
     {
+        _log = log ?? NullDiagnosticLog.Instance;
         _source = source;
         _handler = handler;
         _store = store;
@@ -80,6 +85,11 @@ public sealed class SunshineSessionMonitor
     /// source.</summary>
     public async Task HandleAsync(SunshineSessionEvent sunshineEvent, CancellationToken cancellationToken)
     {
+        _log.Write(
+            DiagnosticLevel.Info,
+            "monitor",
+            string.Create(CultureInfo.InvariantCulture, $"sunshine log event: {sunshineEvent}"));
+
         switch (sunshineEvent)
         {
             case SunshineSessionEvent.ClientConnected:

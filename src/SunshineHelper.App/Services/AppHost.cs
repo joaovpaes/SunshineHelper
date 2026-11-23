@@ -1,6 +1,7 @@
 using System.IO;
 using System.Threading;
 using SunshineHelper.Application.Channel;
+using SunshineHelper.Application.Diagnostics;
 using SunshineHelper.Application.Launcher;
 using SunshineHelper.Application.Monitoring;
 using SunshineHelper.Application.Session;
@@ -8,6 +9,7 @@ using SunshineHelper.Application.Settings;
 using SunshineHelper.Domain.Monitoring;
 using SunshineHelper.Domain.Settings;
 using SunshineHelper.Infrastructure.Channel;
+using SunshineHelper.Infrastructure.Diagnostics;
 using SunshineHelper.Infrastructure.Display;
 using SunshineHelper.Infrastructure.Fps;
 using SunshineHelper.Infrastructure.Launcher;
@@ -31,6 +33,7 @@ internal sealed class AppHost : IAsyncDisposable
     private readonly NamedPipeChannelServer _pipeServer;
     private readonly SettingsService _settingsService;
     private readonly ISessionSnapshotStore _store;
+    private readonly IDiagnosticLog _diagnosticLog;
     private readonly SemaphoreSlim _updateGate = new(1, 1);
     private CancellationTokenSource? _monitorStopping;
     private Task? _monitorTask;
@@ -42,7 +45,8 @@ internal sealed class AppHost : IAsyncDisposable
         TriggerChannelHandler handler,
         NamedPipeChannelServer pipeServer,
         SettingsService settingsService,
-        ISessionSnapshotStore store)
+        ISessionSnapshotStore store,
+        IDiagnosticLog diagnosticLog)
     {
         Settings = settings;
         Status = status;
@@ -51,6 +55,7 @@ internal sealed class AppHost : IAsyncDisposable
         _pipeServer = pipeServer;
         _settingsService = settingsService;
         _store = store;
+        _diagnosticLog = diagnosticLog;
     }
 
     public CurrentSettingsHolder Settings { get; }
@@ -102,25 +107,38 @@ internal sealed class AppHost : IAsyncDisposable
         }
 
         var settings = new CurrentSettingsHolder(loadedSettings);
+        var diagnosticLog = new FileDiagnosticLog(FileDiagnosticLog.DefaultPath);
+        diagnosticLog.Write(
+            DiagnosticLevel.Info,
+            "app",
+            string.Create(
+                System.Globalization.CultureInfo.InvariantCulture,
+                $"started: version {typeof(AppHost).Assembly.GetName().Version}, OS {Environment.OSVersion.Version}, {loadedSettings.Profiles.Count} profile(s), log path set: {!string.IsNullOrWhiteSpace(loadedSettings.SunshineLogPath)}"));
+        foreach (string problem in problems)
+        {
+            diagnosticLog.Write(DiagnosticLevel.Warning, "app", "startup problem: " + problem);
+        }
+
         var store = new FileSessionSnapshotStore();
         var orchestrator = new SessionOrchestrator(
             [
-                new PrimaryDisplayModule(),
+                new PrimaryDisplayModule(diagnosticLog),
                 new HdrModule(),
                 new RtssFpsLimitModule(),
                 new LauncherModule(new WindowsProcessController(), settings),
             ],
             store,
-            new UptimeBootIdentityProvider());
+            new UptimeBootIdentityProvider(),
+            diagnosticLog);
 
         // A session left behind by a crash or a reboot is put back before anything can
         // start a new one. The status reader then shows whatever could not be undone.
         var restore = await orchestrator.RestoreAsync(cancellationToken).ConfigureAwait(false);
         problems.AddRange(restore.Problems);
 
-        var handler = new TriggerChannelHandler(orchestrator, settings);
+        var handler = new TriggerChannelHandler(orchestrator, settings, diagnosticLog);
         var pipeServer = new NamedPipeChannelServer(handler);
-        var host = new AppHost(settings, new SessionStatusReader(store), problems, handler, pipeServer, settingsService, store);
+        var host = new AppHost(settings, new SessionStatusReader(store), problems, handler, pipeServer, settingsService, store, diagnosticLog);
 
         pipeServer.Start();
         host.StartLogMonitor();
@@ -191,7 +209,7 @@ internal sealed class AppHost : IAsyncDisposable
         var token = _monitorStopping.Token;
 
         var source = new SunshineLogFileSource(current.SunshineLogPath, current.Timing.LogPollIntervalMs);
-        var monitor = new SunshineSessionMonitor(source, _handler, _store, Settings);
+        var monitor = new SunshineSessionMonitor(source, _handler, _store, Settings, _diagnosticLog);
         _monitorTask = Task.Run(() => monitor.RunAsync(token), CancellationToken.None);
     }
 

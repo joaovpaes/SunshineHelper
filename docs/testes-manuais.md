@@ -10,16 +10,38 @@ Cada item abaixo corresponde a um PR. Marque quando tiver testado na própria
 máquina; um PR com item aqui pendente ainda não está validado de ponta a
 ponta, mesmo com o CI verde.
 
-## Pendências (atualizado em 2026-11-23)
+## Pendências (atualizado em 2026-11-23, à tarde)
 
-Testes manuais que o autor ainda **não fez**. Fazer em casa, no PC com o Sunshine, e marcar
-nas seções abaixo:
+Rodada de 2026-11-23 no PC do autor (Sunshine 2026.914, RX 9070 XT, tela 2560x1440):
 
-- **PR 10b** — launcher: roteiro e tabela de calibração do atraso.
-- **Aviso de nível de log** — Painel avisa com o Sunshine em Info.
-- **PR 11b** — tela Perfis, incluindo o teste de ponta a ponta com o Moonlight.
-- **Portão da Fase 1** (`docs/fase1-portao.md`): encerrar o app à força com transmissão ativa,
-  reiniciar o PC com transmissão ativa e medir o tempo de aplicação (< 10 s).
+**Passou**
+- Tela Perfis (PR 11b), sem transmitir: lista vazia, criar perfil, erro de resolução com `1920`, "Seguir o
+  dispositivo" desliga a caixa, renomear mantém o `id`, troca de idioma.
+- Launcher, campos da tela Geral (PR 10b): `abc` dá "Atraso inválido"; `Playnite.FullscreenApp.exe` é salvo
+  sem `.exe`.
+- Tempo de início da transmissão: imagem no celular em ~3 s (portão, item 4).
+- App encerrado à força com transmissão ativa: ao abrir o app de novo a tela voltou, o HDR desligou e o
+  Playnite foi fechado (portão, item 2).
+- PC reiniciado com transmissão ativa: sem problemas no Painel (portão, item 3).
+- Aviso de nível de log: aparece com o Sunshine em Info. Só aparece depois de reiniciar o **app**, não só o
+  Sunshine (melhoria futura: reler o log quando ele for recriado). O log do Sunshine confirma o formato real:
+  `config: 'min_log_level' = 1` é Debug.
+- Restaurar ao encerrar a sessão: a tela voltou ao normal e o Playnite fechou depois do `/cancel`.
+
+**Falhou**
+- **A resolução do perfil nunca é aplicada** (perfil 1920x1080 fixo; o Sunshine continua vendo 2560x1440 um
+  segundo depois do `start`; o HDR liga normalmente). Causa ainda não conhecida. O PR 12c grava um log do app
+  com a releitura da resolução 3 s depois; repetir uma transmissão curta e analisar `app.log`.
+
+**Ainda pendente**
+- Digitar `30001` no atraso do launcher (só o `abc` foi visto).
+- Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada). Só vale depois de a resolução ser
+  corrigida e de o fechamento do Playnite ser confirmado de novo.
+- Transmissão curta com o app do PR 12c: `%LOCALAPPDATA%\SunshineHelper\logs\app.log` mostra o `start`, o
+  resultado de cada módulo e a releitura da resolução; anexar o arquivo ao relato do problema.
+
+Observação de uso: no Moonlight, só **encerrar a sessão** (Quit) faz o Sunshine rodar o comando Undo. Apenas
+sair/desconectar deixa tudo como está, a menos que o perfil tenha "Restaurar a tela ao desconectar".
 
 ## PR 5a — Módulo de vídeo: resolução (`PrimaryDisplayModule`)
 
