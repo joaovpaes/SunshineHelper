@@ -69,6 +69,11 @@ public static class SettingsValidator
             errors.Add("timing.launcherDelayMs não pode ser negativo.");
         }
 
+        if (timing.LauncherDelayMs > LauncherSettings.MaxDelayMs)
+        {
+            errors.Add($"timing.launcherDelayMs não pode passar de {LauncherSettings.MaxDelayMs} ms.");
+        }
+
         if (timing.LogPollIntervalMs <= 0)
         {
             errors.Add("timing.logPollIntervalMs deve ser maior que zero.");

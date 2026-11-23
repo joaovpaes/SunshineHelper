@@ -42,6 +42,21 @@ public sealed record LauncherSettings
         "conhost",
     };
 
+    /// <summary>The longest launcher delay accepted. The delay holds Sunshine's Prep Command,
+    /// and the auxiliary stops waiting well before a minute (ADR 0002, "Orçamento de tempo").</summary>
+    public const int MaxDelayMs = 30_000;
+
+    /// <summary>Turns what the user typed in the settings box — one name per line, commas or
+    /// semicolons also accepted — into the list stored in settings.json: trimmed, without
+    /// <c>.exe</c>, empty entries dropped, no repeats.</summary>
+    public static IReadOnlyList<string> ParseNames(string? text) =>
+        (text ?? string.Empty)
+            .Split(['\r', '\n', ',', ';'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(NormalizeName)
+            .Where(name => name.Length > 0)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
     /// <summary>The form names are compared in: trimmed, with a trailing <c>.exe</c>
     /// dropped, because that is what users copy from Task Manager and what
     /// <c>Process.ProcessName</c> leaves off.</summary>

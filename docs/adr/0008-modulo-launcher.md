@@ -1,6 +1,6 @@
 # 0008. Módulo do launcher (PR 10)
 
-- Status: aceita (10a: lógica; 10b: Windows e calibração)
+- Status: aceita (10a: lógica; 10b: Windows, tela e roteiro de calibração)
 - Data: 2026-11-23
 
 ## Contexto
@@ -58,11 +58,25 @@ launcher. O auxiliar não manda motivo; ausente vale como `cancel`.
 Consequência aceita: depois de um `/resume` nesse caso, a sessão nova anota o launcher como
 "já aberto", e no `/cancel` final quem fecha é o próprio Sunshine, como antes deste módulo.
 
+## Parte Windows (10b)
+
+- `WindowsProcessController` implementa `IProcessController` sobre `System.Diagnostics.Process`.
+  Antes de agir, confere de novo PID **e** hora de início (tolerância de 1 s); se não bater,
+  não faz nada. Processo que o Windows não deixa inspecionar é ignorado, nunca adivinhado.
+  Fechar = `CloseMainWindow()`; teimoso = `Kill(entireProcessTree: true)` e confirma que sumiu.
+- O módulo entra no `AppHost` como último da lista (ordem 4).
+- Tela Geral: lista de nomes (um por linha) e atraso em ms (0 a 30000, `MaxDelayMs`). Mudança
+  vale a partir da **próxima** transmissão, pois a captura usa a configuração do momento.
+- O app roda sem privilégio de administrador: um launcher elevado não pode ser fechado por ele
+  e vira **aviso**, não erro.
+- O atraso é o botão de calibração (ponto aberto do ADR 0002). Fica em 0 até o roteiro em
+  `docs/testes-manuais.md` ser feito na máquina do autor.
+
 ## Dividido em dois PRs
 
-- **10a (este):** configuração, validação, módulo, mudanças no orquestrador e no canal, tudo
+- **10a (feito):** configuração, validação, módulo, mudanças no orquestrador e no canal, tudo
   com testes no CI usando um controlador de processos falso. O app ainda **não** liga o módulo.
-- **10b:** controlador de processos real (Windows), ligação no `AppHost`, campo da lista na
+- **10b (feito):** controlador de processos real (Windows), ligação no `AppHost`, campo da lista na
   tela Geral e o roteiro de calibração do atraso na máquina do autor
   (`docs/testes-manuais.md`).
 

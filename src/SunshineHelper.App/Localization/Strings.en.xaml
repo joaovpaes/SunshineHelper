@@ -48,4 +48,11 @@
     <sys:String x:Key="General.PathInvalid">Invalid path: use the full path, with the drive letter (for example C:\...\sunshine.log).</sys:String>
     <sys:String x:Key="General.SaveFailed">Could not save settings.json: {0}</sys:String>
     <sys:String x:Key="Panel.Log.LowLevel">Warning: the Sunshine log looks set to a level too low to show when a stream ends. In Sunshine, under Configuration > General, set the minimum log level to Debug (and restart Sunshine). This app never changes it for you.</sys:String>
+
+    <sys:String x:Key="General.Launcher">Programs to close when the stream ends</sys:String>
+    <sys:String x:Key="General.Launcher.Hint">Process names, one per line, as shown in Task Manager (for example Playnite.FullscreenApp). Only the ones opened during the stream are closed; anything you already had open before is never closed. Empty: the app closes nothing.</sys:String>
+    <sys:String x:Key="General.Launcher.Delay">Delay before the launcher opens (milliseconds)</sys:String>
+    <sys:String x:Key="General.Launcher.Delay.Hint">0 to 30000. Leave at 0 if the launcher already closes properly. Takes effect from the next stream.</sys:String>
+    <sys:String x:Key="General.Launcher.Saved">Saved. Takes effect from the next stream.</sys:String>
+    <sys:String x:Key="General.Launcher.DelayInvalid">Invalid delay: use a whole number from 0 to 30000.</sys:String>
 </ResourceDictionary>
