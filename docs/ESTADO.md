@@ -1,7 +1,7 @@
 # Estado do projeto
 
 Uma página para retomar o trabalho sem reler tudo. O Claude atualiza este arquivo no fim de cada PR
-(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-23**, `main` após o PR 48.
+(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-23**, `main` após o PR 49.
 
 ## Onde estamos
 
@@ -11,7 +11,7 @@ leitor do log do Sunshine, bandeja e janela (Painel, Geral, Perfis), log de diag
 diagnóstico. As decisões D2 (falha de um módulo vira aviso) e D3 (sessão anterior presa é restaurada antes da
 nova) estão no ADR 0011 e passaram no teste do PC. Situação do portão: `docs/fase1-portao.md`.
 
-**Último PR mesclado:** #48 (testado no PC: o RTSS regrava `Profiles\Global` no mesmo lugar, ADR 0012 confirmado). Em revisão: #49 (avisos e botão "Reparar").
+**Último PR mesclado:** #49 (avisos de permissão e de RTSS fechado, botão "Reparar"; testado no PC ponta a ponta).
 
 ## Próximos PRs
 
@@ -19,7 +19,6 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 | PR | O quê | Modelo |
 | --- | --- | --- |
-| 15b-2 | Aviso na tela Perfis, botão "Reparar" e aviso no Painel de RTSS fechado | Sonnet · médio |
 | 16 | O app percebe que o Sunshine morreu e restaura sozinho (ADR novo) | Opus · alto |
 
 ## Decisões em aberto
@@ -31,7 +30,6 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 Lista viva em `docs/testes-manuais.md`, "Ainda pendente":
 
-- 15b-2: ponta a ponta sem administrador, com o app novo (botão "Reparar", aviso de RTSS fechado, 60 FPS numa transmissão real).
 - Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada).
 - Opcional: relatório de diagnóstico com o caminho do log do Sunshine vazio.
 
