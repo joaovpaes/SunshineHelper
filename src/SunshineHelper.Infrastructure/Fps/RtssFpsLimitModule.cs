@@ -1,10 +1,6 @@
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Security;
 using System.Text.Json.Nodes;
 using System.Threading;
-using Microsoft.Win32;
 using SunshineHelper.Application.Session;
 using SunshineHelper.Domain.Session;
 
@@ -46,13 +42,14 @@ namespace SunshineHelper.Infrastructure.Fps;
 /// <see cref="HasWritePermission"/> the failure would be invisible until the read-back
 /// confirmation in <see cref="SetFramerateLimit"/> caught the mismatch — a confusing
 /// result to hand the user. Checking first lets us give the real reason instead.
-/// Capturing is unaffected: reading the current value needs no elevation.
+/// Capturing is unaffected: reading the current value needs no elevation. Instead of
+/// elevating the app, the user's account can be granted write access to that one file,
+/// once (<see cref="RtssProfileAccess"/>, docs/adr/0012-permissao-do-perfil-do-rtss.md).
 /// </para>
 /// </remarks>
 public sealed class RtssFpsLimitModule : IEnvironmentModule
 {
     private const int CurrentPayloadVersion = 1;
-    private const string DefaultInstallDirectory = @"C:\Program Files (x86)\RivaTuner Statistics Server";
     private const string NoWritePermissionMessage =
         "Sem permissão para gravar o perfil do RTSS (a pasta dele fica em Program Files, "
         + "protegida pelo Windows). Abra o SunshineHelper como administrador para aplicar "
@@ -72,7 +69,7 @@ public sealed class RtssFpsLimitModule : IEnvironmentModule
 
     public Task<ModuleSnapshot> CaptureAsync(CancellationToken cancellationToken)
     {
-        string? directory = FindInstallDirectory();
+        string? directory = RtssInstallLocator.FindInstallDirectory();
         if (directory is null)
         {
             return Task.FromResult(NotInstalledSnapshot());
@@ -92,7 +89,7 @@ public sealed class RtssFpsLimitModule : IEnvironmentModule
             return Task.FromResult(ApplyOutcome.NothingToDo());
         }
 
-        string? directory = FindInstallDirectory();
+        string? directory = RtssInstallLocator.FindInstallDirectory();
         if (directory is null)
         {
             return Task.FromResult(ApplyOutcome.Failed("O RTSS não parece estar instalado; não foi possível aplicar o limite de FPS."));
@@ -131,7 +128,7 @@ public sealed class RtssFpsLimitModule : IEnvironmentModule
 
         int previous = payload["framerateLimit"]!.GetValue<int>();
 
-        string? directory = FindInstallDirectory();
+        string? directory = RtssInstallLocator.FindInstallDirectory();
         if (directory is null)
         {
             return Task.FromResult(RevertOutcome.Failed(
@@ -233,107 +230,14 @@ public sealed class RtssFpsLimitModule : IEnvironmentModule
         }
     }
 
-    private static string? FindInstallDirectory()
-    {
-        return TryGetDirectoryFromRunningProcess()
-            ?? TryGetDirectoryFromRegistry()
-            ?? TryGetDefaultDirectory();
-    }
-
-    private static string? TryGetDirectoryFromRunningProcess()
-    {
-        foreach (var process in Process.GetProcessesByName("RTSS"))
-        {
-            using (process)
-            {
-                try
-                {
-                    string? exePath = process.MainModule?.FileName;
-                    if (exePath is not null)
-                    {
-                        return Path.GetDirectoryName(exePath);
-                    }
-                }
-                catch (Exception ex) when (ex is Win32Exception or InvalidOperationException)
-                {
-                    // MainModule can refuse access (different elevation level, process
-                    // exiting right now); the registry and the default path are still
-                    // there to try.
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private static string? TryGetDirectoryFromRegistry()
-    {
-        foreach (var view in new[] { RegistryView.Registry64, RegistryView.Registry32 })
-        {
-            string? candidate = TryReadInstallLocation(view);
-            if (candidate is not null && HasHooksDll(candidate))
-            {
-                return candidate;
-            }
-        }
-
-        return null;
-    }
-
-    private static string? TryReadInstallLocation(RegistryView view)
-    {
-        try
-        {
-            using var baseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view);
-            using var key = baseKey.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\RTSS");
-            if (key is null)
-            {
-                return null;
-            }
-
-            if (key.GetValue("InstallLocation") is string location && !string.IsNullOrWhiteSpace(location))
-            {
-                return location;
-            }
-
-            // Not every installer fills in InstallLocation; the uninstaller or its icon
-            // sits in the same folder as RTSS.exe either way.
-            string? exeLikePath = key.GetValue("UninstallString") as string ?? key.GetValue("DisplayIcon") as string;
-            return exeLikePath is not null ? Path.GetDirectoryName(exeLikePath) : null;
-        }
-        catch (SecurityException)
-        {
-            return null;
-        }
-    }
-
-    private static string? TryGetDefaultDirectory()
-        => HasHooksDll(DefaultInstallDirectory) ? DefaultInstallDirectory : null;
-
-    private static bool HasHooksDll(string directory)
-        => File.Exists(Path.Combine(directory, RtssHooks.DllFileName));
-
     /// <summary>
     /// Confirmed by manual testing (see the class remarks): <c>SetProfileProperty</c>
-    /// reports success even when the real write — <c>SaveProfile</c>, to a file under
-    /// <paramref name="directory"/> — was silently denied for lack of permission, because
-    /// it only ever touches an in-memory copy. Probing this ourselves, with an actual
-    /// file write, is the only way to tell the two cases apart before the native calls
-    /// run, so <see cref="ApplyAsync"/> and <see cref="RevertAsync"/> can give the real
-    /// reason instead of a confusing "it worked, but the value didn't change".
+    /// reports success even when the real write — <c>SaveProfile</c>, to the global profile
+    /// file under <paramref name="directory"/> — was silently denied for lack of permission,
+    /// because it only ever touches an in-memory copy. Checking first is the only way to tell
+    /// the two cases apart before the native calls run. The check targets the profile file
+    /// itself, because that is the only thing the app is ever granted write access to
+    /// (docs/adr/0012-permissao-do-perfil-do-rtss.md).
     /// </summary>
-    private static bool HasWritePermission(string directory)
-    {
-        string probePath = Path.Combine(directory, $".sunshinehelper-write-check-{Guid.NewGuid():N}.tmp");
-        try
-        {
-            File.WriteAllBytes(probePath, []);
-            File.Delete(probePath);
-            return true;
-        }
-        catch (Exception ex) when (ex is UnauthorizedAccessException or IOException or SecurityException)
-        {
-            return false;
-        }
-    }
+    private static bool HasWritePermission(string directory) => RtssProfileAccess.CanSaveGlobalProfile(directory);
 }

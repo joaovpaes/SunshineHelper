@@ -1,7 +1,7 @@
 # Estado do projeto
 
 Uma página para retomar o trabalho sem reler tudo. O Claude atualiza este arquivo no fim de cada PR
-(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-23**, `main` após o PR 44.
+(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-23**, `main` após o PR 46.
 
 ## Onde estamos
 
@@ -11,7 +11,7 @@ leitor do log do Sunshine, bandeja e janela (Painel, Geral, Perfis), log de diag
 diagnóstico. As decisões D2 (falha de um módulo vira aviso) e D3 (sessão anterior presa é restaurada antes da
 nova) estão no ADR 0011 e passaram no teste do PC. Situação do portão: `docs/fase1-portao.md`.
 
-**Último PR mesclado:** #44 (`ESTADO.md` e índice de ADRs).
+**Último PR mesclado:** #46 (teste do RTSS só em memória: não serve, o RTSS só aplica o que está gravado).
 
 ## Próximos PRs
 
@@ -19,20 +19,20 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 | PR | O quê | Modelo |
 | --- | --- | --- |
-| 15a | Teste do RTSS só em memória (roda na máquina do autor) | Sonnet · médio |
-| 15b | Permissão do RTSS e botão "Reparar" (só se o 15a mostrar que precisa), ADR 0012 | Opus · alto |
+| 15b-1 | Permissão só no perfil global do RTSS (ADR 0012), opção 7 na ferramenta; teste no PC | Opus · alto |
+| 15b-2 | Aviso na tela Perfis e botão "Reparar" | Sonnet · médio |
 | 16 | O app percebe que o Sunshine morreu e restaura sozinho (ADR novo) | Opus · alto |
 
 ## Decisões em aberto
 
-- **D1, FPS sem administrador:** hoje, sem administrador, o módulo de FPS falha e a sessão segue só com
-  resolução e HDR, com aviso no Painel. O caminho (teste em memória, depois permissão no arquivo do RTSS) está
-  em `docs/fase1-plano.md`, "Decisões D1–D3".
+- **D1, FPS sem administrador:** decidida no ADR 0012 (permissão só no arquivo `Profiles\Global`, concedida
+  uma vez pelo UAC). Falta confirmar no PC que o RTSS regrava esse arquivo no mesmo lugar (teste do 15b-1).
 
 ## Pendências de teste manual
 
 Lista viva em `docs/testes-manuais.md`, "Ainda pendente":
 
+- 15b-1: conceder a permissão pela opção 7 da ferramenta do RTSS e aplicar 60 FPS sem administrador.
 - Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada).
 - Opcional: relatório de diagnóstico com o caminho do log do Sunshine vazio.
 

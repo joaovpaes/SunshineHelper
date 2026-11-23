@@ -45,18 +45,24 @@ Rodada de 2026-11-23 no PC do autor (Sunshine 2026.914, RX 9070 XT, tela 2560x14
   sessão anterior que não foi encerrada foi restaurada antes desta.". O Quit seguinte voltou tudo ao normal.
   (Reabrir o app antes, como numa tentativa anterior, testa só a restauração da inicialização, não o 13b.)
 
+- **PR 15a (RTSS só em memória), 18:01:** sem administrador, opção 6 com limite 60 no Death Stranding. O RTSS
+  aceitou e a releitura confirmou, mas o jogo seguiu em ~170 FPS e o arquivo `Profiles\Global` não mudou (mesmo
+  hash). Conclusão: o caminho só em memória não serve; segue para o 15b (ADR 0012). A ferramenta compilou e rodou.
+
 **Falhou e foi corrigido**
 - A resolução do perfil nunca era aplicada. O `app.log` (PR 12c) mostrou que a troca para 1920x1080 funcionava
   e era desfeita logo depois de o HDR ligar. Confirmado com `tools/manual-tests`: ligar o HDR depois de trocar a
   resolução devolve a tela a 2560x1440. Corrigido no PR 34 (HDR antes da resolução, ADR 0010).
 
 **Ainda pendente**
-- **PR 15a (RTSS só em memória, decisão D1 passo 1):** abra um PowerShell **comum** (não administrador), com o RTSS aberto
-  e um jogo ou programa com o OSD do RTSS mostrando o FPS. Rode
-  `powershell -ExecutionPolicy Bypass -File .\tools\manual-tests\rtss-module\run.ps1` e escolha a opção **6**.
-  Informe um limite diferente do atual (por exemplo 30), olhe se o FPS do jogo trava nesse número e responda `s`
-  ou `n`. O teste devolve o valor original sozinho. No fim ele imprime uma linha entre traços: copie e cole no
-  chat. Se aparecer erro de compilação ao rodar, copie o texto dele também (a ferramenta não passa pelo CI).
+- **PR 15b-1 (permissão só no perfil global do RTSS, ADR 0012):** com o RTSS aberto e um jogo mostrando o FPS no
+  OSD, num PowerShell **comum** rode `powershell -ExecutionPolicy Bypass -File .\tools\manual-tests\rtss-module\run.ps1`.
+  1. Opção **7**: deve dizer "falta permissão" e abrir a janela do UAC; aceite. Deve terminar com "seu usuário
+     já pode gravar".
+  2. Ainda sem administrador: opção **2** (capturar), opção **3** com `60`: "Aplicado" e o jogo trava em 60 FPS.
+  3. Opção **5**: "Revertido" e o jogo volta ao FPS normal.
+  4. Se a opção 3 falhar mesmo com a 7 dizendo "já pode gravar", copie a mensagem: é o sinal de que o RTSS grava
+     em arquivo novo e renomeia (ADR 0012, "Suposição a confirmar").
 - PR 12d, opcional: gerar o relatório com o caminho do log do Sunshine vazio (a seção diz "not configured").
 - Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada). A resolução já está corrigida e o
   fechamento do Playnite foi confirmado; falta só medir.
