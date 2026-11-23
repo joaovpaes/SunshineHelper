@@ -125,7 +125,7 @@ public class LauncherModuleTests
 
         await module.RevertAsync(snapshot, Token);
 
-        _processes.Running.Select(process => process.Id).ShouldBe(new[] { 61 });
+        _processes.Running.ShouldHaveSingleItem().Id.ShouldBe(61);
     }
 
     [Fact]

@@ -39,7 +39,7 @@ public class SessionOrchestratorLeaveAndWarnTests
         test.Store.Content.ShouldBeNull();
     }
 
-    private static Task ApplyAsync(OrchestratorTest test) =>
+    private static Task<SessionApplyResult> ApplyAsync(OrchestratorTest test) =>
         test.Orchestrator.ApplyAsync(
             TestProfiles.FollowClient(),
             TestProfiles.Request(),
