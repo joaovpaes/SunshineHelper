@@ -27,7 +27,7 @@ public partial class MainWindow
         }
 
         // Opens on the first real profile; with none yet, on the blank "new" entry.
-        string? target = selectId ?? settings.Profiles.FirstOrDefault()?.Id;
+        string? target = selectId ?? (settings.Profiles.Count > 0 ? settings.Profiles[0].Id : null);
         ProfileList.SelectedIndex = 0;
         foreach (ListBoxItem item in ProfileList.Items)
         {
