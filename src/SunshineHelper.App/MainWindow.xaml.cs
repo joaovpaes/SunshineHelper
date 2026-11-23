@@ -84,6 +84,8 @@ public partial class MainWindow : Window
             _ => 0,
         };
         LogPathBox.Text = current.SunshineLogPath ?? string.Empty;
+        LauncherNamesBox.Text = string.Join(Environment.NewLine, current.Launcher.ProcessNames);
+        LauncherDelayBox.Text = current.Timing.LauncherDelayMs.ToString(CultureInfo.InvariantCulture);
         GeneralMessage.Text = string.Empty;
         _loadingGeneral = false;
     }
@@ -130,6 +132,29 @@ public partial class MainWindow : Window
         {
             LogPathBox.Text = check.Path ?? string.Empty;
             GeneralMessage.Text = Text(check.Path is null ? "General.SavedOff" : "General.Saved");
+        }
+    }
+
+    private async void OnSaveLauncher(object sender, RoutedEventArgs e)
+    {
+        if (!int.TryParse(LauncherDelayBox.Text.Trim(), NumberStyles.None, CultureInfo.InvariantCulture, out int delayMs)
+            || delayMs > LauncherSettings.MaxDelayMs)
+        {
+            GeneralMessage.Text = Text("General.Launcher.DelayInvalid");
+            return;
+        }
+
+        var names = LauncherSettings.ParseNames(LauncherNamesBox.Text);
+        bool saved = await TrySaveAsync(settings => settings with
+        {
+            Launcher = settings.Launcher with { ProcessNames = names },
+            Timing = settings.Timing with { LauncherDelayMs = delayMs },
+        });
+
+        if (saved)
+        {
+            LauncherNamesBox.Text = string.Join(Environment.NewLine, names);
+            GeneralMessage.Text = Text("General.Launcher.Saved");
         }
     }
 

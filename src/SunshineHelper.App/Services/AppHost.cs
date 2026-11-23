@@ -1,6 +1,7 @@
 using System.IO;
 using System.Threading;
 using SunshineHelper.Application.Channel;
+using SunshineHelper.Application.Launcher;
 using SunshineHelper.Application.Monitoring;
 using SunshineHelper.Application.Session;
 using SunshineHelper.Application.Settings;
@@ -8,6 +9,7 @@ using SunshineHelper.Domain.Settings;
 using SunshineHelper.Infrastructure.Channel;
 using SunshineHelper.Infrastructure.Display;
 using SunshineHelper.Infrastructure.Fps;
+using SunshineHelper.Infrastructure.Launcher;
 using SunshineHelper.Infrastructure.Monitoring;
 using SunshineHelper.Infrastructure.Session;
 using SunshineHelper.Infrastructure.Settings;
@@ -96,7 +98,12 @@ internal sealed class AppHost : IAsyncDisposable
         var settings = new CurrentSettingsHolder(loadedSettings);
         var store = new FileSessionSnapshotStore();
         var orchestrator = new SessionOrchestrator(
-            [new PrimaryDisplayModule(), new HdrModule(), new RtssFpsLimitModule()],
+            [
+                new PrimaryDisplayModule(),
+                new HdrModule(),
+                new RtssFpsLimitModule(),
+                new LauncherModule(new WindowsProcessController(), settings),
+            ],
             store,
             new UptimeBootIdentityProvider());
 

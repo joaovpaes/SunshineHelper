@@ -47,4 +47,11 @@
     <sys:String x:Key="General.SavedOff">Salvo. O leitor do log está desligado.</sys:String>
     <sys:String x:Key="General.PathInvalid">Caminho inválido: use o caminho completo, com a letra do disco (por exemplo C:\...\sunshine.log).</sys:String>
     <sys:String x:Key="General.SaveFailed">Não foi possível salvar o settings.json: {0}</sys:String>
+
+    <sys:String x:Key="General.Launcher">Programas a fechar no fim da transmissão</sys:String>
+    <sys:String x:Key="General.Launcher.Hint">Nomes dos processos, um por linha, como aparecem no Gerenciador de Tarefas (por exemplo Playnite.FullscreenApp). Só são fechados os que abriram durante a transmissão; o que você já tinha aberto antes nunca é fechado. Vazio: o app não fecha nada.</sys:String>
+    <sys:String x:Key="General.Launcher.Delay">Atraso antes de abrir o launcher (milissegundos)</sys:String>
+    <sys:String x:Key="General.Launcher.Delay.Hint">0 a 30000. Deixe em 0 se o launcher já fecha direito. A mudança vale a partir da próxima transmissão.</sys:String>
+    <sys:String x:Key="General.Launcher.Saved">Salvo. Vale a partir da próxima transmissão.</sys:String>
+    <sys:String x:Key="General.Launcher.DelayInvalid">Atraso inválido: use um número inteiro de 0 a 30000.</sys:String>
 </ResourceDictionary>

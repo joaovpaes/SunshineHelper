@@ -34,7 +34,8 @@
         </Border>
 
         <!-- Page area. Every screen says in one line what it is for. -->
-        <StackPanel Grid.Column="1" Margin="32">
+        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="32">
             <TextBlock x:Name="PageTitle" Style="{StaticResource Text.Title}" />
             <TextBlock x:Name="PageDescription" Margin="0,8,0,0" Style="{StaticResource Text.Dim}" />
             <Border x:Name="NotReadyCard" Margin="0,32,0,0" Padding="16"
@@ -88,9 +89,24 @@
                             Style="{StaticResource Button.Primary}"
                             Content="{DynamicResource General.Save}" Click="OnSaveLogPath" />
 
+                    <Border Margin="0,24,0,0" BorderBrush="{DynamicResource Brush.Line}" BorderThickness="0,1,0,0" />
+                    <TextBlock Margin="0,24,0,0" Style="{StaticResource Text.Label}" Text="{DynamicResource General.Launcher}" />
+                    <TextBlock Margin="0,8,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap"
+                               Text="{DynamicResource General.Launcher.Hint}" />
+                    <TextBox x:Name="LauncherNamesBox" Margin="0,8,0,0" Padding="6,4" Height="72"
+                             AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" />
+                    <TextBlock Margin="0,16,0,0" Style="{StaticResource Text.Label}" Text="{DynamicResource General.Launcher.Delay}" />
+                    <TextBox x:Name="LauncherDelayBox" Margin="0,8,0,0" Padding="6,4" Width="120" HorizontalAlignment="Left" />
+                    <TextBlock Margin="0,8,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap"
+                               Text="{DynamicResource General.Launcher.Delay.Hint}" />
+                    <Button Margin="0,16,0,0" Padding="16,8" HorizontalAlignment="Left"
+                            Style="{StaticResource Button.Primary}"
+                            Content="{DynamicResource General.Save}" Click="OnSaveLauncher" />
+
                     <TextBlock x:Name="GeneralMessage" Margin="0,16,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
         </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Window>
