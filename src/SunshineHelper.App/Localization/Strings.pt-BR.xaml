@@ -33,6 +33,11 @@
     <sys:String x:Key="Panel.Log.Off">Leitor do log desligado: o caminho do log do Sunshine ainda não foi definido.</sys:String>
     <sys:String x:Key="Panel.Log.On">Leitor do log ativo.</sys:String>
     <sys:String x:Key="Panel.Problems">Problemas ao iniciar:</sys:String>
+    <sys:String x:Key="Panel.NotApplied">Aviso: não foi aplicado nesta transmissão: {0}. O resto do perfil está ativo; o motivo está no app.log (ou gere o relatório de diagnóstico na tela Geral).</sys:String>
+    <sys:String x:Key="Module.display">Resolução</sys:String>
+    <sys:String x:Key="Module.hdr">HDR</sys:String>
+    <sys:String x:Key="Module.fps">Limite de FPS</sys:String>
+    <sys:String x:Key="Module.launcher">Fechar o launcher</sys:String>
 
     <sys:String x:Key="Tray.Open">Abrir</sys:String>
     <sys:String x:Key="Tray.Exit">Sair</sys:String>

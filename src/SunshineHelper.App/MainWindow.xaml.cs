@@ -232,6 +232,12 @@ public partial class MainWindow : Window
 
             ClientText.Text = Formatted("Panel.Device", status.ClientName);
             ProfileText.Text = Formatted("Panel.Profile", status.ProfileId);
+            NotAppliedText.Text = status.NotAppliedModules.Count == 0
+                ? string.Empty
+                : string.Format(
+                    CultureInfo.CurrentCulture,
+                    Text("Panel.NotApplied"),
+                    string.Join(", ", status.NotAppliedModules.Select(id => Text("Module." + id))));
             LogText.Text = Text(_host.LogMonitorRunning ? "Panel.Log.On" : "Panel.Log.Off");
             if (_host.LogLevel == LogLevelVerdict.Insufficient)
             {

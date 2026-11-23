@@ -21,8 +21,12 @@ namespace SunshineHelper.Application.Session;
 /// </para>
 /// <para>
 /// Modules are never trusted to behave. One that throws is treated exactly like one that
-/// reports a failure, and a failure in either direction puts the environment back rather
-/// than leaving the PC in streaming configuration.
+/// reports a failure. A module that fails to apply is put back on its own and the session
+/// goes on with the others, as a warning (docs/adr/0011-falha-parcial-e-sessao-presa.md):
+/// a missing FPS cap should not cost the user the resolution and HDR as well. Everything
+/// goes back at once only when there is no safe way forward — the state could not be
+/// read, the snapshot could not be written, the failed module could not be put back, or
+/// the apply itself was cancelled.
 /// </para>
 /// </remarks>
 public sealed class SessionOrchestrator
@@ -139,6 +143,7 @@ public sealed class SessionOrchestrator
                 environmentRestored: true);
         }
 
+        List<string> warnings = [];
         foreach (var module in _modules)
         {
             snapshot = snapshot.WithModuleState(module.Id, ModuleApplyState.Applying);
@@ -179,19 +184,51 @@ public sealed class SessionOrchestrator
 
             if (outcome.Status == ApplyStatus.Failed)
             {
-                return await RollbackAsync(
-                    snapshot,
-                    startedAt,
-                    $"Falha ao aplicar '{module.Id}': {outcome.ErrorMessage}",
-                    cancellationToken).ConfigureAwait(false);
+                string failureMessage = $"Falha ao aplicar '{module.Id}': {outcome.ErrorMessage}";
+
+                // Cancelled means the app is going away, not that this module has a
+                // problem: nothing more is applied and everything goes back, as before.
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return await RollbackAsync(snapshot, startedAt, failureMessage, cancellationToken).ConfigureAwait(false);
+                }
+
+                var entry = snapshot.Modules.First(item => item.ModuleId == module.Id);
+                var undo = await RevertModuleAsync(module, entry, cancellationToken).ConfigureAwait(false);
+                if (!undo.Reverted)
+                {
+                    // Its state is unknown now, so the session cannot simply go on without
+                    // it. Everything goes back; if this module still cannot, the snapshot
+                    // stays for a later attempt, exactly as before.
+                    return await RollbackAsync(
+                        snapshot,
+                        startedAt,
+                        $"{failureMessage} (e não foi possível desfazê-lo: {undo.ErrorMessage})",
+                        cancellationToken).ConfigureAwait(false);
+                }
+
+                snapshot = snapshot.WithModuleState(module.Id, ModuleApplyState.RolledBack);
+                _ = await TryWriteAsync(snapshot, cancellationToken).ConfigureAwait(false);
+
+                Log(DiagnosticLevel.Warning, $"module '{module.Id}' put back on its own; the session goes on without it");
+                warnings.Add($"'{module.Id}' não foi aplicado nesta sessão: {outcome.ErrorMessage}");
+                if (undo.ErrorMessage is { } undoWarning)
+                {
+                    warnings.Add($"'{module.Id}': {undoWarning}");
+                }
             }
         }
 
         snapshot = snapshot.WithState(SessionState.Applied);
-        Log(DiagnosticLevel.Info, string.Create(CultureInfo.InvariantCulture, $"apply done in {Elapsed(startedAt).TotalMilliseconds:0} ms"));
+        string warningSuffix = warnings.Count == 0
+            ? string.Empty
+            : string.Create(CultureInfo.InvariantCulture, $", with {warnings.Count} warning(s)");
+        Log(
+            warnings.Count == 0 ? DiagnosticLevel.Info : DiagnosticLevel.Warning,
+            string.Create(CultureInfo.InvariantCulture, $"apply done in {Elapsed(startedAt).TotalMilliseconds:0} ms{warningSuffix}"));
         string? finalWriteError = await TryWriteAsync(snapshot, cancellationToken).ConfigureAwait(false);
 
-        List<string> problems = [];
+        List<string> problems = [.. warnings];
         if (finalWriteError is not null)
         {
             problems.Add($"A sessão foi aplicada, mas o snapshot não pôde ser atualizado: {finalWriteError}");
@@ -349,19 +386,7 @@ public sealed class SessionOrchestrator
                 continue;
             }
 
-            RevertOutcome outcome;
-            try
-            {
-                outcome = await module.RevertAsync(captured.Snapshot, cancellationToken).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                outcome = RevertOutcome.Failed(ex.Message);
-            }
-
-            Log(
-                outcome.Reverted ? DiagnosticLevel.Info : DiagnosticLevel.Error,
-                string.Create(CultureInfo.InvariantCulture, $"revert module '{captured.ModuleId}': {(outcome.Reverted ? "ok" : "FAILED")}{(outcome.ErrorMessage is { } detail ? " - " + detail : string.Empty)}"));
+            var outcome = await RevertModuleAsync(module, captured, cancellationToken).ConfigureAwait(false);
 
             if (!outcome.Reverted)
             {
@@ -377,6 +402,29 @@ public sealed class SessionOrchestrator
         }
 
         return (anyFailed, problems);
+    }
+
+    /// <summary>Reverts one module, never throwing: an exception counts as a failure.</summary>
+    private async Task<RevertOutcome> RevertModuleAsync(
+        IEnvironmentModule module,
+        CapturedModule captured,
+        CancellationToken cancellationToken)
+    {
+        RevertOutcome outcome;
+        try
+        {
+            outcome = await module.RevertAsync(captured.Snapshot, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            outcome = RevertOutcome.Failed(ex.Message);
+        }
+
+        Log(
+            outcome.Reverted ? DiagnosticLevel.Info : DiagnosticLevel.Error,
+            string.Create(CultureInfo.InvariantCulture, $"revert module '{captured.ModuleId}': {(outcome.Reverted ? "ok" : "FAILED")}{(outcome.ErrorMessage is { } detail ? " - " + detail : string.Empty)}"));
+
+        return outcome;
     }
 
     private async Task<string?> TryWriteAsync(SessionSnapshot snapshot, CancellationToken cancellationToken)

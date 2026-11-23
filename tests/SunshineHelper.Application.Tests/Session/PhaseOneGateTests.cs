@@ -49,6 +49,35 @@ public class PhaseOneGateTests
         store.Content.ShouldBeNull();
     }
 
+    /// <summary>Gate item 1 (docs/adr/0011): a module that fails is put back at once, the
+    /// others stay for the stream, and everything is back where it started at the end —
+    /// also when the app is killed during the stream and a second copy does the restore.</summary>
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    public async Task Falha_de_um_modulo_vira_aviso_e_tudo_volta_mesmo_depois_de_uma_queda(int failingModule)
+    {
+        var ct = TestContext.Current.CancellationToken;
+        var test = new OrchestratorTest();
+        test.Modules[failingModule].ApplyFails = "Sem permissão.";
+        test.Modules[failingModule].ApplyFailsHalfway = true;
+
+        var applied = await test.Orchestrator.ApplyAsync(TestProfiles.FollowClient(), TestProfiles.Request(), ct);
+        applied.Status.ShouldBe(SessionApplyStatus.Applied);
+        test.Modules[failingModule].Value.ShouldBe(FakeEnvironmentModule.Original);
+
+        // Proves it is not reverted a second time: that would fail and keep the snapshot.
+        test.Modules[failingModule].RevertFails = "Sem permissão.";
+        string leftOnDisk = test.Store.Content.ShouldNotBeNull();
+        var secondRun = SecondCopyOfTheApp(test, leftOnDisk, out var store);
+        var result = await secondRun.RestoreAsync(ct);
+
+        result.Status.ShouldBe(RestoreStatus.Restored);
+        test.Environment.ShouldBe(AllOriginal);
+        store.Content.ShouldBeNull();
+    }
+
     /// <summary>Gate item 2: app killed after everything was applied, during the stream.</summary>
     [Fact]
     public async Task App_encerrado_durante_a_transmissao_e_restaurado_ao_abrir_de_novo()

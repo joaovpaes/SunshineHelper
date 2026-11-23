@@ -33,6 +33,11 @@
     <sys:String x:Key="Panel.Log.Off">Log reader off: the Sunshine log path has not been set.</sys:String>
     <sys:String x:Key="Panel.Log.On">Log reader running.</sys:String>
     <sys:String x:Key="Panel.Problems">Problems at startup:</sys:String>
+    <sys:String x:Key="Panel.NotApplied">Warning: not applied in this stream: {0}. The rest of the profile is active; the reason is in app.log (or generate the diagnostic report on the General screen).</sys:String>
+    <sys:String x:Key="Module.display">Resolution</sys:String>
+    <sys:String x:Key="Module.hdr">HDR</sys:String>
+    <sys:String x:Key="Module.fps">FPS limit</sys:String>
+    <sys:String x:Key="Module.launcher">Close the launcher</sys:String>
 
     <sys:String x:Key="Tray.Open">Open</sys:String>
     <sys:String x:Key="Tray.Exit">Exit</sys:String>

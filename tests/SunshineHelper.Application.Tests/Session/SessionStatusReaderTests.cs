@@ -70,6 +70,30 @@ public class SessionStatusReaderTests
         status.Kind.ShouldBe(SessionStatusKind.NeedsAttention);
     }
 
+    [Fact]
+    public async Task Modulo_desfeito_sozinho_aparece_como_nao_aplicado()
+    {
+        var test = new OrchestratorTest();
+        test.Modules[2].ApplyFails = "Sem permissão.";
+        test.Modules[0].ApplyFails = "Sem permissão.";
+        await test.Orchestrator.ApplyAsync(TestProfiles.FollowClient(), TestProfiles.Request(), TestContext.Current.CancellationToken);
+
+        var status = await new SessionStatusReader(test.Store).ReadAsync(TestContext.Current.CancellationToken);
+
+        status.Kind.ShouldBe(SessionStatusKind.Active);
+        string.Join(",", status.NotAppliedModules).ShouldBe("a,c");
+    }
+
+    [Fact]
+    public async Task Sessao_sem_falhas_nao_tem_modulos_nao_aplicados()
+    {
+        var store = new FakeSessionSnapshotStore { Content = Serialized(SessionState.Applied) };
+
+        var status = await new SessionStatusReader(store).ReadAsync(TestContext.Current.CancellationToken);
+
+        status.NotAppliedModules.ShouldBeEmpty();
+    }
+
     private static string Serialized(SessionState state) =>
         SessionSnapshotSerializer.Serialize(
             SessionSnapshot

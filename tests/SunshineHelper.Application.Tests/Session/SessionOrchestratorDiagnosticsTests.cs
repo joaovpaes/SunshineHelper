@@ -38,9 +38,11 @@ public class SessionOrchestratorDiagnosticsTests
 
         var result = await orchestrator.ApplyAsync(TestProfiles.FollowClient(), TestProfiles.Request(), TestContext.Current.CancellationToken);
 
-        result.Status.ShouldBe(SessionApplyStatus.Failed);
+        result.Status.ShouldBe(SessionApplyStatus.Applied);
         log.Contains(DiagnosticLevel.Error, "apply module 'b': Failed - driver said no").ShouldBeTrue();
-        log.Contains(DiagnosticLevel.Info, "revert module 'a': ok").ShouldBeTrue();
+        log.Contains(DiagnosticLevel.Info, "revert module 'b': ok").ShouldBeTrue();
+        log.Contains(DiagnosticLevel.Warning, "module 'b' put back on its own").ShouldBeTrue();
+        log.Contains(DiagnosticLevel.Warning, "with 1 warning(s)").ShouldBeTrue();
     }
 
     [Fact]

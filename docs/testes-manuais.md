@@ -39,6 +39,12 @@ Rodada de 2026-11-23 no PC do autor (Sunshine 2026.914, RX 9070 XT, tela 2560x14
   resolução devolve a tela a 2560x1440. Corrigido no PR 34 (HDR antes da resolução, ADR 0010).
 
 **Ainda pendente**
+- **PR 13a (falha de um módulo vira aviso):** com o app **sem** administrador, mude o perfil para FPS em
+  "Valor fixo" (por exemplo 60), resolução 1920x1080 e HDR ligado. Transmita. A tela fica em 1920x1080 com
+  HDR; o Painel mostra "Não foi aplicado nesta transmissão: Limite de FPS"; o `app.log` tem
+  `apply module 'fps': Failed`, `module 'fps' put back on its own` e `apply done ..., with 1 warning(s)`.
+  Encerre a sessão (Quit): a tela volta a 2560x1440 sem HDR, o Painel volta a "Nenhuma transmissão ativa" e
+  o `app.log` **não** tem `revert module 'fps'` no fim.
 - **PR 12d (relatório de diagnóstico):** na tela Geral, escreva uma descrição qualquer (inclua um IP de teste,
   como `192.168.1.10`), clique em **Gerar relatório de diagnóstico** e salve. Abra o arquivo: tem a versão
   (sem `<ip>` no lugar dela), a descrição, `settings.json`, o fim do `app.log` e o fim do log do Sunshine; o IP
