@@ -146,6 +146,26 @@
                 </StackPanel>
             </Border>
 
+            <!-- Devices: who has connected, by the name Moonlight gives. -->
+            <Border x:Name="DevicesCard" Margin="0,32,0,0" Padding="16" Visibility="Collapsed"
+                    Background="{DynamicResource Brush.Panel}"
+                    BorderBrush="{DynamicResource Brush.Line}"
+                    BorderThickness="1"
+                    CornerRadius="{StaticResource Radius.Medium}">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource Text.Dim}" TextWrapping="Wrap"
+                               Text="{DynamicResource Devices.Hint}" />
+                    <TextBlock x:Name="DevicesEmptyText" Margin="0,16,0,0" Style="{StaticResource Text.Dim}"
+                               TextWrapping="Wrap" Text="{DynamicResource Devices.Empty}" />
+                    <ListBox x:Name="DevicesList" Margin="0,16,0,0" MinHeight="110" MaxHeight="360"
+                             SelectionChanged="OnDeviceSelected" />
+                    <Button x:Name="ForgetDeviceButton" Margin="0,8,0,0" Padding="12,6" HorizontalAlignment="Left"
+                            Style="{StaticResource Button.Secondary}" IsEnabled="False"
+                            Content="{DynamicResource Devices.Forget}" Click="OnForgetDevice" />
+                    <TextBlock x:Name="DevicesMessage" Margin="0,16,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
             <!-- General: language and the Sunshine log path. -->
             <Border x:Name="GeneralCard" Margin="0,32,0,0" Padding="16" Visibility="Collapsed"
                     Background="{DynamicResource Brush.Panel}"

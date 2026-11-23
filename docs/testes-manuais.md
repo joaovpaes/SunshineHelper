@@ -85,6 +85,15 @@ aberta na bandeja faz a cópia nova sair em silêncio; foi o que confundiu o pri
   fechamento do Playnite foi confirmado; falta só medir.
 - Versão no pacote de pré-lançamento (PR 56): na tela Geral, "Sobre" deve mostrar `0.1.0-preview.2` (no `dotnet run`
   aparece `1.0.0`, o que é normal).
+- Tela Dispositivos (PR 60), na próxima versão de testes:
+  1. Abra a tela **Dispositivos**: no começo ela diz que nenhum aparelho conectou.
+  2. Faça uma transmissão pelo Moonlight. Com o app aberto e a tela Dispositivos visível, o aparelho aparece sozinho
+     (nome como no Moonlight, "conexões: 1", data de agora e o perfil usado).
+  3. Faça outra transmissão: "conexões" sobe para 2 e a data muda.
+  4. Teste com um aparelho **sem perfil** (e sem perfil padrão): ele aparece com "perfil: nenhum correspondeu".
+  5. Selecione um aparelho e clique em **Esquecer aparelho**: ele sai da lista e aparece de novo na próxima conexão.
+  6. Feche e abra o app: a lista continua (o arquivo é `%LOCALAPPDATA%\SunshineHelper\devices.json`).
+  7. Confira que a transmissão continua igual: o registro não deve atrasar nem impedir nada.
 
 Observação de uso: no Moonlight, só **encerrar a sessão** (Quit) faz o Sunshine rodar o comando Undo. Apenas
 sair/desconectar deixa tudo como está, a menos que o perfil tenha "Restaurar a tela ao desconectar".

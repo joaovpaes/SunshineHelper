@@ -24,6 +24,12 @@
     <sys:String x:Key="Page.General.Description">Language, theme and the Sunshine log path.</sys:String>
 
     <sys:String x:Key="Page.NotReady">This screen arrives in an upcoming PR.</sys:String>
+    <sys:String x:Key="Devices.Hint">Devices that have connected, by the name Moonlight reports. Only the name, the number of connections, the last time and the profile used are kept, on this PC (devices.json). Forgetting a device only deletes that record: profiles are not touched.</sys:String>
+    <sys:String x:Key="Devices.Empty">No device has connected yet. They show up here on the first stream.</sys:String>
+    <sys:String x:Key="Devices.Item">{0}  ·  connections: {1}  ·  last: {2}  ·  profile: {3}</sys:String>
+    <sys:String x:Key="Devices.NoProfile">none matched</sys:String>
+    <sys:String x:Key="Devices.Forget">Forget device</sys:String>
+    <sys:String x:Key="Devices.Forgotten">Device removed from the list. It shows up again on its next connection.</sys:String>
 
     <sys:String x:Key="Panel.Status.Idle">No active stream.</sys:String>
     <sys:String x:Key="Panel.Status.Active">Stream active: the environment is modified.</sys:String>

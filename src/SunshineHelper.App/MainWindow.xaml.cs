@@ -30,6 +30,7 @@ public partial class MainWindow : Window
         InitializeComponent();
 
         _statusTimer.Tick += async (_, _) => await RefreshPanelAsync();
+        _statusTimer.Tick += (_, _) => RefreshDevicesIfVisible();
         _statusTimer.Start();
 
         // Not set in XAML: SelectionChanged would fire before PageTitle exists.
@@ -66,7 +67,15 @@ public partial class MainWindow : Window
         GeneralCard.Visibility = isGeneral ? Visibility.Visible : Visibility.Collapsed;
         bool isProfiles = page == "Profiles";
         ProfilesCard.Visibility = isProfiles ? Visibility.Visible : Visibility.Collapsed;
-        NotReadyCard.Visibility = isPanel || isGeneral || isProfiles ? Visibility.Collapsed : Visibility.Visible;
+        bool isDevices = page == "Devices";
+        DevicesCard.Visibility = isDevices ? Visibility.Visible : Visibility.Collapsed;
+        NotReadyCard.Visibility = isPanel || isGeneral || isProfiles || isDevices ? Visibility.Collapsed : Visibility.Visible;
+
+        if (isDevices)
+        {
+            DevicesMessage.Text = string.Empty;
+            LoadDevices(force: true);
+        }
 
         if (isProfiles)
         {
