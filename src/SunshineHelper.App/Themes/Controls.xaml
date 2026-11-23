@@ -38,7 +38,7 @@
         <Setter Property="Padding" Value="16,8" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Template">
-            <Setter.Template>
+            <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Frame"
                             Background="{TemplateBinding Background}"
@@ -65,7 +65,7 @@
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
-            </Setter.Template>
+            </Setter.Value>
         </Setter>
     </Style>
 
@@ -84,7 +84,7 @@
         <Setter Property="Padding" Value="16,12" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Template">
-            <Setter.Template>
+            <Setter.Value>
                 <ControlTemplate TargetType="ListBoxItem">
                     <Grid x:Name="Root" Background="Transparent">
                         <Border x:Name="Bar" Width="2" HorizontalAlignment="Left"
@@ -103,7 +103,7 @@
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
-            </Setter.Template>
+            </Setter.Value>
         </Setter>
     </Style>
 </ResourceDictionary>

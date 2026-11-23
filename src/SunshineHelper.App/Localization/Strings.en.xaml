@@ -1,26 +1,27 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <!-- English. Same keys as Strings.pt-BR.xaml; the localization test fails if they
          drift. Tone: a tool, not an assistant — direct, no exclamation marks. -->
 
-    <x:String x:Key="App.Title">SunshineHelper</x:String>
+    <sys:String x:Key="App.Title">SunshineHelper</sys:String>
 
-    <x:String x:Key="Nav.Panel">Dashboard</x:String>
-    <x:String x:Key="Nav.Profiles">Profiles</x:String>
-    <x:String x:Key="Nav.Devices">Devices</x:String>
-    <x:String x:Key="Nav.Log">Log</x:String>
-    <x:String x:Key="Nav.General">General</x:String>
+    <sys:String x:Key="Nav.Panel">Dashboard</sys:String>
+    <sys:String x:Key="Nav.Profiles">Profiles</sys:String>
+    <sys:String x:Key="Nav.Devices">Devices</sys:String>
+    <sys:String x:Key="Nav.Log">Log</sys:String>
+    <sys:String x:Key="Nav.General">General</sys:String>
 
-    <x:String x:Key="Page.Panel.Title">Dashboard</x:String>
-    <x:String x:Key="Page.Panel.Description">Stream state, device and profile in use.</x:String>
-    <x:String x:Key="Page.Profiles.Title">Profiles</x:String>
-    <x:String x:Key="Page.Profiles.Description">Resolution, HDR and FPS limit for each device.</x:String>
-    <x:String x:Key="Page.Devices.Title">Devices</x:String>
-    <x:String x:Key="Page.Devices.Description">Devices that have connected, and the profile for each.</x:String>
-    <x:String x:Key="Page.Log.Title">Log</x:String>
-    <x:String x:Key="Page.Log.Description">What the app did in each session.</x:String>
-    <x:String x:Key="Page.General.Title">General</x:String>
-    <x:String x:Key="Page.General.Description">Language, theme and the Sunshine log path.</x:String>
+    <sys:String x:Key="Page.Panel.Title">Dashboard</sys:String>
+    <sys:String x:Key="Page.Panel.Description">Stream state, device and profile in use.</sys:String>
+    <sys:String x:Key="Page.Profiles.Title">Profiles</sys:String>
+    <sys:String x:Key="Page.Profiles.Description">Resolution, HDR and FPS limit for each device.</sys:String>
+    <sys:String x:Key="Page.Devices.Title">Devices</sys:String>
+    <sys:String x:Key="Page.Devices.Description">Devices that have connected, and the profile for each.</sys:String>
+    <sys:String x:Key="Page.Log.Title">Log</sys:String>
+    <sys:String x:Key="Page.Log.Description">What the app did in each session.</sys:String>
+    <sys:String x:Key="Page.General.Title">General</sys:String>
+    <sys:String x:Key="Page.General.Description">Language, theme and the Sunshine log path.</sys:String>
 
-    <x:String x:Key="Page.NotReady">This screen arrives in an upcoming PR.</x:String>
+    <sys:String x:Key="Page.NotReady">This screen arrives in an upcoming PR.</sys:String>
 </ResourceDictionary>
