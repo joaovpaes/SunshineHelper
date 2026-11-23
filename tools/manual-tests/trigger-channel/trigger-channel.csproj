@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <RootNamespace>SunshineHelper.Tools.TriggerChannelHarness</RootNamespace>
+    <!-- Dev tool, not part of SunshineHelper.sln: hosts the real NamedPipeChannelServer
+         so SunshineHelper.Trigger.exe can be run by hand against it — the one thing
+         tests/SunshineHelper.Infrastructure.Tests cannot cover, because that project
+         talks to the server with a NamedPipeClientStream it controls, not the actual
+         published auxiliary, and cannot check that the pipe's ACL really lets the
+         author's own Windows account through. Uses only a no-op settings profile
+         (every Display value left alone), so nothing on screen actually changes —
+         this harness is about the channel, not the modules PRs 5a/5b/6 already cover
+         by hand. Directory.Build.props and Directory.Packages.props still apply. -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\SunshineHelper.Infrastructure\SunshineHelper.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

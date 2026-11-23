@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SunshineHelper.Domain\SunshineHelper.Domain.csproj" />
+    <ProjectReference Include="..\SunshineHelper.Protocol\SunshineHelper.Protocol.csproj" />
   </ItemGroup>
 
 </Project>

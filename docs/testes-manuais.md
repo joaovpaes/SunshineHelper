@@ -111,6 +111,51 @@ verdade (não uma simulação), com um menu interativo.
       deve falhar com uma mensagem explicando que não há RTSS para aplicar o
       limite — essa é uma falha esperada e controlada, não um bug.
 
+## PR 7 — Auxiliar de gatilho e canal (`SunshineHelper.Trigger` + named pipe)
+
+A parte automática (`tests/SunshineHelper.Infrastructure.Tests`) já cobre o
+protocolo e o servidor do pipe com um cliente de verdade. O que só dá para
+confirmar na própria máquina é o auxiliar publicado de verdade (NativeAOT) e
+a ACL do pipe com contas reais do Windows.
+
+Ferramenta pronta em `tools/manual-tests/trigger-channel/` — hospeda o canal
+de verdade (sem mexer em vídeo/HDR/RTSS: o perfil de teste não muda nada na
+tela) para o auxiliar de verdade se conectar.
+
+1. Num terminal, deixe o harness rodando:
+   ```
+   powershell -ExecutionPolicy Bypass -File .\tools\manual-tests\trigger-channel\run.ps1
+   ```
+2. Em outro terminal (comum, sem administrador):
+   ```
+   dotnet run --project src\SunshineHelper.Trigger -- start
+   echo $LASTEXITCODE
+   dotnet run --project src\SunshineHelper.Trigger -- end
+   echo $LASTEXITCODE
+   ```
+3. Siga o checklist:
+
+- [ ] Os dois comandos sempre terminam com código de saída **0** — essa é a
+      regra que não pode quebrar (`docs/adr/0002-arquitetura-do-nucleo.md`):
+      um valor diferente de zero aborta a transmissão de verdade.
+- [ ] `start` sem nenhuma variável `SUNSHINE_CLIENT_*` definida ainda
+      funciona (cai no perfil padrão do harness).
+- [ ] `end` sem um `start` antes responde sem travar nem demorar (nada para
+      reverter).
+- [ ] Repita `start`/`end` com o terminal do auxiliar aberto **como
+      administrador**: deve funcionar igual ao terminal comum — a ACL do
+      pipe tem que deixar o usuário interativo e Administradores passarem.
+- [ ] Com o harness **fechado** (canal não escutando), rode `start`: o
+      auxiliar deve esperar o tempo de conexão e sair com código **0** de
+      qualquer forma, sem travar o terminal.
+- [ ] Publique o auxiliar de verdade em NativeAOT e repita o passo 2 com o
+      `.exe` publicado em vez de `dotnet run` (o CI já faz esse publish a
+      cada execução, mas vale confirmar que o binário também roda na sua
+      máquina):
+  ```
+  dotnet publish src\SunshineHelper.Trigger --configuration Release --runtime win-x64 -p:PublishAot=true
+  ```
+
 ## Automatizar isto (pendência, sem PR ainda)
 
 Pedido do autor: transformar estes itens em testes automáticos de verdade, em

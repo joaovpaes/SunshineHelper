@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SunshineHelper.Application\SunshineHelper.Application.csproj" />
+    <ProjectReference Include="..\SunshineHelper.Protocol\SunshineHelper.Protocol.csproj" />
   </ItemGroup>
 
   <ItemGroup>

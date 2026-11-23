@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- Shared by SunshineHelper.Trigger (NativeAOT) and the pipe server in
+         SunshineHelper.Infrastructure: the message shapes both sides speak, and nothing
+         else, so the auxiliary stays small (docs/adr/0003-canal-e-auxiliar-de-gatilho.md).
+         Platform-neutral like Domain: no Windows API, no I/O, testable anywhere. -->
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+
+</Project>

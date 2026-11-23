@@ -42,6 +42,17 @@ jobs:
           --results-directory TestResults
           -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
 
+      - name: Publish SunshineHelper.Trigger with NativeAOT
+        # SunshineHelper.Trigger is meant to publish as a native binary
+        # (docs/adr/0002-arquitetura-do-nucleo.md). The trimmer/AOT analyzer only runs
+        # during an actual publish, so without this step an AOT-incompatible dependency
+        # would go unnoticed until someone tried to ship a release.
+        run: >
+          dotnet publish src/SunshineHelper.Trigger/SunshineHelper.Trigger.csproj
+          --configuration Release
+          --runtime win-x64
+          -p:PublishAot=true
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

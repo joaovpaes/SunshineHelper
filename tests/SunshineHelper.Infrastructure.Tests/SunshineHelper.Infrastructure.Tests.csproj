@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <!-- Windows-only, same as SunshineHelper.Infrastructure: named pipes run on the
+         windows-latest CI runner, unlike Display/HDR/RTSS, which need real hardware —
+         so this is the first Infrastructure functionality with real automated coverage
+         instead of only tools/manual-tests. -->
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Shouldly" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\SunshineHelper.Infrastructure\SunshineHelper.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
