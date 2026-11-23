@@ -53,16 +53,20 @@ Rodada de 2026-11-23 no PC do autor (Sunshine 2026.914, RX 9070 XT, tela 2560x14
   (aceito) e terminou com "seu usuário já pode gravar"; opção 3 com 60: o jogo travou em 60 FPS; opção 5 devolveu
   o limite (estava em 171). A suposição do ADR 0012 (o RTSS regrava o arquivo no mesmo lugar) está confirmada.
 
+- **PR 15b-2 (avisos e botão "Reparar"), ponta a ponta, 2026-11-23 18:40-18:53:** sem administrador, com o app novo.
+  Permissão retirada com `icacls ... /remove:g`; em Perfis (FPS "Valor fixo" 60) apareceu o aviso com o botão
+  "Reparar"; o UAC pediu uma vez e saiu "Pronto: o app já pode gravar o limite de FPS do RTSS.". Transmissão com o
+  RTSS fechado: o Painel avisou que o RTSS não está aberto; com ele aberto o aviso sumiu e o jogo ficou em 60 FPS.
+  Ao encerrar (Quit), voltou ao limite anterior (163 FPS no OSD) e à resolução 2560x1440. Observação: a janela do
+  RTSS seguiu mostrando 171 no campo "Framerate limit" mesmo com o limite valendo (a janela não relê o perfil);
+  não clicar nela durante a transmissão.
+
 **Falhou e foi corrigido**
 - A resolução do perfil nunca era aplicada. O `app.log` (PR 12c) mostrou que a troca para 1920x1080 funcionava
   e era desfeita logo depois de o HDR ligar. Confirmado com `tools/manual-tests`: ligar o HDR depois de trocar a
   resolução devolve a tela a 2560x1440. Corrigido no PR 34 (HDR antes da resolução, ADR 0010).
 
 **Ainda pendente**
-- **PR 15b-2 (avisos e botão "Reparar"), ponta a ponta:** com o app novo (compilado depois do PR 49) e **sem**
-  administrador. Na tela Perfis, escolha FPS "Valor fixo" 60: se faltar a permissão, aparece o aviso com o botão
-  "Reparar" (o UAC pede uma vez). Depois, com o RTSS **fechado**, transmita: o Painel deve avisar que o RTSS não
-  está aberto. Com o RTSS aberto e o jogo rodando, o limite de 60 FPS deve valer e voltar ao normal no Quit.
 - PR 12d, opcional: gerar o relatório com o caminho do log do Sunshine vazio (a seção diz "not configured").
 - Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada). A resolução já está corrigida e o
   fechamento do Playnite foi confirmado; falta só medir.
