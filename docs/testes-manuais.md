@@ -231,6 +231,10 @@ Abra o app e vá em **Geral**:
 
 ## PR 10b — launcher (tela Geral e calibração)
 
+> **PENDÊNCIA (adiada pelo autor em 2026-11-23):** este roteiro e a tabela de calibração ainda
+> **não foram feitos**. Fazer quando estiver em casa, no PC com o Sunshine. Até lá o atraso
+> padrão fica em 0 e o launcher só é fechado se a lista de nomes for preenchida.
+
 Pré-requisito: `settings.json` com um perfil e o Sunshine configurado para chamar o
 SunshineHelper no Prep Command.
 
