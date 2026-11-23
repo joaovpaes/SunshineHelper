@@ -18,6 +18,12 @@ public sealed record DesiredEnvironment
 
     public int? FpsLimit { get; init; }
 
+    /// <summary>This profile's own launcher delay, overriding
+    /// <see cref="TimingSettings.LauncherDelayMs"/>; null uses the global value. A wait,
+    /// not a change to the environment, so it does not count towards
+    /// <see cref="IsEmpty"/>.</summary>
+    public int? LauncherDelayMs { get; init; }
+
     /// <summary>Nothing in this session changes the environment.</summary>
     public bool IsEmpty => Resolution is null && Hdr is null && FpsLimit is null;
 }

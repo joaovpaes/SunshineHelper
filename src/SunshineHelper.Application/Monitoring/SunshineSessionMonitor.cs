@@ -116,7 +116,7 @@ public sealed class SunshineSessionMonitor
             // Command already did the job, this finds no snapshot and comes back
             // nothing-to-do; it never races the primary path.
             await _handler
-                .HandleAsync(new TriggerRequest { Op = TriggerOp.SessionEnd }, cancellationToken)
+                .HandleAsync(new TriggerRequest { Op = TriggerOp.SessionEnd, Reason = SessionEndReason.Cancel }, cancellationToken)
                 .ConfigureAwait(false);
             return;
         }
@@ -142,7 +142,7 @@ public sealed class SunshineSessionMonitor
         _pendingResumeClientName = clientName;
 
         await _handler
-            .HandleAsync(new TriggerRequest { Op = TriggerOp.SessionEnd }, cancellationToken)
+            .HandleAsync(new TriggerRequest { Op = TriggerOp.SessionEnd, Reason = SessionEndReason.Disconnect }, cancellationToken)
             .ConfigureAwait(false);
     }
 

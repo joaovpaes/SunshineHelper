@@ -54,6 +54,9 @@ internal sealed class FakeEnvironmentModule : IEnvironmentModule
 
     public string? RevertFails { get; set; }
 
+    /// <summary>Reverts, but with a warning attached.</summary>
+    public string? RevertWarns { get; set; }
+
     /// <summary>Runs inside ApplyAsync, before anything is changed — the moment a crash
     /// would happen.</summary>
     public Action? WhileApplying { get; set; }
@@ -122,7 +125,9 @@ internal sealed class FakeEnvironmentModule : IEnvironmentModule
         }
 
         Value = snapshot.Payload!["value"]!.GetValue<string>();
-        return Task.FromResult(RevertOutcome.Success());
+        return Task.FromResult(RevertWarns is { } warning
+            ? RevertOutcome.SucceededWithWarning(warning)
+            : RevertOutcome.Success());
     }
 
     private void Record(string step) => Log?.Add($"{Id}:{step}");

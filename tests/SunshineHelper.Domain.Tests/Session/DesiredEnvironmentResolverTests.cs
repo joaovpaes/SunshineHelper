@@ -127,6 +127,19 @@ public class DesiredEnvironmentResolverTests
         Should.Throw<ArgumentNullException>(
             () => DesiredEnvironmentResolver.Resolve(Profile(ProfileValueMode.Leave, ProfileValueMode.Leave, ProfileValueMode.Leave), null!));
 
+    [Fact]
+    public void Resolve_leva_o_atraso_do_launcher_do_perfil_sem_contar_como_mudanca()
+    {
+        var withDelay = Profile(ProfileValueMode.Leave, ProfileValueMode.Leave, ProfileValueMode.Leave) with { LauncherDelayMs = 3_000 };
+        var withoutDelay = Profile(ProfileValueMode.Leave, ProfileValueMode.Leave, ProfileValueMode.Leave);
+
+        var desired = DesiredEnvironmentResolver.Resolve(withDelay, FullRequest());
+
+        desired.LauncherDelayMs.ShouldBe(3_000);
+        desired.IsEmpty.ShouldBeTrue();
+        DesiredEnvironmentResolver.Resolve(withoutDelay, FullRequest()).LauncherDelayMs.ShouldBeNull();
+    }
+
     private static ClientRequest FullRequest() => new()
     {
         Name = "Sala",

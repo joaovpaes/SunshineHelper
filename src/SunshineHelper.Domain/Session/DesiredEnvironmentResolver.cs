@@ -19,6 +19,7 @@ public static class DesiredEnvironmentResolver
             Resolution = ResolveResolution(profile.Display.Resolution, request),
             Hdr = ResolveHdr(profile.Display.Hdr, request),
             FpsLimit = ResolveFpsLimit(profile.Display.FpsLimit, request),
+            LauncherDelayMs = profile.LauncherDelayMs,
         };
     }
 

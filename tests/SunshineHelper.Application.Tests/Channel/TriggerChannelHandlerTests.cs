@@ -1,6 +1,8 @@
 using Shouldly;
 using SunshineHelper.Application.Channel;
+using SunshineHelper.Application.Launcher;
 using SunshineHelper.Application.Session;
+using SunshineHelper.Application.Tests.Launcher;
 using SunshineHelper.Application.Tests.Session;
 using SunshineHelper.Domain.Settings;
 using SunshineHelper.Protocol;
@@ -124,6 +126,59 @@ public class TriggerChannelHandlerTests
 
         endResponse.Ok.ShouldBeTrue();
         endResponse.State.ShouldBe(ChannelState.Reverted);
+    }
+
+    [Fact]
+    public async Task SessionEnd_por_desconexao_restaura_a_tela_mas_deixa_o_launcher_aberto()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var processes = new FakeProcessController();
+        var profile = TestProfiles.FollowClient();
+        var settings = Settings(defaultProfileId: profile.Id, profile) with
+        {
+            Launcher = new LauncherSettings { ProcessNames = ["Playnite.FullscreenApp"] },
+        };
+        var settingsProvider = new FakeCurrentSettingsProvider(settings);
+        var display = new FakeEnvironmentModule("display", 1);
+        var launcher = new LauncherModule(processes, settingsProvider);
+        var orchestrator = new SessionOrchestrator([display, launcher], new FakeSessionSnapshotStore(), new FakeBootIdentityProvider());
+        using var handler = new TriggerChannelHandler(orchestrator, settingsProvider);
+
+        await handler.HandleAsync(StartRequest(), cancellationToken);
+        var playnite = processes.Start(77, "Playnite.FullscreenApp", DateTimeOffset.UtcNow);
+
+        var response = await handler.HandleAsync(
+            new TriggerRequest { Op = TriggerOp.SessionEnd, Reason = SessionEndReason.Disconnect },
+            cancellationToken);
+
+        response.State.ShouldBe(ChannelState.Reverted);
+        display.Value.ShouldBe(FakeEnvironmentModule.Original);
+        processes.Running.ShouldContain(playnite);
+    }
+
+    [Fact]
+    public async Task SessionEnd_sem_motivo_e_cancel_e_fecha_o_launcher_aberto_na_sessao()
+    {
+        var cancellationToken = TestContext.Current.CancellationToken;
+        var processes = new FakeProcessController();
+        var profile = TestProfiles.FollowClient();
+        var settings = Settings(defaultProfileId: profile.Id, profile) with
+        {
+            Launcher = new LauncherSettings { ProcessNames = ["Playnite.FullscreenApp"] },
+        };
+        var settingsProvider = new FakeCurrentSettingsProvider(settings);
+        var launcher = new LauncherModule(processes, settingsProvider);
+        var orchestrator = new SessionOrchestrator([launcher], new FakeSessionSnapshotStore(), new FakeBootIdentityProvider());
+        using var handler = new TriggerChannelHandler(orchestrator, settingsProvider);
+
+        await handler.HandleAsync(StartRequest(), cancellationToken);
+        processes.Start(78, "Playnite.FullscreenApp", DateTimeOffset.UtcNow);
+        processes.ClosesPolitely.Add(78);
+
+        var response = await handler.HandleAsync(EndRequest(), cancellationToken);
+
+        response.State.ShouldBe(ChannelState.Reverted);
+        processes.Running.ShouldBeEmpty();
     }
 
     private static TriggerChannelHandler NewHandler(OrchestratorTest test, AppSettings settings) =>
