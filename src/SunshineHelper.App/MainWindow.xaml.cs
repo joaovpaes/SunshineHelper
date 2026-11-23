@@ -60,7 +60,14 @@ public partial class MainWindow : Window
         PanelCard.Visibility = isPanel ? Visibility.Visible : Visibility.Collapsed;
         bool isGeneral = page == "General";
         GeneralCard.Visibility = isGeneral ? Visibility.Visible : Visibility.Collapsed;
-        NotReadyCard.Visibility = isPanel || isGeneral ? Visibility.Collapsed : Visibility.Visible;
+        bool isProfiles = page == "Profiles";
+        ProfilesCard.Visibility = isProfiles ? Visibility.Visible : Visibility.Collapsed;
+        NotReadyCard.Visibility = isPanel || isGeneral || isProfiles ? Visibility.Collapsed : Visibility.Visible;
+
+        if (isProfiles)
+        {
+            LoadProfiles(selectId: null);
+        }
 
         if (isGeneral)
         {

@@ -1,6 +1,6 @@
 # 0009. Tela de perfis (PR 11)
 
-- Status: aceita (11a: lógica do formulário; 11b: tela)
+- Status: aceita (11a: lógica do formulário; 11b: tela, feita)
 - Data: 2026-11-23
 
 ## Contexto
@@ -26,4 +26,6 @@ e excluir perfis sem abrir o arquivo.
 ## Dividido em dois PRs
 
 - **11a:** `ProfileForm` e testes. Nenhuma mudança visível no app.
-- **11b:** a tela (lista, formulário, novo, salvar, excluir, perfil padrão), pt-BR e en.
+- **11b:** a tela (lista, formulário, novo, salvar, excluir, perfil padrão), pt-BR e en. Código em
+  `MainWindow.Profiles.cs`; excluir pede confirmação; "perfil padrão" liga `defaultProfileId`, e
+  excluir esse perfil limpa o campo. Mudanças valem a partir da próxima transmissão.

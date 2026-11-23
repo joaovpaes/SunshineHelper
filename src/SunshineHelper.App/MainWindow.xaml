@@ -61,6 +61,80 @@
                 </StackPanel>
             </Border>
 
+            <!-- Profiles: one per device; resolution, HDR and FPS limit. -->
+            <Border x:Name="ProfilesCard" Margin="0,32,0,0" Padding="16" Visibility="Collapsed"
+                    Background="{DynamicResource Brush.Panel}"
+                    BorderBrush="{DynamicResource Brush.Line}"
+                    BorderThickness="1"
+                    CornerRadius="{StaticResource Radius.Medium}">
+                <StackPanel>
+                    <ListBox x:Name="ProfileList" Height="110" SelectionChanged="OnProfileSelected" />
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <Button Padding="12,6" Style="{StaticResource Button.Secondary}"
+                                Content="{DynamicResource Profiles.New}" Click="OnNewProfile" />
+                        <Button x:Name="DeleteProfileButton" Margin="8,0,0,0" Padding="12,6"
+                                Style="{StaticResource Button.Secondary}"
+                                Content="{DynamicResource Profiles.Delete}" Click="OnDeleteProfile" />
+                    </StackPanel>
+
+                    <TextBlock Margin="0,24,0,0" Style="{StaticResource Text.Label}" Text="{DynamicResource Profiles.Name}" />
+                    <TextBox x:Name="ProfileNameBox" Margin="0,8,0,0" Padding="6,4" />
+
+                    <TextBlock Margin="0,16,0,0" Style="{StaticResource Text.Label}" Text="{DynamicResource Profiles.ClientNames}" />
+                    <TextBox x:Name="ProfileClientsBox" Margin="0,8,0,0" Padding="6,4" Height="60"
+                             AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" />
+                    <TextBlock Margin="0,8,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap"
+                               Text="{DynamicResource Profiles.ClientNames.Hint}" />
+
+                    <TextBlock Margin="0,16,0,0" Style="{StaticResource Text.Label}" Text="{DynamicResource Profiles.Resolution}" />
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <ComboBox x:Name="ResolutionModeBox" Width="200" SelectionChanged="OnProfileModeChanged">
+                                                        <ComboBoxItem Tag="FollowClient" Content="{DynamicResource Profiles.Mode.Follow}" />
+                            <ComboBoxItem Tag="Fixed" Content="{DynamicResource Profiles.Mode.Fixed}" />
+                            <ComboBoxItem Tag="Leave" Content="{DynamicResource Profiles.Mode.Leave}" />
+                        </ComboBox>
+                        <TextBox x:Name="ResolutionBox" Margin="8,0,0,0" Width="140" Padding="6,4" VerticalContentAlignment="Center" />
+                    </StackPanel>
+                    <TextBlock Margin="0,8,0,0" Style="{StaticResource Text.Dim}" Text="{DynamicResource Profiles.Resolution.Hint}" />
+
+                    <TextBlock Margin="0,16,0,0" Style="{StaticResource Text.Label}" Text="HDR" />
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <ComboBox x:Name="HdrModeBox" Width="200" SelectionChanged="OnProfileModeChanged">
+                                                        <ComboBoxItem Tag="FollowClient" Content="{DynamicResource Profiles.Mode.Follow}" />
+                            <ComboBoxItem Tag="Fixed" Content="{DynamicResource Profiles.Mode.Fixed}" />
+                            <ComboBoxItem Tag="Leave" Content="{DynamicResource Profiles.Mode.Leave}" />
+                        </ComboBox>
+                        <CheckBox x:Name="HdrOnBox" Margin="8,0,0,0" VerticalAlignment="Center"
+                                  Content="{DynamicResource Profiles.Hdr.On}" />
+                    </StackPanel>
+
+                    <TextBlock Margin="0,16,0,0" Style="{StaticResource Text.Label}" Text="{DynamicResource Profiles.Fps}" />
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <ComboBox x:Name="FpsModeBox" Width="200" SelectionChanged="OnProfileModeChanged">
+                                                        <ComboBoxItem Tag="FollowClient" Content="{DynamicResource Profiles.Mode.Follow}" />
+                            <ComboBoxItem Tag="Fixed" Content="{DynamicResource Profiles.Mode.Fixed}" />
+                            <ComboBoxItem Tag="Leave" Content="{DynamicResource Profiles.Mode.Leave}" />
+                        </ComboBox>
+                        <TextBox x:Name="FpsBox" Margin="8,0,0,0" Width="80" Padding="6,4" VerticalContentAlignment="Center" />
+                    </StackPanel>
+
+                    <CheckBox x:Name="RevertOnDisconnectBox" Margin="0,16,0,0"
+                              Content="{DynamicResource Profiles.Revert}" />
+                    <CheckBox x:Name="DefaultProfileBox" Margin="0,8,0,0"
+                              Content="{DynamicResource Profiles.Default}" />
+
+                    <TextBlock Margin="0,16,0,0" Style="{StaticResource Text.Label}" Text="{DynamicResource Profiles.Delay}" />
+                    <TextBox x:Name="ProfileDelayBox" Margin="0,8,0,0" Width="120" Padding="6,4" HorizontalAlignment="Left" />
+                    <TextBlock Margin="0,8,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap"
+                               Text="{DynamicResource Profiles.Delay.Hint}" />
+
+                    <Button Margin="0,16,0,0" Padding="16,8" HorizontalAlignment="Left"
+                            Style="{StaticResource Button.Primary}"
+                            Content="{DynamicResource Profiles.Save}" Click="OnSaveProfile" />
+                    <TextBlock x:Name="ProfilesMessage" Margin="0,16,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
             <!-- General: language and the Sunshine log path. -->
             <Border x:Name="GeneralCard" Margin="0,32,0,0" Padding="16" Visibility="Collapsed"
                     Background="{DynamicResource Brush.Panel}"

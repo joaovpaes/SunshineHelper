@@ -10,6 +10,15 @@ Cada item abaixo corresponde a um PR. Marque quando tiver testado na própria
 máquina; um PR com item aqui pendente ainda não está validado de ponta a
 ponta, mesmo com o CI verde.
 
+## Pendências (atualizado em 2026-11-23)
+
+Testes manuais que o autor ainda **não fez**. Fazer em casa, no PC com o Sunshine, e marcar
+nas seções abaixo:
+
+- **PR 10b** — launcher: roteiro e tabela de calibração do atraso.
+- **Aviso de nível de log** — Painel avisa com o Sunshine em Info.
+- **PR 11b** — tela Perfis, incluindo o teste de ponta a ponta com o Moonlight.
+
 ## PR 5a — Módulo de vídeo: resolução (`PrimaryDisplayModule`)
 
 Ferramenta pronta em `tools/manual-tests/display-module/` — roda o módulo de
@@ -264,6 +273,26 @@ transmissão e fecha no fim:
 | 5000   |              |                |            |
 
 Passe a tabela preenchida: o padrão do atraso só muda com esses números.
+
+## PR 11b — tela Perfis
+
+- [ ] Abra **Perfis**. Sem nenhum perfil, a lista mostra só "(novo perfil)" e **Excluir** está
+      desligado.
+- [ ] Preencha: nome "Sala TV 4K", dispositivo (o nome do seu Moonlight), Resolução "Valor fixo"
+      `3840x2160`, HDR "Valor fixo" ligado, FPS "Valor fixo" `60`. **Salvar perfil**: aparece
+      "Perfil salvo" e o nome entra na lista.
+- [ ] Abra `%LOCALAPPDATA%\SunshineHelper\settings.json`: o perfil tem `id` `sala-tv-4k` e os
+      valores digitados. O resto do arquivo não foi estragado.
+- [ ] Mude "Seguir o dispositivo" em Resolução: a caixa da resolução fica desligada.
+- [ ] Digite `1920` (sem altura) com "Valor fixo" e salve: mensagem de resolução inválida e
+      nada é salvo.
+- [ ] Renomeie o perfil e salve: o `id` no arquivo continua o mesmo.
+- [ ] Marque "Usar como perfil padrão", salve, feche e abra o app: continua marcado.
+- [ ] **Excluir** pede confirmação; "Não" não apaga; "Sim" apaga e limpa o padrão.
+- [ ] Troque o idioma em Geral: os textos da tela Perfis mudam na hora.
+- [ ] **De ponta a ponta (fecha a pendência do launcher e do nível de log):** com um perfil que
+      case com o seu Moonlight, conecte, confira que a resolução/HDR/FPS mudam, desconecte e
+      confira que voltam.
 
 ## Automatizar isto (pendência, sem PR ainda)
 
