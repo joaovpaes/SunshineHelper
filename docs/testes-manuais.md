@@ -67,6 +67,7 @@ Rodada de 2026-11-23 no PC do autor (Sunshine 2026.914, RX 9070 XT, tela 2560x14
   gone` e, em seguida, os 4 `revert module ... ok` e `in-process end answered: reason 'sunshine-exited', ok True,
   state 'reverted'`. Tudo voltou em cerca de 4 s, sem reabrir nada, e o Painel mostrou "Nenhuma transmissão ativa". O
   serviço reabriu o Sunshine sozinho com outro PID (27216 para 2088), o caso que a comparação por PID cobre.
+  Depois de o Sunshine reabrir, uma transmissão nova com Quit funcionou normalmente.
 
 **Falhou e foi corrigido**
 - A resolução do perfil nunca era aplicada. O `app.log` (PR 12c) mostrou que a troca para 1920x1080 funcionava

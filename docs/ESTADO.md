@@ -39,6 +39,9 @@ Lista viva em `docs/testes-manuais.md`, "Ainda pendente":
   estiver aberto (ADR 0002 e 0003; hoje o auxiliar desiste em 2 s e a transmissão começa sem perfil, então o app
   precisa estar aberto antes), concessão da permissão do RTSS (ADR 0012) e, a decidir, abrir o RTSS sozinho se ele
   estiver fechado.
+- Opção na tela Geral para **iniciar com o Windows e abrir já minimizado na bandeja** (pedido do autor em 2026-11-23).
+  Hoje, na versão de testes, isso é feito à mão com um atalho em `shell:startup`. Combina com a tarefa agendada do
+  instalador (acima): as duas resolvem o mesmo problema, o app estar aberto antes da transmissão.
 - Depois do instalador: release com `release-please`, `SHA256SUMS.txt`, atestado de procedência; assinatura de
   código (SignPath) a cargo do autor.
 - Fontes embutidas, ícone do produto e opção manual de tema.
