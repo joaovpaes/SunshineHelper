@@ -19,7 +19,7 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 | PR | O quê | Modelo |
 | --- | --- | --- |
-| 52 | Workflow manual de pré-lançamento (`v0.1.0-preview.1`): zip com o app, o auxiliar de gatilho e SHA256 | Sonnet · médio |
+| 53 | Workflow manual de pré-lançamento (`v0.1.0-preview.1`): zip com o app, o auxiliar de gatilho e SHA256 | Sonnet · médio |
 
 ## Decisões em aberto
 
