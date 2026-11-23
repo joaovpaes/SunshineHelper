@@ -133,7 +133,7 @@ duas vezes). Só perfis com FPS em "Deixar como está" funcionam.
 | 13c | HDR antes da resolução | ordem dos módulos, ADR 0010; achado no teste manual de 2026-11-23 | **Opus · alto** |
 | 12d | Relatório de diagnóstico para ferramenta externa (feito #37) | botão na tela Geral, `docs/diagnostico.md`, regra no `CLAUDE.md` | Sonnet · médio |
 | 13a | Falha de um módulo vira aviso (D2) (feito #38) | orquestrador, Painel, testes do portão ajustados, ADR 0011 | **Opus · alto** |
-| 13b | Sessão anterior restaurada antes da nova (D3) | handler do canal, Painel, testes, ADR 0011 | **Opus · alto** |
+| 13b | Sessão anterior restaurada antes da nova (D3) (feito #39) | handler do canal, Painel, testes, ADR 0011 | **Opus · alto** |
 | 14a | Segurança e limpeza do repositório | `SECURITY.md`; você liga reporte privado e Dependabot (a exclusão automática de branches já foi ligada e as antigas apagadas em 2026-11-23) | Sonnet · baixo |
 | 14b | Armadilhas do compilador no `CLAUDE.md` + checklist do PR | itens 3 e 6 das melhorias | Sonnet · baixo |
 | 14c | `ESTADO.md` e índice de ADRs | itens 4 e 5 (depois de 13a/13b) | Sonnet · médio |

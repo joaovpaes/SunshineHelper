@@ -150,6 +150,34 @@ public sealed class TriggerChannelHandler : IDisposable
 
     private async Task<ChannelResponse> StartAsync(TriggerRequest request, CancellationToken cancellationToken)
     {
+        // Sunshine only runs the Prep Command for a new launch, so a snapshot still on disk
+        // at that point belongs to a session that is over without its Undo ever running —
+        // Sunshine restarted or crashed. It is put back first, with the same restore the
+        // app runs at startup; the new session only starts if that worked, because the
+        // snapshot is only deleted after a complete revert, and capturing over a modified
+        // environment would lose the user's own values (docs/adr/0011). A /resume does not
+        // prove the old session is dead, so it keeps the plain refusal.
+        List<string> notes = [];
+        if (!string.Equals(request.Reason, SessionStartReason.Resume, StringComparison.Ordinal)
+            && _orchestrator.HasSessionOnDisk)
+        {
+            _log.Write(DiagnosticLevel.Warning, "channel", "session-start found a previous session on disk; restoring it first");
+            var leftover = await _orchestrator.RestoreAsync(cancellationToken).ConfigureAwait(false);
+            if (leftover.Status == RestoreStatus.Failed)
+            {
+                return new ChannelResponse
+                {
+                    Ok = false,
+                    State = ChannelState.Failed,
+                    Error = "Uma sessão anterior que não foi encerrada não pôde ser restaurada, então a nova não começou. "
+                        + JoinProblems(leftover.Problems),
+                };
+            }
+
+            notes.Add("Uma sessão anterior que não foi encerrada foi restaurada antes desta.");
+            notes.AddRange(leftover.Problems);
+        }
+
         var clientRequest = ToClientRequest(request.Client);
         var settings = _settingsProvider.Current;
         var profile = ClientProfileSelector.Select(settings, clientRequest);
@@ -160,7 +188,7 @@ public sealed class TriggerChannelHandler : IDisposable
             {
                 Ok = false,
                 State = ChannelState.Failed,
-                Error = "Nenhum perfil corresponde a este cliente, e não há perfil padrão configurado.",
+                Error = JoinProblems([.. notes, "Nenhum perfil corresponde a este cliente, e não há perfil padrão configurado."]),
             };
         }
 
@@ -176,13 +204,13 @@ public sealed class TriggerChannelHandler : IDisposable
                 Profile = profile.Name,
                 // A module that could not be applied is a warning, not a failure: the
                 // stream goes on with the rest of the profile (docs/adr/0011).
-                Error = JoinProblems(result.Problems),
+                Error = JoinProblems([.. notes, .. result.Problems]),
             },
             _ => new ChannelResponse
             {
                 Ok = false,
                 State = ChannelState.Failed,
-                Error = result.ErrorMessage ?? "Falha desconhecida ao aplicar a sessão.",
+                Error = JoinProblems([.. notes, result.ErrorMessage ?? "Falha desconhecida ao aplicar a sessão."]),
             },
         };
     }

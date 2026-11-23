@@ -198,6 +198,82 @@ public class TriggerChannelHandlerTests
     }
 
     [Fact]
+    public async Task SessionStart_com_sessao_anterior_presa_restaura_antes_e_aplica_a_nova()
+    {
+        var test = new OrchestratorTest();
+        var profile = TestProfiles.FollowClient();
+        using var handler = NewHandler(test, Settings(defaultProfileId: profile.Id, profile));
+        await handler.HandleAsync(StartRequest(), TestContext.Current.CancellationToken);
+        test.Log.Clear();
+
+        // Sunshine restarted without running the Undo: the next launch finds the old snapshot.
+        var response = await handler.HandleAsync(StartRequest(), TestContext.Current.CancellationToken);
+
+        response.Ok.ShouldBeTrue();
+        response.State.ShouldBe(ChannelState.Applied);
+        response.Error.ShouldNotBeNull().ShouldContain("sessão anterior");
+        string.Join(",", test.Log.Where(step => step.EndsWith(":revert", StringComparison.Ordinal) || step.EndsWith(":apply", StringComparison.Ordinal)))
+            .ShouldBe("c:revert,b:revert,a:revert,a:apply,b:apply,c:apply");
+        test.Environment.ShouldBe("applied,applied,applied");
+    }
+
+    [Fact]
+    public async Task SessionStart_com_sessao_anterior_que_nao_volta_nao_comeca_a_nova()
+    {
+        var test = new OrchestratorTest();
+        var profile = TestProfiles.FollowClient();
+        using var handler = NewHandler(test, Settings(defaultProfileId: profile.Id, profile));
+        await handler.HandleAsync(StartRequest(), TestContext.Current.CancellationToken);
+        test.Modules[0].RevertFails = "Não deu para voltar.";
+        test.Log.Clear();
+
+        var response = await handler.HandleAsync(StartRequest(), TestContext.Current.CancellationToken);
+
+        response.Ok.ShouldBeFalse();
+        response.State.ShouldBe(ChannelState.Failed);
+        response.Error.ShouldNotBeNull().ShouldContain("Não deu para voltar.");
+        test.StepsOf("apply").ShouldBeEmpty();
+        test.Store.Content.ShouldNotBeNull();
+    }
+
+    [Fact]
+    public async Task SessionStart_de_retomada_nao_restaura_a_sessao_em_disco()
+    {
+        var test = new OrchestratorTest();
+        var profile = TestProfiles.FollowClient();
+        using var handler = NewHandler(test, Settings(defaultProfileId: profile.Id, profile));
+        await handler.HandleAsync(StartRequest(), TestContext.Current.CancellationToken);
+        test.Log.Clear();
+
+        var response = await handler.HandleAsync(
+            new TriggerRequest { Op = TriggerOp.SessionStart, Reason = SessionStartReason.Resume, Client = new ClientInfo { Name = "Sala" } },
+            TestContext.Current.CancellationToken);
+
+        response.Ok.ShouldBeFalse();
+        test.StepsOf("revert").ShouldBeEmpty();
+        test.Environment.ShouldBe("applied,applied,applied");
+    }
+
+    [Fact]
+    public async Task SessionStart_sem_perfil_ainda_restaura_a_sessao_anterior_presa()
+    {
+        var test = new OrchestratorTest();
+        var profile = TestProfiles.FollowClient();
+        using (var first = NewHandler(test, Settings(defaultProfileId: profile.Id, profile)))
+        {
+            await first.HandleAsync(StartRequest(), TestContext.Current.CancellationToken);
+        }
+
+        using var handler = NewHandler(test, Settings(defaultProfileId: null));
+        var response = await handler.HandleAsync(StartRequest(), TestContext.Current.CancellationToken);
+
+        response.Ok.ShouldBeFalse();
+        response.Error.ShouldNotBeNull().ShouldContain("sessão anterior");
+        test.Environment.ShouldBe("original,original,original");
+        test.Store.Content.ShouldBeNull();
+    }
+
+    [Fact]
     public async Task O_log_mostra_o_cliente_e_o_tempo_de_uma_sessao_iniciada()
     {
         var test = new OrchestratorTest();

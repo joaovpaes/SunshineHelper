@@ -32,6 +32,12 @@ Rodada de 2026-11-23 no PC do autor (Sunshine 2026.914, RX 9070 XT, tela 2560x14
   aos 3 s com "unchanged since" (antes: "SOMETHING CHANGED IT"). Ao encerrar (Quit), `launcher`, `display` e
   `hdr` foram revertidos sem erro e a tela voltou a 2560x1440 sem HDR.
 - Atraso do launcher `30001`: aparece "Atraso inválido" (0 a 30000).
+- **PR 12d (relatório de diagnóstico), 15:19:** versão `1.0.0` (sem `<ip>`), IP da descrição virou `<ip>`,
+  nome de usuário e IPs reais ausentes, `uniqueid` redigido.
+- **PR 13a (falha de um módulo vira aviso), 15:49:** sem administrador, perfil 1920x1080 + HDR + FPS 60.
+  `apply module 'fps': Failed` (sem permissão), `revert module 'fps': ok`, `with 1 warning(s)`; tela em
+  1920x1080 com HDR; Painel com "Não foi aplicado nesta transmissão: Limite de FPS"; RTSS no limite original;
+  ao encerrar, só `launcher`, `display` e `hdr` revertidos.
 
 **Falhou e foi corrigido**
 - A resolução do perfil nunca era aplicada. O `app.log` (PR 12c) mostrou que a troca para 1920x1080 funcionava
@@ -39,18 +45,13 @@ Rodada de 2026-11-23 no PC do autor (Sunshine 2026.914, RX 9070 XT, tela 2560x14
   resolução devolve a tela a 2560x1440. Corrigido no PR 34 (HDR antes da resolução, ADR 0010).
 
 **Ainda pendente**
-- **PR 13a (falha de um módulo vira aviso):** com o app **sem** administrador, mude o perfil para FPS em
-  "Valor fixo" (por exemplo 60), resolução 1920x1080 e HDR ligado. Transmita. A tela fica em 1920x1080 com
-  HDR; o Painel mostra "Não foi aplicado nesta transmissão: Limite de FPS"; o `app.log` tem
-  `apply module 'fps': Failed`, `module 'fps' put back on its own` e `apply done ..., with 1 warning(s)`.
-  Encerre a sessão (Quit): a tela volta a 2560x1440 sem HDR, o Painel volta a "Nenhuma transmissão ativa" e
-  o `app.log` **não** tem `revert module 'fps'` no fim.
-- **PR 12d (relatório de diagnóstico):** na tela Geral, escreva uma descrição qualquer (inclua um IP de teste,
-  como `192.168.1.10`), clique em **Gerar relatório de diagnóstico** e salve. Abra o arquivo: tem a versão
-  (sem `<ip>` no lugar dela), a descrição, `settings.json`, o fim do `app.log` e o fim do log do Sunshine; o IP
-  da descrição virou `<ip>` e seu nome de usuário do Windows não aparece. Teste também com o caminho do log do
-  Sunshine vazio (a seção diz "not configured"). No `app.log`, a linha `session-end` agora mostra
-  `elapsed -` e `client -`.
+- **PR 13b (sessão anterior presa):** transmita com o perfil 1920x1080 + HDR. Durante a transmissão,
+  reinicie o Sunshine (interface web do Sunshine > Solução de problemas > Reiniciar, ou reinicie o serviço
+  "SunshineService" em Serviços). A tela fica em 1920x1080 com HDR (o Undo não rodou). Transmita de novo
+  pelo Moonlight: a transmissão começa, a tela pisca e fica em 1920x1080 com HDR. No `app.log`:
+  `session-start found a previous session on disk; restoring it first`, os `revert module` e depois os
+  `apply module`. Encerre (Quit): a tela volta a 2560x1440 sem HDR.
+- PR 12d, opcional: gerar o relatório com o caminho do log do Sunshine vazio (a seção diz "not configured").
 - Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada). A resolução já está corrigida e o
   fechamento do Playnite foi confirmado; falta só medir.
 
