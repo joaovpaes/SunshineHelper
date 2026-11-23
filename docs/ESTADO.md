@@ -11,7 +11,9 @@ leitor do log do Sunshine, bandeja e janela (Painel, Geral, Perfis), log de diag
 diagnóstico. As decisões D2 (falha de um módulo vira aviso) e D3 (sessão anterior presa é restaurada antes da
 nova) estão no ADR 0011 e passaram no teste do PC. Situação do portão: `docs/fase1-portao.md`.
 
-**Último PR mesclado:** #51 (o app restaura sozinho quando o Sunshine encerra, ADR 0013; testado no PC).
+**Último PR mesclado:** #54 (roadmap). **Pré-lançamento `v0.1.0-preview.1` publicado** em 2026-11-23 (zip com o app e o
+auxiliar de gatilho, gerado pelo workflow `preview-release.yml`; testado no PC do autor, tudo funcionou; o Windows mostra
+o aviso do SmartScreen porque não há assinatura de código).
 
 ## Próximos PRs
 
@@ -19,7 +21,6 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 | PR | O quê | Modelo |
 | --- | --- | --- |
-| 53 | Workflow manual de pré-lançamento (`v0.1.0-preview.1`): zip com o app, o auxiliar de gatilho e SHA256 | Sonnet · médio |
 
 ## Decisões em aberto
 
@@ -45,9 +46,13 @@ Lista viva em `docs/testes-manuais.md`, "Ainda pendente":
 - Mostrar a **versão do app** na janela (por exemplo na tela Geral, "Sobre"), para o usuário saber qual versão está
   usando (pedido do autor em 2026-11-23). A versão já existe no código (`AppHost.AppVersion`, usada no relatório de
   diagnóstico e no `app.log`); falta só exibi-la. O pré-lançamento já grava a versão da tag no `.exe`.
-- Depois do instalador: release com `release-please`, `SHA256SUMS.txt`, atestado de procedência; assinatura de
-  código (SignPath) a cargo do autor.
-- Fontes embutidas, ícone do produto e opção manual de tema.
+- Depois do instalador: release oficial com `release-please` e atestado de procedência (o `SHA256SUMS.txt` e o zip já saem
+  do workflow do pré-lançamento); assinatura de código (SignPath) a cargo do autor.
+- **Ícone do produto** (pedido do autor em 2026-11-23, o app ainda não tem): no `.exe`, na janela, na bandeja e, depois, no
+  instalador. Entra no pacote de design com as fontes embutidas e a opção manual de tema (claro/escuro).
+- **Aviso do SmartScreen:** some com assinatura de código (a Fundação SignPath assina projetos de código aberto de
+  graça; o pedido é do autor e leva dias ou semanas) e, depois, com a reputação do programa; em certificado pago
+  (validação estendida) a reputação vem mais rápido. Até lá o `LEIA-ME.md` do pré-lançamento explica como seguir.
 - Reler o nível de log do Sunshine quando o arquivo for recriado (hoje só depois de reiniciar o app).
 - Modelo de pedido para abrir cada sessão (Etapa, Ler, Fora do escopo), a cargo do autor.
 
