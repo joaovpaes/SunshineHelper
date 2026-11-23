@@ -164,7 +164,7 @@ public partial class MainWindow
             return;
         }
 
-        var answer = MessageBox.Show(
+        var answer = System.Windows.MessageBox.Show(
             this,
             string.Format(CultureInfo.CurrentCulture, Text("Profiles.DeleteConfirm"), profile.Name),
             Text("Profiles.DeleteTitle"),
@@ -203,7 +203,7 @@ public partial class MainWindow
         return saved;
     }
 
-    private static void SelectMode(ComboBox box, ProfileValueMode mode)
+    private static void SelectMode(System.Windows.Controls.ComboBox box, ProfileValueMode mode)
     {
         string tag = mode.ToString();
         foreach (ComboBoxItem item in box.Items)
@@ -216,7 +216,7 @@ public partial class MainWindow
         }
     }
 
-    private static ProfileValueMode ModeOf(ComboBox box) =>
+    private static ProfileValueMode ModeOf(System.Windows.Controls.ComboBox box) =>
         box.SelectedItem is ComboBoxItem { Tag: string tag } && Enum.TryParse(tag, out ProfileValueMode mode)
             ? mode
             : ProfileValueMode.Leave;
