@@ -16,6 +16,12 @@ public sealed record AppSettings
 
     public IReadOnlyList<ClientProfile> Profiles { get; init; } = [];
 
+    /// <summary>Full path to Sunshine's own log file, read by the log reader
+    /// (docs/adr/0004-leitor-do-log.md). Null until the user sets it in the UI (Phase 1,
+    /// PR "Casca da interface") — there is no install path common to every Sunshine
+    /// installation to default to, and this app must not assume the author's own.</summary>
+    public string? SunshineLogPath { get; init; }
+
     /// <summary>What a brand-new installation starts with: no profiles yet, schema
     /// at the current version, default timing. The UI (Phase 1, PR "Casca da
     /// interface") is where the user actually sets up their first profile.</summary>
@@ -25,5 +31,6 @@ public sealed record AppSettings
         DefaultProfileId = null,
         Timing = new TimingSettings(),
         Profiles = [],
+        SunshineLogPath = null,
     };
 }

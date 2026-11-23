@@ -160,6 +160,17 @@ tela) para o auxiliar de verdade se conectar.
   dotnet publish src\SunshineHelper.Trigger --configuration Release --runtime win-x64 -p:PublishAot=true
   ```
 
+## PR 8 — Leitor do log do Sunshine
+
+Sem passo manual. Diferente dos módulos acima, ler o log do Sunshine é I/O comum
+(abrir arquivo, ler linhas) — não precisa de monitor, driver nem Win32, então a
+cobertura inteira é automática: `tests/SunshineHelper.Domain.Tests/Monitoring/`
+(reconhecimento das linhas, incluindo as fixtures reais de
+`tests/fixtures/sunshine/`), `tests/SunshineHelper.Application.Tests/Monitoring/`
+(o que fazer com cada evento) e `tests/SunshineHelper.Infrastructure.Tests/Monitoring/`
+(acompanhar um arquivo de verdade crescendo, sendo truncado, ainda não existindo). Ver
+`docs/adr/0004-leitor-do-log.md`.
+
 ## Automatizar isto (pendência, sem PR ainda)
 
 Pedido do autor: transformar estes itens em testes automáticos de verdade, em
