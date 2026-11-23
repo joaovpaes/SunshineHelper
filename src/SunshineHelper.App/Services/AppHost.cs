@@ -75,6 +75,11 @@ internal sealed class AppHost : IAsyncDisposable
     /// show up; the app only says so, it never edits Sunshine's configuration.</summary>
     public LogLevelVerdict LogLevel { get; private set; } = LogLevelVerdict.Unknown;
 
+    /// <summary>Three numbers on purpose: the fourth one made "1.0.0.0" look like an IP
+    /// address to the redactor.</summary>
+    public static string AppVersion { get; } =
+        typeof(AppHost).Assembly.GetName().Version?.ToString(3) ?? "unknown";
+
     public static string SettingsPath { get; } = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "SunshineHelper",
@@ -113,7 +118,7 @@ internal sealed class AppHost : IAsyncDisposable
             "app",
             string.Create(
                 System.Globalization.CultureInfo.InvariantCulture,
-                $"started: version {typeof(AppHost).Assembly.GetName().Version}, OS {Environment.OSVersion.Version}, {loadedSettings.Profiles.Count} profile(s), log path set: {!string.IsNullOrWhiteSpace(loadedSettings.SunshineLogPath)}"));
+                $"started: version {AppVersion}, OS {Environment.OSVersion.Version}, {loadedSettings.Profiles.Count} profile(s), log path set: {!string.IsNullOrWhiteSpace(loadedSettings.SunshineLogPath)}"));
         foreach (string problem in problems)
         {
             diagnosticLog.Write(DiagnosticLevel.Warning, "app", "startup problem: " + problem);
@@ -143,6 +148,30 @@ internal sealed class AppHost : IAsyncDisposable
         pipeServer.Start();
         host.StartLogMonitor();
         return host;
+    }
+
+    /// <summary>
+    /// Builds the text of a diagnostic report from what is on disk right now (settings.json,
+    /// app.log, the Sunshine log) and the description the user typed. Already redacted; it
+    /// only returns the text, writing it to a file is the caller's job.
+    /// </summary>
+    public string BuildDiagnosticReport(string? description)
+    {
+        string? sunshineLogPath = Settings.Current.SunshineLogPath;
+        return DiagnosticReportBuilder.Build(new DiagnosticReportInput
+        {
+            GeneratedAt = DateTimeOffset.Now,
+            AppVersion = AppVersion,
+            OsVersion = Environment.OSVersion.Version.ToString(),
+            Description = description,
+            SettingsJson = DiagnosticFiles.ReadText(SettingsPath),
+            StartupProblems = StartupProblems,
+            AppLogLines = DiagnosticFiles.ReadLastLines(FileDiagnosticLog.DefaultPath, DiagnosticReportBuilder.AppLogLineLimit),
+            SunshineLogPath = sunshineLogPath,
+            SunshineLogLines = string.IsNullOrWhiteSpace(sunshineLogPath)
+                ? null
+                : DiagnosticFiles.ReadLastLines(sunshineLogPath, DiagnosticReportBuilder.SunshineLogLineLimit),
+        });
     }
 
     /// <summary>
