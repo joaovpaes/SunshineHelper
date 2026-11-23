@@ -36,4 +36,15 @@
 
     <sys:String x:Key="Tray.Open">Open</sys:String>
     <sys:String x:Key="Tray.Exit">Exit</sys:String>
+
+    <sys:String x:Key="General.Language">Language</sys:String>
+    <sys:String x:Key="General.Language.System">Follow Windows</sys:String>
+    <sys:String x:Key="General.LogPath">Sunshine log file</sys:String>
+    <sys:String x:Key="General.LogPath.Hint">Full path to sunshine.log. Leave empty to turn the log reader off (resume and plain disconnects are then no longer detected).</sys:String>
+    <sys:String x:Key="General.Browse">Browse...</sys:String>
+    <sys:String x:Key="General.Save">Save</sys:String>
+    <sys:String x:Key="General.Saved">Saved. The log reader is using the new path.</sys:String>
+    <sys:String x:Key="General.SavedOff">Saved. The log reader is off.</sys:String>
+    <sys:String x:Key="General.PathInvalid">Invalid path: use the full path, with the drive letter (for example C:\...\sunshine.log).</sys:String>
+    <sys:String x:Key="General.SaveFailed">Could not save settings.json: {0}</sys:String>
 </ResourceDictionary>
