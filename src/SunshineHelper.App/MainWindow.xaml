@@ -161,6 +161,12 @@
                         <ComboBoxItem Tag="en" Content="English" />
                     </ComboBox>
 
+                    <CheckBox x:Name="StartWithWindowsBox" Margin="0,24,0,0"
+                              Content="{DynamicResource General.Startup}"
+                              Checked="OnStartWithWindowsChanged" Unchecked="OnStartWithWindowsChanged" />
+                    <TextBlock Margin="0,8,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap"
+                               Text="{DynamicResource General.Startup.Hint}" />
+
                     <TextBlock Margin="0,24,0,0" Style="{StaticResource Text.Label}" Text="{DynamicResource General.LogPath}" />
                     <DockPanel Margin="0,8,0,0">
                         <Button DockPanel.Dock="Right" Margin="8,0,0,0" Padding="12,6"

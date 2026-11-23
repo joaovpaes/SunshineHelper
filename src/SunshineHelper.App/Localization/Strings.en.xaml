@@ -44,6 +44,12 @@
 
     <sys:String x:Key="General.Language">Language</sys:String>
     <sys:String x:Key="General.Language.System">Follow Windows</sys:String>
+    <sys:String x:Key="General.Startup">Start with Windows, minimized to the tray</sys:String>
+    <sys:String x:Key="General.Startup.Hint">The app opens by itself when you sign in to Windows and stays in the tray, ready before you start a stream. You can also turn it off in Windows Settings, Apps, Startup. Opening it by hand still shows the window.</sys:String>
+    <sys:String x:Key="General.Startup.On">The app will now start with Windows.</sys:String>
+    <sys:String x:Key="General.Startup.Off">The app will no longer start with Windows.</sys:String>
+    <sys:String x:Key="General.Startup.NoPath">Could not find where the app is installed.</sys:String>
+    <sys:String x:Key="General.Startup.Failed">Could not change the setting: {0}</sys:String>
     <sys:String x:Key="General.LogPath">Sunshine log file</sys:String>
     <sys:String x:Key="General.LogPath.Hint">Full path to sunshine.log. Leave empty to turn the log reader off (resume and plain disconnects are then no longer detected).</sys:String>
     <sys:String x:Key="General.Browse">Browse...</sys:String>
