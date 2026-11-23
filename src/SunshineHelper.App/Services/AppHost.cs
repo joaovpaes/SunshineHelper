@@ -37,6 +37,7 @@ internal sealed class AppHost : IAsyncDisposable
     private readonly SemaphoreSlim _updateGate = new(1, 1);
     private CancellationTokenSource? _monitorStopping;
     private Task? _monitorTask;
+    private Task? _watchdogTask;
 
     private AppHost(
         CurrentSettingsHolder settings,
@@ -147,6 +148,7 @@ internal sealed class AppHost : IAsyncDisposable
 
         pipeServer.Start();
         host.StartLogMonitor();
+        host.StartWatchdog();
         return host;
     }
 
@@ -217,11 +219,25 @@ internal sealed class AppHost : IAsyncDisposable
     {
         await _stopping.CancelAsync().ConfigureAwait(false);
         await StopLogMonitorAsync().ConfigureAwait(false);
+        if (_watchdogTask is not null)
+        {
+            await _watchdogTask.ConfigureAwait(false);
+        }
 
         await _pipeServer.DisposeAsync().ConfigureAwait(false);
         _handler.Dispose();
         _updateGate.Dispose();
         _stopping.Dispose();
+    }
+
+    /// <summary>Restores the environment by itself when Sunshine stops in the middle of a
+    /// session (docs/adr/0013-sunshine-encerrado-restaura.md). Runs whether or not the log
+    /// path is set: it only looks at the snapshot and the process list.</summary>
+    private void StartWatchdog()
+    {
+        var watchdog = new SunshineProcessWatchdog(new SunshineProcessProbe(), _handler, _store, TimeProvider.System, _diagnosticLog);
+        var token = _stopping.Token;
+        _watchdogTask = Task.Run(() => watchdog.RunAsync(SunshineProcessWatchdog.DefaultInterval, token), CancellationToken.None);
     }
 
     private void StartLogMonitor()

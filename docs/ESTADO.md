@@ -19,7 +19,7 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 | PR | O quê | Modelo |
 | --- | --- | --- |
-| 16 | O app percebe que o Sunshine morreu e restaura sozinho (ADR novo) | Opus · alto |
+| 16 | O app percebe que o Sunshine morreu e restaura sozinho (ADR 0013); em revisão no #51 | Opus · alto |
 
 ## Decisões em aberto
 
@@ -30,6 +30,7 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 Lista viva em `docs/testes-manuais.md`, "Ainda pendente":
 
+- 16: finalizar o Sunshine no meio da transmissão e ver a tela voltar sozinha (roteiro em `docs/testes-manuais.md`).
 - Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada).
 - Opcional: relatório de diagnóstico com o caminho do log do Sunshine vazio.
 

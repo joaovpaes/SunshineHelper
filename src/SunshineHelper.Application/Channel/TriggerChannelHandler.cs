@@ -105,6 +105,40 @@ public sealed class TriggerChannelHandler : IDisposable
         return response;
     }
 
+    /// <summary>
+    /// Ends the session only if the snapshot on disk still belongs to
+    /// <paramref name="sessionId"/> when this call gets its turn. In-process only, for the
+    /// Sunshine watchdog (docs/adr/0013-sunshine-encerrado-restaura.md): between deciding
+    /// that a session is dead and getting through the gate, a new session-start may already
+    /// have restored it and applied a new one, which must not be reverted by mistake.
+    /// </summary>
+    public async Task<ChannelResponse> EndSessionIfCurrentAsync(
+        string sessionId,
+        string reason,
+        CancellationToken serverLifetime)
+    {
+        var request = new TriggerRequest { Op = TriggerOp.SessionEnd, Reason = reason };
+        var response = await RaceAsync(
+            request,
+            async (endRequest, cancellationToken) =>
+            {
+                string? current = await _orchestrator.ReadSessionIdAsync(cancellationToken).ConfigureAwait(false);
+                return string.Equals(current, sessionId, StringComparison.Ordinal)
+                    ? await EndAsync(endRequest, cancellationToken).ConfigureAwait(false)
+                    : new ChannelResponse { Ok = true, State = ChannelState.NothingToDo };
+            },
+            serverLifetime).ConfigureAwait(false);
+
+        _log.Write(
+            response.Ok ? DiagnosticLevel.Info : DiagnosticLevel.Error,
+            "channel",
+            string.Create(
+                CultureInfo.InvariantCulture,
+                $"in-process end answered: reason '{reason}', ok {response.Ok}, state '{response.State}'{(response.Error is { } error ? ", error: " + error : string.Empty)}"));
+
+        return response;
+    }
+
     private async Task<ChannelResponse> RaceAsync(
         TriggerRequest request,
         Func<TriggerRequest, CancellationToken, Task<ChannelResponse>> work,
