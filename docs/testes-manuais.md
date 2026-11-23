@@ -135,17 +135,19 @@ tela) para o auxiliar de verdade se conectar.
    ```
 3. Siga o checklist:
 
-- [ ] Os dois comandos sempre terminam com código de saída **0** — essa é a
+- [x] Os dois comandos sempre terminam com código de saída **0** — essa é a
       regra que não pode quebrar (`docs/adr/0002-arquitetura-do-nucleo.md`):
       um valor diferente de zero aborta a transmissão de verdade.
-- [ ] `start` sem nenhuma variável `SUNSHINE_CLIENT_*` definida ainda
+      _Confirmado pelo autor em 2026-11-23, com e sem administrador._
+- [x] `start` sem nenhuma variável `SUNSHINE_CLIENT_*` definida ainda
       funciona (cai no perfil padrão do harness).
-- [ ] `end` sem um `start` antes responde sem travar nem demorar (nada para
+- [x] `end` sem um `start` antes responde sem travar nem demorar (nada para
       reverter).
-- [ ] Repita `start`/`end` com o terminal do auxiliar aberto **como
+- [x] Repita `start`/`end` com o terminal do auxiliar aberto **como
       administrador**: deve funcionar igual ao terminal comum — a ACL do
       pipe tem que deixar o usuário interativo e Administradores passarem.
-- [ ] Com o harness **fechado** (canal não escutando), rode `start`: o
+      _Confirmado: mesmo resultado com e sem administrador._
+- [x] Com o harness **fechado** (canal não escutando), rode `start`: o
       auxiliar deve desistir em cerca de **2 segundos** e sair com código **0**
       de qualquer forma. Esse tempo é o que o Sunshine esperaria antes de
       começar a transmissão com o app desligado, então se demorar muito mais
