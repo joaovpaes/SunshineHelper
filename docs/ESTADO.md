@@ -21,8 +21,8 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 | PR | O quê | Modelo |
 | --- | --- | --- |
-| 58 | Tela Dispositivos: registro dos aparelhos que conectaram (`devices.json`) e lista | Sonnet · médio |
-| 59 | Botão "Criar perfil para este aparelho" na tela Dispositivos | Sonnet · médio |
+| 59 | Tela Dispositivos: registro dos aparelhos que conectaram (`devices.json`) e lista | Sonnet · médio |
+| 60 | Botão "Criar perfil para este aparelho" na tela Dispositivos | Sonnet · médio |
 | a seguir | Tela Log; depois o overlay pelo controle (Opus · alto, com ADR) | ver backlog |
 
 ## Decisões em aberto
