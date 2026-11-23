@@ -16,6 +16,7 @@ on:
     paths:
       - .github/workflows/preview-release.yml
       - docs/preview-como-usar.md
+      - docs/releases/**
 
 permissions:
   contents: read
@@ -46,6 +47,24 @@ jobs:
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.1.0
         with:
           persist-credentials: false
+
+      - name: Check the release notes
+        if: github.event_name == 'workflow_dispatch'
+        shell: pwsh
+        # Every release has detailed notes in both languages (docs/releases/README.md). Checked
+        # before the slow build so a missing file fails fast.
+        run: |
+          $path = "docs/releases/$($env:TAG).md"
+          if (-not (Test-Path $path)) {
+            throw "Missing $path. Write the release notes (see docs/releases/README.md) and merge them first."
+          }
+          $text = Get-Content $path -Raw
+          if ($text -notmatch '(?m)^## Português' -or $text -notmatch '(?m)^## English') {
+            throw "$path must have both '## Português' and '## English' sections."
+          }
+          if ($text.Length -lt 800) {
+            throw "$path is too short: explain what changed, how to update and the known limits."
+          }
 
       - name: Set up .NET
         uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
@@ -118,6 +137,11 @@ jobs:
       SHA: ${{ github.sha }}
       RUN_ID: ${{ github.run_id }}
     steps:
+      - name: Check out repository (for the release notes)
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.1.0
+        with:
+          persist-credentials: false
+
       - name: Download the package built above
         run: gh run download "$RUN_ID" --repo "$REPO" --name preview-package --dir dist
 
@@ -128,4 +152,4 @@ jobs:
             --target "$SHA" \
             --prerelease \
             --title "SunshineHelper $TAG (preview)" \
-            --notes "Versão de testes. Sem instalador e sem assinatura de código (o Windows mostra o aviso do SmartScreen). Leia o LEIA-ME.md dentro do zip antes de usar. Confira o arquivo com o SHA256SUMS.txt."
+            --notes-file "docs/releases/$TAG.md"

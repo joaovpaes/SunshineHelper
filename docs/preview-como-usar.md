@@ -20,8 +20,11 @@ tem de ser igual ao do arquivo).
 - **Sem instalador:** descompacte numa pasta sua (por exemplo `C:\Programas\SunshineHelper`) e abra o
   `SunshineHelper.exe`.
 - **O app precisa estar aberto antes da transmissão.** Se estiver fechado, o auxiliar desiste em 2 s e a
-  transmissão começa sem perfil. Para abrir junto com o Windows, ponha um atalho na pasta de inicialização
-  (`Win+R`, `shell:startup`).
+  transmissão começa sem perfil. Para abrir junto com o Windows, marque na tela **Geral** a opção
+  "Iniciar com o Windows, minimizado na bandeja" (não precisa de administrador; também dá para desligar em
+  Configurações do Windows, Aplicativos, Inicializar). Se você já tinha um atalho em `shell:startup`, apague-o.
+  Atenção: o Windows abre o app a partir da pasta em que ele está; se você mover a pasta, abra o `.exe` de lá
+  uma vez e o app corrige o caminho sozinho.
 - Testado até agora só em Windows 11 com o Sunshine para Windows, RTSS 7.3.x e Playnite.
 
 ## Configurar (uma vez)

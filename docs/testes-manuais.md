@@ -74,19 +74,17 @@ Rodada de 2026-11-23 no PC do autor (Sunshine 2026.914, RX 9070 XT, tela 2560x14
   e era desfeita logo depois de o HDR ligar. Confirmado com `tools/manual-tests`: ligar o HDR depois de trocar a
   resolução devolve a tela a 2560x1440. Corrigido no PR 34 (HDR antes da resolução, ADR 0010).
 
+**Ícone e iniciar com o Windows (PRs 56 e 57), 2026-11-23, build local no PC do autor:** o ícone novo aparece na
+janela, na barra de tarefas e na bandeja; a opção "Iniciar com o Windows, minimizado na bandeja" aparece na tela
+Geral e, depois de marcar e reiniciar o PC, o app abriu **só na bandeja**, sem janela. Passou. (Uma cópia antiga já
+aberta na bandeja faz a cópia nova sair em silêncio; foi o que confundiu o primeiro teste.)
+
 **Ainda pendente**
 - PR 12d, opcional: gerar o relatório com o caminho do log do Sunshine vazio (a seção diz "not configured").
 - Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada). A resolução já está corrigida e o
   fechamento do Playnite foi confirmado; falta só medir.
-- Ícone e versão (PR 56), na próxima versão de testes: ícone no `.exe`, janela e bandeja; "Sobre / Versão" na tela Geral.
-- Iniciar com o Windows (PR 57), na próxima versão de testes:
-  1. Tela Geral, marcar "Iniciar com o Windows, minimizado na bandeja". Deve aparecer a mensagem de confirmação.
-  2. Conferir em Configurações do Windows, Aplicativos, Inicializar: "SunshineHelper" aparece e está ligado.
-  3. Sair do app pela bandeja, sair da conta do Windows e entrar de novo (ou reiniciar o PC). O app deve abrir **só na
-     bandeja**, sem janela. Duplo clique no ícone da bandeja abre a janela.
-  4. Abrir o app à mão (atalho ou duplo clique no `.exe`): a janela aparece normalmente.
-  5. Tela Geral: desmarcar a opção; o item some de Inicializar nas Configurações do Windows.
-  6. Opcional: marcar de novo, mover a pasta do app e abrir o `.exe` de lá; o caminho no registro é corrigido sozinho.
+- Versão no pacote de pré-lançamento (PR 56): na tela Geral, "Sobre" deve mostrar `0.1.0-preview.2` (no `dotnet run`
+  aparece `1.0.0`, o que é normal).
 
 Observação de uso: no Moonlight, só **encerrar a sessão** (Quit) faz o Sunshine rodar o comando Undo. Apenas
 sair/desconectar deixa tudo como está, a menos que o perfil tenha "Restaurar a tela ao desconectar".

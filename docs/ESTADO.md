@@ -1,7 +1,7 @@
 # Estado do projeto
 
 Uma página para retomar o trabalho sem reler tudo. O Claude atualiza este arquivo no fim de cada PR
-(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-23**, `main` após o PR 56.
+(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-23**, `main` após o PR 57.
 
 ## Onde estamos
 
@@ -11,7 +11,7 @@ leitor do log do Sunshine, bandeja e janela (Painel, Geral, Perfis), log de diag
 diagnóstico. As decisões D2 (falha de um módulo vira aviso) e D3 (sessão anterior presa é restaurada antes da
 nova) estão no ADR 0011 e passaram no teste do PC. Situação do portão: `docs/fase1-portao.md`.
 
-**Último PR mesclado:** #56 (ícone do app e versão na tela Geral). **Pré-lançamento `v0.1.0-preview.1` publicado** em 2026-11-23 (zip com o app e o
+**Último PR mesclado:** #57 (iniciar com o Windows, minimizado na bandeja). **Pré-lançamento `v0.1.0-preview.1` publicado** em 2026-11-23 (zip com o app e o
 auxiliar de gatilho, gerado pelo workflow `preview-release.yml`; testado no PC do autor, tudo funcionou; o Windows mostra
 o aviso do SmartScreen porque não há assinatura de código).
 
@@ -21,8 +21,9 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 | PR | O quê | Modelo |
 | --- | --- | --- |
-| 57 | Iniciar com o Windows, minimizado na bandeja (tela Geral) | Sonnet · médio |
-| a seguir | Telas Dispositivos e Log; depois o overlay pelo controle (Opus · alto, com ADR) | ver backlog |
+| 59 | Tela Dispositivos: registro dos aparelhos que conectaram (`devices.json`) e lista | Sonnet · médio |
+| 60 | Botão "Criar perfil para este aparelho" na tela Dispositivos | Sonnet · médio |
+| a seguir | Tela Log; depois o overlay pelo controle (Opus · alto, com ADR) | ver backlog |
 
 ## Decisões em aberto
 
@@ -33,7 +34,7 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 Lista viva em `docs/testes-manuais.md`, "Ainda pendente":
 
-- Ícone e versão (PR 56) e iniciar com o Windows (PR 57): testar na próxima versão de testes (passo a passo no arquivo).
+- Versão no pacote de pré-lançamento (PR 56): conferir que "Sobre" mostra `0.1.0-preview.2`.
 - Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada).
 - Opcional: relatório de diagnóstico com o caminho do log do Sunshine vazio.
 
@@ -43,6 +44,8 @@ Lista viva em `docs/testes-manuais.md`, "Ainda pendente":
   estiver aberto (ADR 0002 e 0003; hoje o auxiliar desiste em 2 s e a transmissão começa sem perfil, então o app
   precisa estar aberto antes), concessão da permissão do RTSS (ADR 0012) e, a decidir, abrir o RTSS sozinho se ele
   estiver fechado.
+- Segunda cópia do app: hoje ela sai em silêncio; melhor seria trazer a janela da primeira para a frente.
+- `LEIA-ME.md` do pacote também em inglês (hoje só em português; as notas da release já são nas duas línguas).
 - Depois do instalador: release oficial com `release-please` e atestado de procedência (o `SHA256SUMS.txt` e o zip já saem
   do workflow do pré-lançamento); assinatura de código (SignPath) a cargo do autor.
 - Ícone no instalador (o `.exe`, a janela e a bandeja já têm o ícone; o instalador ainda não existe). Fontes embutidas e
