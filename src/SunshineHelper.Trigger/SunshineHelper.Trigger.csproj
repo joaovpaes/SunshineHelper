@@ -19,10 +19,10 @@
     <ProjectReference Include="..\SunshineHelper.Protocol\SunshineHelper.Protocol.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <!-- Overrides the SDK's default ILCompiler version — see Directory.Packages.props
-         for why. -->
-    <PackageReference Include="Microsoft.DotNet.ILCompiler" />
-  </ItemGroup>
+  <!-- No explicit Microsoft.DotNet.ILCompiler reference on purpose: the SDK adds its own
+       for PublishAot, the package's own targets tell you to delete such a reference, and
+       with both paths active the publish fails outright ("The PrivateSdkAssemblies
+       ItemGroup is required for _ComputeAssembliesToCompileToNative"). The SDK pinned in
+       global.json owns the compiler version. -->
 
 </Project>

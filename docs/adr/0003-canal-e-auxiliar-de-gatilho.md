@@ -103,6 +103,20 @@ tempo. A interface expõe só uma leitura síncrona do que já está carregado; 
 isso atualizado (carga na inicialização, edição pela UI) é trabalho da PR da "Casca da
 interface" (PR 9).
 
+**O SDK é dono da versão do ILCompiler, e por isso o `global.json` subiu para 10.0.115.**
+Com `PublishAot`, o próprio SDK referencia o `Microsoft.DotNet.ILCompiler` da versão que
+ele embute. Referenciar esse pacote à mão para fixar outra versão não funciona: os targets
+do próprio pacote mandam apagar a referência, o Central Package Management recusa um
+`PackageVersion` para uma referência implícita (`NU1009`) e, com os dois caminhos ativos, o
+publish quebra (`The PrivateSdkAssemblies ItemGroup is required`). Então a versão do
+compilador se escolhe pelo SDK — e o SDK 10.0.100 embutia o ILCompiler 10.0.0, que tem uma
+falha conhecida de severidade alta (`GHSA-p3jp-9v83-76w9`, escrita fora dos limites no
+decodificador Brotli, corrigida na 10.0.14). O `global.json` passou a pedir 10.0.115
+(runtime 10.0.15), com `rollForward: latestFeature`, então um SDK mais novo também serve. A
+alternativa — suprimir o aviso do `NuGetAudit` — foi recusada de propósito: a ferramenta que
+compila um binário que vai ser distribuído não deveria ter falha conhecida, mesmo que a parte
+vulnerável não seja alcançável neste auxiliar.
+
 **NativeAOT ligado nesta PR, validado no CI.** `PublishAot=true` entra junto com a lógica
 real do canal (a dependência final — `System.IO.Pipes`, `System.Text.Json` com gerador de
 código — já está definida), e o workflow de CI publica o `SunshineHelper.Trigger` com
