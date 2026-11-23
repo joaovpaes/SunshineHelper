@@ -66,6 +66,8 @@
     <sys:String x:Key="General.Report.Generate">Generate diagnostic report</sys:String>
     <sys:String x:Key="General.Report.Saved">Report saved to {0}</sys:String>
     <sys:String x:Key="General.Report.Failed">Could not save the report: {0}</sys:String>
+    <sys:String x:Key="General.About">About</sys:String>
+    <sys:String x:Key="General.About.Version">Version {0}</sys:String>
     <sys:String x:Key="Profiles.New">New profile</sys:String>
     <sys:String x:Key="Profiles.Delete">Delete</sys:String>
     <sys:String x:Key="Profiles.Save">Save profile</sys:String>

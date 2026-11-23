@@ -96,6 +96,7 @@ public partial class MainWindow : Window
         LogPathBox.Text = current.SunshineLogPath ?? string.Empty;
         LauncherNamesBox.Text = string.Join(Environment.NewLine, current.Launcher.ProcessNames);
         LauncherDelayBox.Text = current.Timing.LauncherDelayMs.ToString(CultureInfo.InvariantCulture);
+        AppVersionText.Text = string.Format(CultureInfo.CurrentCulture, Text("General.About.Version"), AppHost.AppVersion);
         GeneralMessage.Text = string.Empty;
         _loadingGeneral = false;
     }

@@ -2,6 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="{DynamicResource App.Title}"
+        Icon="Assets/app.ico"
         Width="960" Height="600" MinWidth="720" MinHeight="480"
         Background="{DynamicResource Brush.Window}"
         WindowStartupLocation="CenterScreen">
@@ -196,6 +197,10 @@
                     <Button Margin="0,16,0,0" Padding="16,8" HorizontalAlignment="Left"
                             Style="{StaticResource Button.Secondary}"
                             Content="{DynamicResource General.Report.Generate}" Click="OnGenerateReport" />
+
+                    <Border Margin="0,24,0,0" BorderBrush="{DynamicResource Brush.Line}" BorderThickness="0,1,0,0" />
+                    <TextBlock Margin="0,24,0,0" Style="{StaticResource Text.Label}" Text="{DynamicResource General.About}" />
+                    <TextBlock x:Name="AppVersionText" Margin="0,8,0,0" Style="{StaticResource Text.Dim}" />
 
                     <TextBlock x:Name="GeneralMessage" Margin="0,16,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap" />
                 </StackPanel>
