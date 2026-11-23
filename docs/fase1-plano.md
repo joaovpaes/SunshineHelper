@@ -137,8 +137,9 @@ duas vezes). Só perfis com FPS em "Deixar como está" funcionam.
 | 14a | Segurança e limpeza do repositório | `SECURITY.md`; você liga reporte privado e Dependabot (a exclusão automática de branches já foi ligada e as antigas apagadas em 2026-11-23) | Sonnet · baixo |
 | 14b | Armadilhas do compilador no `CLAUDE.md` + checklist do PR | itens 3 e 6 das melhorias | Sonnet · baixo |
 | 14c | `ESTADO.md` e índice de ADRs | itens 4 e 5 (depois de 13a/13b) | Sonnet · médio |
-| 15a | Teste do RTSS em memória (D1, passo 1) | modo novo na ferramenta `tools/manual-tests/rtss-module`; **roda na máquina do autor** | Sonnet · médio |
-| 15b | Permissão do RTSS (D1, passo 2, se precisar) | aviso na tela Perfis, botão "Reparar", ADR 0012 | **Opus · alto** |
+| 15a | Teste do RTSS em memória (D1, passo 1) (feito #46) | resultado: não serve, o RTSS só aplica o que está gravado | Sonnet · médio |
+| 15b-1 | Permissão do RTSS (D1, passo 2) | ADR 0012, conferência e concessão (icacls com UAC) só no arquivo `Profiles\Global`, opção 7 na ferramenta; **teste na máquina do autor** | **Opus · alto** |
+| 15b-2 | Aviso e botão "Reparar" | aviso na tela Perfis quando um perfil mexe no FPS e falta permissão, botão "Reparar", textos pt-BR e en | Sonnet · médio |
 | 16 | O app percebe que o Sunshine morreu e restaura sozinho | hoje, se o Sunshine for finalizado sem rodar o Undo, a tela fica modificada até a próxima transmissão ou até reabrir o app (13b e verificação de inicialização cobrem a volta, mas não na hora). Vigiar o processo do Sunshine e restaurar quando ele sumir; decisão de arquitetura (ADR novo). Aceito pelo autor em 2026-11-23; só depois de 14a, 14b e 14c | **Opus · alto** |
 
 A Fase 1 fecha quando 13a e 13b estiverem mesclados e o autor tiver feito os testes manuais

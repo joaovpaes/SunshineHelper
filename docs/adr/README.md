@@ -6,7 +6,7 @@ Formato e modelo: `0000-template.md`. Um ADR por arquivo; quando um deles for tr
 | ADR | Decisão | Status | Data |
 | --- | --- | --- | --- |
 | 0001 | Stack e gatilho de sessão | aceita | 2026-11-22 |
-| 0002 | Arquitetura do núcleo (Fase 1) | aceita | 2026-11-22 |
+| 0002 | Arquitetura do núcleo (Fase 1) | aceita; elevação substituída por 0012 | 2026-11-22 |
 | 0003 | Canal (named pipe) e auxiliar de gatilho | aceita | 2026-11-22 |
 | 0004 | Leitor do log do Sunshine | aceita | 2026-11-23 |
 | 0005 | Casca da interface (PR 9a) | aceita | 2026-11-23 |
@@ -16,6 +16,7 @@ Formato e modelo: `0000-template.md`. Um ADR por arquivo; quando um deles for tr
 | 0009 | Tela de perfis (PR 11) | aceita | 2026-11-23 |
 | 0010 | HDR é aplicado antes da resolução | aceita | 2026-11-23 |
 | 0011 | Falha de um módulo vira aviso e sessão anterior presa é restaurada (complementa o 0002) | aceita | 2026-11-23 |
+| 0012 | Permissão de escrita só no perfil global do RTSS; o app não é elevado | aceita | 2026-11-23 |
 
-Previstos: 0012 (permissão do RTSS, marca o 0002 como "substituído quanto à elevação") e um ADR para o PR 16
+Previsto: um ADR para o PR 16
 (restaurar sozinho quando o Sunshine morre). Estado geral do projeto: `docs/ESTADO.md`.

@@ -34,6 +34,11 @@ where a vulnerability matters most:
 - **Files the app writes**: the session snapshot and `settings.json` in `%LOCALAPPDATA%\SunshineHelper`.
   Anything that lets one user tamper with another's, or that makes a restore apply attacker-chosen values,
   is in scope.
+- **The RTSS profile permission** (ADR 0012). To set an FPS cap without running as administrator, the app
+  can ask Windows (UAC, once) to run `icacls` and give your account read and write on RTSS's
+  `Profiles\Global` file only. Anything that makes that grant reach another file or folder, or run
+  something else elevated, is in scope. Known and accepted: any program running as you can then edit
+  RTSS's global profile.
 - **The diagnostic report**, which must never leak IPs, MAC addresses, Sunshine keys or the Windows user name.
 
 Out of scope: vulnerabilities in Sunshine, Moonlight, RTSS or Windows themselves (report those to their own
@@ -81,6 +86,11 @@ importam principalmente:
 - **Arquivos que o app grava**: o snapshot da sessão e o `settings.json` em
   `%LOCALAPPDATA%\SunshineHelper`. Qualquer forma de um usuário alterar os de outro, ou de fazer a restauração
   aplicar valores escolhidos por um atacante, está no escopo.
+- **A permissão no perfil do RTSS** (ADR 0012). Para limitar o FPS sem rodar como administrador, o app
+  pode pedir ao Windows (UAC, uma vez) que rode o `icacls` e dê à sua conta leitura e escrita **só** no
+  arquivo `Profiles\Global` do RTSS. Qualquer forma de essa permissão chegar a outro arquivo ou pasta,
+  ou de rodar outra coisa como administrador, está no escopo. Conhecido e aceito: qualquer programa
+  rodando como você passa a poder alterar o perfil global do RTSS.
 - **O relatório de diagnóstico**, que nunca pode vazar IPs, MACs, chaves do Sunshine nem o nome de usuário do
   Windows.
 

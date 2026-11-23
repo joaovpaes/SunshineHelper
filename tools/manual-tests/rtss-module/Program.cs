@@ -21,6 +21,9 @@ using SunshineHelper.Infrastructure.Fps;
 // (ver o <remarks> da classe). Sem administrador, a opção 3 deve falhar com uma mensagem
 // explicando isso, não fingir sucesso.
 //
+// A opção 7 concede ao usuário permissão de escrita só no arquivo Profiles\Global do RTSS
+// (ADR 0012), pedindo o UAC uma vez; depois as opções 3, 4 e 5 devem funcionar sem administrador.
+//
 // A opção 6 (InMemoryProbe.cs) é o teste da decisão D1, passo 1: muda o limite só em memória,
 // sem SaveProfile, e deve ser rodada SEM administrador.
 //
@@ -63,6 +66,10 @@ while (true)
             SunshineHelper.Tools.RtssModuleHarness.InMemoryProbe.Run();
             break;
 
+        case "7":
+            GrantProfilePermission();
+            break;
+
         case "0":
             return;
 
@@ -85,9 +92,38 @@ static void PrintMenu(ModuleSnapshot? captured)
     Console.WriteLine("4) Aplicar \"sem limite\" (0, convenção do próprio RTSS)");
     Console.WriteLine("5) Reverter ao estado capturado na opção 2");
     Console.WriteLine("6) Teste do RTSS só em memória, sem administrador (D1, passo 1)");
+    Console.WriteLine("7) Conceder ao seu usuário permissão no perfil global do RTSS (pede o UAC uma vez)");
     Console.WriteLine("0) Sair");
     Console.Write("> ");
 }
+
+static void GrantProfilePermission()
+{
+    var before = RtssProfileAccess.Check();
+    Console.WriteLine($"Permissão no perfil global do RTSS agora: {DescribeAccess(before)}");
+    if (before != RtssProfileAccessStatus.Missing)
+    {
+        return;
+    }
+
+    Console.WriteLine("O Windows vai pedir confirmação (UAC) para rodar o icacls. Aceite para continuar.");
+    var result = RtssProfileAccess.RequestGrant();
+    Console.WriteLine(result.Outcome switch
+    {
+        RtssGrantOutcome.Granted => "Permissão concedida. Agora, num PowerShell comum, teste as opções 2, 3 e 5.",
+        RtssGrantOutcome.Cancelled => $"Cancelado: {result.Message}",
+        _ => $"Falhou: {result.Message}",
+    });
+    Console.WriteLine($"Permissão no perfil global do RTSS depois: {DescribeAccess(RtssProfileAccess.Check())}");
+}
+
+static string DescribeAccess(RtssProfileAccessStatus status) => status switch
+{
+    RtssProfileAccessStatus.NotInstalled => "RTSS não instalado",
+    RtssProfileAccessStatus.ProfileMissing => "o RTSS ainda não criou o perfil global (abra o RTSS e mude uma opção)",
+    RtssProfileAccessStatus.Granted => "seu usuário já pode gravar",
+    _ => "falta permissão",
+};
 
 static async Task ShowCurrentStateAsync(RtssFpsLimitModule module)
 {
