@@ -32,7 +32,7 @@ public sealed class SunshineLogSamplerTests : IDisposable
     public void Arquivo_grande_traz_o_comeco_e_o_fim()
     {
         string path = Path.Combine(_dir, "b.log");
-        string filler = new string('x', 99) + "\n";
+        string filler = string.Empty.PadRight(99, 'x') + "\n";
         File.WriteAllText(path, "COMECO\n" + string.Concat(Enumerable.Repeat(filler, 5000)) + "FIM\n");
 
         var lines = SunshineLogSampler.Read(path);
