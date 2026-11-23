@@ -14,5 +14,9 @@
 
     <!-- Windows interop -->
     <PackageVersion Include="Microsoft.Windows.CsWin32" Version="0.3.106" />
+
+    <!-- No entry for Microsoft.DotNet.ILCompiler: the SDK adds that reference itself for
+         PublishAot, and Central Package Management rejects a PackageVersion for an
+         implicitly defined reference (NU1009). See SunshineHelper.Trigger.csproj. -->
   </ItemGroup>
 </Project>

@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SunshineHelper.Application\SunshineHelper.Application.csproj" />
+    <ProjectReference Include="..\SunshineHelper.Protocol\SunshineHelper.Protocol.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,5 +21,11 @@
          No runtime assembly of its own. -->
     <PackageReference Include="Microsoft.Windows.CsWin32" PrivateAssets="all" />
   </ItemGroup>
+
+  <!-- No package is needed for the named-pipe ACL: PipeSecurity, PipeAccessRule and
+       NamedPipeServerStreamAcl live in the System.IO.Pipes *namespace* and ship with the
+       framework on a -windows TFM. "System.IO.Pipes.AccessControl" is the name of the
+       assembly (and of an old compat package), not of a namespace — referencing that
+       package here only earns NU1510. -->
 
 </Project>

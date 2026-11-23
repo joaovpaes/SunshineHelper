@@ -16,6 +16,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SunshineHelper.Domain.Tests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SunshineHelper.Application.Tests", "tests\SunshineHelper.Application.Tests\SunshineHelper.Application.Tests.csproj", "{9A7B2E10-1111-4A11-8C11-000000000007}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SunshineHelper.Protocol", "src\SunshineHelper.Protocol\SunshineHelper.Protocol.csproj", "{9A7B2E10-1111-4A11-8C11-000000000008}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SunshineHelper.Infrastructure.Tests", "tests\SunshineHelper.Infrastructure.Tests\SunshineHelper.Infrastructure.Tests.csproj", "{9A7B2E10-1111-4A11-8C11-000000000009}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,5 +54,13 @@ Global
 		{9A7B2E10-1111-4A11-8C11-000000000007}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9A7B2E10-1111-4A11-8C11-000000000007}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9A7B2E10-1111-4A11-8C11-000000000007}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A7B2E10-1111-4A11-8C11-000000000008}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A7B2E10-1111-4A11-8C11-000000000008}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A7B2E10-1111-4A11-8C11-000000000008}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A7B2E10-1111-4A11-8C11-000000000008}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A7B2E10-1111-4A11-8C11-000000000009}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A7B2E10-1111-4A11-8C11-000000000009}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A7B2E10-1111-4A11-8C11-000000000009}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A7B2E10-1111-4A11-8C11-000000000009}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -6,9 +6,23 @@
     <RootNamespace>SunshineHelper.Trigger</RootNamespace>
     <AssemblyName>SunshineHelper.Trigger</AssemblyName>
     <InvariantGlobalization>true</InvariantGlobalization>
-    <!-- PublishAot is enabled once the real channel/barrier logic lands
-         (docs/adr/0002-arquitetura-do-nucleo.md): NativeAOT needs the final
-         dependency set settled first, to avoid repeated trimming fixes. -->
+    <!-- The channel/barrier logic landed in this PR, and System.Text.Json uses only the
+         source-generated ProtocolJsonContext (no reflection), so NativeAOT publishing is
+         safe to turn on now (docs/adr/0002-arquitetura-do-nucleo.md). CI publishes this
+         project with PublishAot every run (see .github/workflows/ci.yml) specifically so
+         an incompatibility is caught immediately, not the first time someone actually
+         publishes a release. -->
+    <PublishAot>true</PublishAot>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SunshineHelper.Protocol\SunshineHelper.Protocol.csproj" />
+  </ItemGroup>
+
+  <!-- No explicit Microsoft.DotNet.ILCompiler reference on purpose: the SDK adds its own
+       for PublishAot, the package's own targets tell you to delete such a reference, and
+       with both paths active the publish fails outright ("The PrivateSdkAssemblies
+       ItemGroup is required for _ComputeAssembliesToCompileToNative"). The SDK pinned in
+       global.json owns the compiler version. -->
 
 </Project>
