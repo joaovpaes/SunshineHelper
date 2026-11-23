@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Threading;
+using SunshineHelper.Application.Diagnostics;
 using SunshineHelper.Domain.Session;
 using SunshineHelper.Domain.Settings;
 
@@ -31,12 +32,14 @@ public sealed class SessionOrchestrator
     private readonly ISessionSnapshotStore _store;
     private readonly IBootIdentityProvider _bootIdentityProvider;
     private readonly TimeProvider _timeProvider;
+    private readonly IDiagnosticLog _log;
 
     public SessionOrchestrator(
         IEnumerable<IEnvironmentModule> modules,
         ISessionSnapshotStore store,
-        IBootIdentityProvider bootIdentityProvider)
-        : this(modules, store, bootIdentityProvider, TimeProvider.System)
+        IBootIdentityProvider bootIdentityProvider,
+        IDiagnosticLog? log = null)
+        : this(modules, store, bootIdentityProvider, TimeProvider.System, log)
     {
     }
 
@@ -44,7 +47,8 @@ public sealed class SessionOrchestrator
         IEnumerable<IEnvironmentModule> modules,
         ISessionSnapshotStore store,
         IBootIdentityProvider bootIdentityProvider,
-        TimeProvider timeProvider)
+        TimeProvider timeProvider,
+        IDiagnosticLog? log = null)
     {
         ArgumentNullException.ThrowIfNull(modules);
 
@@ -53,6 +57,7 @@ public sealed class SessionOrchestrator
         _store = store;
         _bootIdentityProvider = bootIdentityProvider;
         _timeProvider = timeProvider;
+        _log = log ?? NullDiagnosticLog.Instance;
     }
 
     /// <summary>Applies <paramref name="profile"/> for the client in
@@ -73,6 +78,7 @@ public sealed class SessionOrchestrator
         // were the user's own, and the way back would be lost for good.
         if (_store.Exists())
         {
+            Log(DiagnosticLevel.Warning, "apply refused: a session snapshot is already on disk");
             return new SessionApplyResult
             {
                 Status = SessionApplyStatus.Refused,
@@ -82,6 +88,11 @@ public sealed class SessionOrchestrator
         }
 
         var desired = DesiredEnvironmentResolver.Resolve(profile, request);
+        Log(
+            DiagnosticLevel.Info,
+            string.Create(
+                CultureInfo.InvariantCulture,
+                $"apply start: profile '{profile.Id}', resolution {Describe(desired.Resolution)}, hdr {Describe(desired.Hdr)}, fps limit {Describe(desired.FpsLimit)}, launcher delay {Describe(desired.LauncherDelayMs)}"));
 
         var captured = new List<CapturedModule>(_modules.Length);
         foreach (var module in _modules)
@@ -156,6 +167,10 @@ public sealed class SessionOrchestrator
                 outcome = ApplyOutcome.Failed(ex.Message);
             }
 
+            Log(
+                outcome.Status == ApplyStatus.Failed ? DiagnosticLevel.Error : DiagnosticLevel.Info,
+                string.Create(CultureInfo.InvariantCulture, $"apply module '{module.Id}': {outcome.Status}{(outcome.ErrorMessage is { } failure ? " - " + failure : string.Empty)}"));
+
             snapshot = snapshot.WithModuleState(module.Id, ToApplyState(outcome.Status));
 
             // A failure here is not fatal: the in-memory snapshot is accurate, and the
@@ -173,6 +188,7 @@ public sealed class SessionOrchestrator
         }
 
         snapshot = snapshot.WithState(SessionState.Applied);
+        Log(DiagnosticLevel.Info, string.Create(CultureInfo.InvariantCulture, $"apply done in {Elapsed(startedAt).TotalMilliseconds:0} ms"));
         string? finalWriteError = await TryWriteAsync(snapshot, cancellationToken).ConfigureAwait(false);
 
         List<string> problems = [];
@@ -223,6 +239,7 @@ public sealed class SessionOrchestrator
 
         if (json is null)
         {
+            Log(DiagnosticLevel.Info, "restore: no snapshot on disk, nothing to do");
             return new SessionRestoreResult { Status = RestoreStatus.NothingToDo };
         }
 
@@ -239,6 +256,11 @@ public sealed class SessionOrchestrator
         }
 
         var plan = RecoveryDecider.Decide(snapshot, CurrentBoot(), _timeProvider.GetUtcNow());
+        Log(
+            DiagnosticLevel.Info,
+            string.Create(
+                CultureInfo.InvariantCulture,
+                $"restore start: {plan.ModulesToRevert.Count} module(s) to revert, reboot detected: {plan.RebootDetected}, leaving: [{string.Join(", ", modulesToLeave)}]"));
 
         if (plan.IsEmpty)
         {
@@ -337,6 +359,10 @@ public sealed class SessionOrchestrator
                 outcome = RevertOutcome.Failed(ex.Message);
             }
 
+            Log(
+                outcome.Reverted ? DiagnosticLevel.Info : DiagnosticLevel.Error,
+                string.Create(CultureInfo.InvariantCulture, $"revert module '{captured.ModuleId}': {(outcome.Reverted ? "ok" : "FAILED")}{(outcome.ErrorMessage is { } detail ? " - " + detail : string.Empty)}"));
+
             if (!outcome.Reverted)
             {
                 // Every module gets its turn even after one fails: the ones that can go
@@ -392,6 +418,14 @@ public sealed class SessionOrchestrator
             return null;
         }
     }
+
+    private void Log(DiagnosticLevel level, string message) => _log.Write(level, "orchestrator", message);
+
+    private static string Describe(Resolution? value) => value is null
+        ? "unchanged"
+        : string.Create(CultureInfo.InvariantCulture, $"{value.Width}x{value.Height}");
+
+    private static string Describe<T>(T? value) => value is null ? "unchanged" : string.Create(CultureInfo.InvariantCulture, $"{value}");
 
     private TimeSpan Elapsed(long startedAt) => _timeProvider.GetElapsedTime(startedAt);
 
