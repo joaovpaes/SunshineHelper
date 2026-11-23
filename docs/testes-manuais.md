@@ -51,6 +51,12 @@ Rodada de 2026-11-23 no PC do autor (Sunshine 2026.914, RX 9070 XT, tela 2560x14
   resolução devolve a tela a 2560x1440. Corrigido no PR 34 (HDR antes da resolução, ADR 0010).
 
 **Ainda pendente**
+- **PR 15a (RTSS só em memória, decisão D1 passo 1):** abra um PowerShell **comum** (não administrador), com o RTSS aberto
+  e um jogo ou programa com o OSD do RTSS mostrando o FPS. Rode
+  `powershell -ExecutionPolicy Bypass -File .\tools\manual-tests\rtss-module\run.ps1` e escolha a opção **6**.
+  Informe um limite diferente do atual (por exemplo 30), olhe se o FPS do jogo trava nesse número e responda `s`
+  ou `n`. O teste devolve o valor original sozinho. No fim ele imprime uma linha entre traços: copie e cole no
+  chat. Se aparecer erro de compilação ao rodar, copie o texto dele também (a ferramenta não passa pelo CI).
 - PR 12d, opcional: gerar o relatório com o caminho do log do Sunshine vazio (a seção diz "not configured").
 - Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada). A resolução já está corrigida e o
   fechamento do Playnite foi confirmado; falta só medir.
