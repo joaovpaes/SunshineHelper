@@ -85,7 +85,7 @@ aberta na bandeja faz a cópia nova sair em silêncio; foi o que confundiu o pri
   fechamento do Playnite foi confirmado; falta só medir.
 - Versão no pacote de pré-lançamento (PR 56): na tela Geral, "Sobre" deve mostrar `0.1.0-preview.2` (no `dotnet run`
   aparece `1.0.0`, o que é normal).
-- Tela Dispositivos (PR 60), na próxima versão de testes:
+- Tela Dispositivos (PR 60), na `v0.1.0-preview.3`:
   1. Abra a tela **Dispositivos**: no começo ela diz que nenhum aparelho conectou.
   2. Faça uma transmissão pelo Moonlight. Com o app aberto e a tela Dispositivos visível, o aparelho aparece sozinho
      (nome como no Moonlight, "conexões: 1", data de agora e o perfil usado).
