@@ -21,6 +21,9 @@ using SunshineHelper.Infrastructure.Fps;
 // (ver o <remarks> da classe). Sem administrador, a opção 3 deve falhar com uma mensagem
 // explicando isso, não fingir sucesso.
 //
+// A opção 6 (InMemoryProbe.cs) é o teste da decisão D1, passo 1: muda o limite só em memória,
+// sem SaveProfile, e deve ser rodada SEM administrador.
+//
 // Se o RTSS não estiver instalado nesta máquina, as opções 1 e 2 devem dizer isso
 // claramente (em vez de travar ou lançar uma exceção), e a opção 3 deve falhar com uma
 // mensagem explicando que não há RTSS para aplicar o limite — é assim que o módulo se
@@ -56,6 +59,10 @@ while (true)
             await RevertAsync(module, captured).ConfigureAwait(false);
             break;
 
+        case "6":
+            SunshineHelper.Tools.RtssModuleHarness.InMemoryProbe.Run();
+            break;
+
         case "0":
             return;
 
@@ -77,6 +84,7 @@ static void PrintMenu(ModuleSnapshot? captured)
     Console.WriteLine("3) Aplicar um limite de FPS (pede o número)");
     Console.WriteLine("4) Aplicar \"sem limite\" (0, convenção do próprio RTSS)");
     Console.WriteLine("5) Reverter ao estado capturado na opção 2");
+    Console.WriteLine("6) Teste do RTSS só em memória, sem administrador (D1, passo 1)");
     Console.WriteLine("0) Sair");
     Console.Write("> ");
 }
