@@ -8,7 +8,7 @@
 
 A companion to Sunshine and [Moonlight](https://moonlight-stream.org), not a replacement for either. Nothing in them is patched, bundled or reconfigured behind your back.
 
-> **Status:** in development, no release yet. The core is being built in the open; see [docs/](docs/).
+> **Status:** in development. Test versions (pre-releases) are on the [Releases page](https://github.com/joaovpaes/SunshineHelper/releases); they have **no installer and no code signing yet** (Windows shows a SmartScreen warning). The step-by-step setup is in [docs/preview-como-usar.md](docs/preview-como-usar.md) (Portuguese; it also ships inside the zip as `LEIA-ME.md`).
 
 🇧🇷 **[Leia em português](#português)**
 
@@ -26,7 +26,7 @@ Changing the resolution, toggling HDR and setting an FPS cap by hand before ever
 - **Identifies which device connected**, by the client name Sunshine reports.
 - **Applies that device's profile:** screen resolution, HDR on or off, and an FPS cap through [RTSS](https://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/). Each setting can follow what the client asked for, be pinned to a fixed value, or be left alone.
 - **Puts everything back when the session ends** — and also after a crash, or after the PC reboots mid-session. The previous state is written to disk before anything is changed, so there is always a way back.
-- **Gamepad overlay** to switch profiles mid-session, adjust resolution and FPS, list and close processes, switch windows and send keyboard shortcuts, without reaching for a keyboard.
+- **Gamepad overlay** *(planned, not built yet)* to switch profiles mid-session, adjust resolution and FPS, list and close processes, switch windows and send keyboard shortcuts, without reaching for a keyboard.
 
 ## What it does not do
 
@@ -34,6 +34,24 @@ Changing the resolution, toggling HDR and setting an FPS cap by hand before ever
 - It does not change your Sunshine configuration without asking.
 - It does not change your monitor's refresh rate. Ever.
 - It does not stream anything itself — Sunshine still does all the streaming.
+
+## Setup you have to do
+
+The app does not set these up for you:
+
+1. **Sunshine log level:** set the minimum log level to **Debug** in Sunshine (Configuration > General) and restart Sunshine. The app reads the log to notice disconnects; the Dashboard warns if the level is too low.
+2. **Sunshine log path:** in the app's **General** screen, point to your `sunshine.log`.
+3. **Prep Commands:** in Sunshine, under your app's **Command Preparations**, add `SunshineHelper.Trigger.exe start` (Do) and `SunshineHelper.Trigger.exe end` (Undo).
+4. **The app must be open before the stream starts** (the helper gives up after 2 s). Turn on *Start with Windows* in the **General** screen to have it start minimized in the tray.
+5. **FPS cap:** RTSS must be running, and the Profiles screen offers a one-time **Repair** button (Windows asks for confirmation once) so the app can write RTSS's profile file.
+6. **Resolutions above your monitor's (Super Resolution):** the app only asks Windows for the resolution, so the GPU driver has to offer it. On AMD, turn on **Virtual Super Resolution (VSR)** in AMD Software: Adrenalin Edition; on NVIDIA, enable **DSR** factors in the NVIDIA Control Panel. If the driver does not offer the resolution, the app logs the refusal and the stream goes on without it.
+
+## Known limits
+
+- **Sunshine's own monitor problems are not covered.** The app does not turn on, wake up or switch a monitor: it only changes resolution, HDR and FPS cap on the **primary** monitor and restores them. If Sunshine needs the monitor to stay on or active during a stream, that is up to Sunshine and Windows.
+- **A monitor without HDR cannot use the HDR option.** The app refuses to turn HDR on, says so in the Dashboard and in `app.log`, and the stream goes on without HDR. Leave the profile's HDR as "leave as is" for that monitor.
+- Refresh rate is never changed, and only the primary monitor is handled.
+- Test versions have no installer and no code signing, and were tested only on Windows 11 with Sunshine for Windows, RTSS 7.3.x and Playnite.
 
 ## Works with
 
@@ -55,13 +73,17 @@ The design decisions behind this live in [`docs/adr/`](docs/adr/).
 - [RTSS](https://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/) 7.3.7 or newer, for the FPS cap.
 - An AMD, NVIDIA or Intel GPU.
 
-The installer checks for Sunshine before it installs anything. If it is not there, the installation stops and points you to Sunshine's own download page, and a dedicated tutorial covers how to configure Sunshine to work with SunshineHelper.
+The installer (planned) will check for Sunshine before it installs anything. If it is not there, the installation stops and points you to Sunshine's own download page, and a dedicated tutorial covers how to configure Sunshine to work with SunshineHelper.
+
+## Already working (test versions)
+
+Profiles per device, resolution, HDR and FPS cap with restore, a Devices screen (devices that have connected), a Log screen, start with Windows, interface in English and Portuguese, and closing the launcher at the end of a session ([Playnite](https://playnite.link) first, because it is what the author uses; other launchers are a goal for later).
 
 ## Planned
 
-- Installer (`SunshineHelper-vX.Y.Z-setup.exe`) and a portable `.zip`, both with `SHA256SUMS.txt`.
-- Interface in English and Portuguese.
-- Closing the launcher at the end of a session. [Playnite](https://playnite.link) is supported first, because it is what the author uses; other launchers are a goal for later.
+- Installer (`SunshineHelper-vX.Y.Z-setup.exe`) and code signing, with `SHA256SUMS.txt`.
+- Gamepad overlay.
+- Update notice and, later, automatic update.
 
 ## Related projects
 
@@ -81,7 +103,7 @@ Issues and pull requests are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 É um complemento ao Sunshine e ao [Moonlight](https://moonlight-stream.org), não um substituto para nenhum dos dois. Nada neles é alterado, embutido ou reconfigurado sem você saber.
 
-> **Situação:** em desenvolvimento, ainda sem versão publicada.
+> **Situação:** em desenvolvimento. Há versões de testes (pré-lançamentos) na [página de Releases](https://github.com/joaovpaes/SunshineHelper/releases); elas **ainda não têm instalador nem assinatura de código** (o Windows mostra o aviso do SmartScreen). O passo a passo está em [docs/preview-como-usar.md](docs/preview-como-usar.md), que também vai dentro do zip como `LEIA-ME.md`.
 
 ### O problema
 
@@ -95,7 +117,7 @@ Mudar a resolução, ligar e desligar o HDR e ajustar o limite de FPS na mão an
 - **Identifica qual aparelho conectou**, pelo nome do cliente que o Sunshine informa.
 - **Aplica o perfil daquele aparelho:** resolução, HDR ligado ou desligado e limite de FPS pelo [RTSS](https://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/). Cada item pode seguir o que o cliente pediu, ficar num valor fixo, ou não ser mexido.
 - **Devolve tudo ao fim da sessão** — e também depois de uma queda do app ou de um reinício do PC no meio. O estado anterior vai para o disco antes de qualquer mudança, então sempre existe caminho de volta.
-- **Overlay pelo controle** para trocar de perfil no meio da sessão, ajustar resolução e FPS, listar e fechar processos, trocar de janela e enviar atalhos de teclado, sem precisar de teclado.
+- **Overlay pelo controle** *(planejado, ainda não feito)* para trocar de perfil no meio da sessão, ajustar resolução e FPS, listar e fechar processos, trocar de janela e enviar atalhos de teclado, sem precisar de teclado.
 
 ### O que ele não faz
 
@@ -103,6 +125,24 @@ Mudar a resolução, ligar e desligar o HDR e ajustar o limite de FPS na mão an
 - Não muda a sua configuração do Sunshine sem pedir.
 - Não muda a taxa de atualização do monitor. Nunca.
 - Não transmite nada por conta própria — quem transmite continua sendo o Sunshine.
+
+### O que você precisa configurar
+
+O app não faz estas configurações por você:
+
+1. **Nível de log do Sunshine:** coloque o nível mínimo em **Debug** no Sunshine (Configuration > General) e reinicie o Sunshine. O app lê o log para perceber desconexões; o Painel avisa se o nível estiver baixo.
+2. **Caminho do log do Sunshine:** na tela **Geral** do app, aponte o seu `sunshine.log`.
+3. **Prep Commands:** no Sunshine, em **Command Preparations** do seu app, adicione `SunshineHelper.Trigger.exe start` (Do) e `SunshineHelper.Trigger.exe end` (Undo).
+4. **O app precisa estar aberto antes da transmissão** (o auxiliar desiste em 2 s). Ligue **Iniciar com o Windows** na tela **Geral** para ele abrir minimizado na bandeja.
+5. **Limite de FPS:** o RTSS precisa estar aberto, e a tela Perfis tem um botão **Reparar** (o Windows pede confirmação uma vez) para o app poder gravar o arquivo de perfil do RTSS.
+6. **Resolução maior que a do monitor (Super Resolução):** o app só pede a resolução ao Windows, então o driver da placa precisa oferecê-la. Na AMD, ligue o **Virtual Super Resolution (VSR)** no AMD Software: Adrenalin Edition; na NVIDIA, ative os fatores do **DSR** no Painel de Controle da NVIDIA. Se o driver não oferecer a resolução, o app registra a recusa e a transmissão segue sem ela.
+
+### Limites conhecidos
+
+- **Problemas do próprio Sunshine com o monitor não são cobertos.** O app não liga, não acorda nem troca o monitor: ele só muda resolução, HDR e limite de FPS do monitor **principal** e devolve tudo. Se o Sunshine precisa que o monitor fique ligado ou ativo durante a transmissão, isso é do Sunshine e do Windows.
+- **Monitor sem HDR não usa a opção de HDR.** O app se recusa a ligar o HDR, avisa no Painel e no `app.log`, e a transmissão segue sem HDR. Deixe o HDR do perfil em "Deixar como está" nesse monitor.
+- A taxa de atualização nunca é mudada, e só o monitor principal é tratado.
+- As versões de testes não têm instalador nem assinatura de código, e foram testadas só em Windows 11 com o Sunshine para Windows, RTSS 7.3.x e Playnite.
 
 ### Funciona com
 
@@ -124,13 +164,17 @@ As decisões de projeto estão em [`docs/adr/`](docs/adr/).
 - [RTSS](https://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/) 7.3.7 ou superior, para o limite de FPS.
 - Placa de vídeo AMD, NVIDIA ou Intel.
 
-O instalador verifica se o Sunshine está presente antes de instalar qualquer coisa. Se não achar, a instalação é interrompida e aponta para a página oficial do Sunshine, e há um tutorial próprio de como configurar o Sunshine para funcionar com o SunshineHelper.
+O instalador (planejado) vai verificar se o Sunshine está presente antes de instalar qualquer coisa. Se não achar, a instalação é interrompida e aponta para a página oficial do Sunshine, e há um tutorial próprio de como configurar o Sunshine para funcionar com o SunshineHelper.
+
+### Já funciona (versões de testes)
+
+Perfis por aparelho, resolução, HDR e limite de FPS com restauração, tela Dispositivos (aparelhos que já conectaram), tela Log, iniciar com o Windows, interface em português e inglês e fechamento do launcher ao fim da sessão (o [Playnite](https://playnite.link) vem primeiro, por ser o que o autor usa; outros launchers são objetivo futuro).
 
 ### Planejado
 
-- Instalador (`SunshineHelper-vX.Y.Z-setup.exe`) e versão portátil em `.zip`, os dois com `SHA256SUMS.txt`.
-- Interface em português e inglês.
-- Fechamento do launcher ao fim da sessão. O [Playnite](https://playnite.link) vem primeiro, por ser o que o autor usa; outros launchers são objetivo futuro.
+- Instalador (`SunshineHelper-vX.Y.Z-setup.exe`) e assinatura de código, com `SHA256SUMS.txt`.
+- Overlay pelo controle.
+- Aviso de versão nova e, depois, atualização automática.
 
 ### Contribuir
 
