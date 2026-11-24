@@ -84,19 +84,16 @@ o aparelho com nome, conexões, última vez e perfil. Na preview.4, "Criar perfi
 com o nome já preenchido, o perfil foi salvo (1920x1080, FPS 120) e a transmissão seguinte usou o perfil novo (`app.log`:
 `apply start: profile 'celular'`). Passou.
 
+**Tela Log (PR 64), 2026-11-23, `v0.1.0-preview.5`:** a tela mostrou o fim do `app.log`; com "Mostrar só avisos e erros"
+ficaram só as 6 linhas `[WARNING]`/`[ERROR]`, na ordem; Copiar trouxe o mesmo texto. Passou. Ajustes de forma
+anotados no backlog (linhas longas sem quebra; botões abaixo da área de texto exigem rolar a página).
+
 **Ainda pendente**
 - PR 12d, opcional: gerar o relatório com o caminho do log do Sunshine vazio (a seção diz "not configured").
 - Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada). A resolução já está corrigida e o
   fechamento do Playnite foi confirmado; falta só medir.
 - Versão no pacote de pré-lançamento (PR 56): na tela Geral, "Sobre" deve mostrar `0.1.0-preview.2` (no `dotnet run`
   aparece `1.0.0`, o que é normal).
-- Tela Log (PR 64), na próxima versão de testes:
-  1. Abra a tela **Log**: aparece o fim do `app.log`, já rolado até a última linha, em letra de largura fixa.
-  2. Faça uma transmissão com a tela aberta: as linhas novas aparecem sozinhas, sem você clicar em nada.
-  3. Marque **Mostrar só avisos e erros**: ficam só as linhas `[WARNING]` e `[ERROR]`. Desmarque: voltam todas.
-  4. Clique em **Copiar** e cole num bloco de notas: o texto do quadro foi copiado.
-  5. Clique em **Abrir a pasta do log**: o Explorador abre a pasta onde está o `app.log`.
-
 Observação de uso: no Moonlight, só **encerrar a sessão** (Quit) faz o Sunshine rodar o comando Undo. Apenas
 sair/desconectar deixa tudo como está, a menos que o perfil tenha "Restaurar a tela ao desconectar".
 

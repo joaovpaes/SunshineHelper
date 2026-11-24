@@ -11,9 +11,9 @@ leitor do log do Sunshine, bandeja e janela (Painel, Geral, Perfis), log de diag
 diagnóstico. As decisões D2 (falha de um módulo vira aviso) e D3 (sessão anterior presa é restaurada antes da
 nova) estão no ADR 0011 e passaram no teste do PC. Situação do portão: `docs/fase1-portao.md`.
 
-**Último PR mesclado:** #67 (regra de revisão do README; antes, #66, o README com configurações e limites, #65, o guia com Super Resolução, e #64, a tela Log).
-**Versão de testes atual:** `v0.1.0-preview.4`; a `v0.1.0-preview.5` (com a tela Log) está sendo publicada. A preview.4 foi publicada em 2026-11-23 pelo workflow `preview-release.yml` (zip com o app e o
-auxiliar de gatilho). As versões `preview.1` a `preview.4` foram testadas no PC do autor e funcionaram; o Windows mostra
+**Último PR mesclado:** #68 (notas da `v0.1.0-preview.5`; antes, #64 a #67: tela Log, guia, README e regra de revisão do README).
+**Versão de testes atual:** `v0.1.0-preview.5` (com a tela Log), publicada em 2026-11-23 pelo workflow `preview-release.yml` (zip com o app e o
+auxiliar de gatilho). As versões `preview.1` a `preview.5` foram testadas no PC do autor e funcionaram; o Windows mostra
 o aviso do SmartScreen porque não há assinatura de código.
 
 ## Próximos PRs
@@ -22,7 +22,9 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 | PR | O quê | Modelo |
 | --- | --- | --- |
-| depois | Overlay pelo controle (Opus · alto, com ADR) | ver backlog |
+| 69 | ADR 0015: overlay pelo controle (docs, neste PR) | Opus · alto |
+| a seguir | PR A do ADR 0015: detector de combo no Domain e o combo no `settings.json` | Opus · alto |
+| depois | PRs B a F do ADR 0015 (leitor XInput, gravar combo, protótipo, janela, perfis e ajustes com ADR próprio, atalhos) | ver ADR 0015 |
 
 ## Decisões em aberto
 
@@ -33,7 +35,6 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 Lista viva em `docs/testes-manuais.md`, "Ainda pendente":
 
-- Tela Log (PR 64): testar na próxima versão de testes (passo a passo no arquivo).
 - Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada).
 - Opcional: relatório de diagnóstico com o caminho do log do Sunshine vazio.
 
@@ -44,6 +45,8 @@ Lista viva em `docs/testes-manuais.md`, "Ainda pendente":
   precisa estar aberto antes), concessão da permissão do RTSS (ADR 0012) e, a decidir, abrir o RTSS sozinho se ele
   estiver fechado.
 - Segunda cópia do app: hoje ela sai em silêncio; melhor seria trazer a janela da primeira para a frente.
+- Tela Log: quebrar as linhas longas (ou opção) e deixar Copiar e Abrir a pasta sempre visíveis, sem rolar a página.
+- Overlay: ler controles no estilo PlayStation (DualShock 4 virtual do Sunshine), que o XInput não vê (ADR 0015).
 - `LEIA-ME.md` do pacote também em inglês (hoje só em português; as notas da release já são nas duas línguas).
 - Depois do instalador: release oficial com `release-please` e atestado de procedência (o `SHA256SUMS.txt` e o zip já saem
   do workflow do pré-lançamento); assinatura de código (SignPath) a cargo do autor.
