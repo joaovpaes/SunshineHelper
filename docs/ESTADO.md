@@ -1,7 +1,7 @@
 # Estado do projeto
 
 Uma página para retomar o trabalho sem reler tudo. O Claude atualiza este arquivo no fim de cada PR
-(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-23**, `main` após o PR 61.
+(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-23**, `main` após o PR 62.
 
 ## Onde estamos
 
@@ -11,8 +11,8 @@ leitor do log do Sunshine, bandeja e janela (Painel, Geral, Perfis), log de diag
 diagnóstico. As decisões D2 (falha de um módulo vira aviso) e D3 (sessão anterior presa é restaurada antes da
 nova) estão no ADR 0011 e passaram no teste do PC. Situação do portão: `docs/fase1-portao.md`.
 
-**Último PR mesclado:** #61 (notas da `v0.1.0-preview.3`; antes, #60, a tela Dispositivos). **Versão de testes atual:**
-`v0.1.0-preview.3` (com a tela Dispositivos), publicada em 2026-11-23 pelo workflow `preview-release.yml` (zip com o app e o
+**Último PR mesclado:** #62 (botão "Criar perfil para este aparelho"). **Versão de testes atual:**
+`v0.1.0-preview.3` (com a tela Dispositivos); a `v0.1.0-preview.4` (com o botão) está sendo publicada. A preview.3 foi publicada em 2026-11-23 pelo workflow `preview-release.yml` (zip com o app e o
 auxiliar de gatilho; as anteriores, `preview.1` e `preview.2`, foram testadas no PC do autor e funcionaram; o Windows mostra
 o aviso do SmartScreen porque não há assinatura de código).
 
@@ -33,7 +33,7 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 Lista viva em `docs/testes-manuais.md`, "Ainda pendente":
 
-- Tela Dispositivos (PR 60), já na `v0.1.0-preview.3`: testar na próxima versão de testes (passo a passo no arquivo).
+- Botão "Criar perfil para este aparelho" (PR 62), na `v0.1.0-preview.4`: testar (passo a passo no arquivo). A tela Dispositivos já foi conferida no PC na preview.3.
 - Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada).
 - Opcional: relatório de diagnóstico com o caminho do log do Sunshine vazio.
 
