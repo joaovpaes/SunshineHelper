@@ -159,9 +159,14 @@
                                TextWrapping="Wrap" Text="{DynamicResource Devices.Empty}" />
                     <ListBox x:Name="DevicesList" Margin="0,16,0,0" MinHeight="110" MaxHeight="360"
                              SelectionChanged="OnDeviceSelected" />
-                    <Button x:Name="ForgetDeviceButton" Margin="0,8,0,0" Padding="12,6" HorizontalAlignment="Left"
-                            Style="{StaticResource Button.Secondary}" IsEnabled="False"
-                            Content="{DynamicResource Devices.Forget}" Click="OnForgetDevice" />
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <Button x:Name="DeviceProfileButton" Padding="12,6"
+                                Style="{StaticResource Button.Primary}" IsEnabled="False"
+                                Content="{DynamicResource Devices.CreateProfile}" Click="OnDeviceProfile" />
+                        <Button x:Name="ForgetDeviceButton" Margin="8,0,0,0" Padding="12,6"
+                                Style="{StaticResource Button.Secondary}" IsEnabled="False"
+                                Content="{DynamicResource Devices.Forget}" Click="OnForgetDevice" />
+                    </StackPanel>
                     <TextBlock x:Name="DevicesMessage" Margin="0,16,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>

@@ -51,6 +51,30 @@ public static class ClientProfileSelector
         return null;
     }
 
+    /// <summary>The profile that lists this client name, with no fallback to the default
+    /// profile (unlike <see cref="Select"/>): the Devices screen uses it to tell "this device
+    /// already has a profile" from "this device still needs one".</summary>
+    public static ClientProfile? FindByClientName(AppSettings settings, string? name)
+    {
+        ArgumentNullException.ThrowIfNull(settings);
+
+        string clean = name?.Trim() ?? string.Empty;
+        if (clean.Length == 0)
+        {
+            return null;
+        }
+
+        foreach (var profile in settings.Profiles)
+        {
+            if (MatchesName(profile.Match, clean))
+            {
+                return profile;
+            }
+        }
+
+        return null;
+    }
+
     private static bool MatchesName(ClientMatchRule match, string clientName)
     {
         foreach (var candidate in match.ClientNames)

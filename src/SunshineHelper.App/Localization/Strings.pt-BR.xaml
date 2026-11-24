@@ -30,6 +30,9 @@
     <sys:String x:Key="Devices.NoProfile">nenhum correspondeu</sys:String>
     <sys:String x:Key="Devices.Forget">Esquecer aparelho</sys:String>
     <sys:String x:Key="Devices.Forgotten">Aparelho removido da lista. Ele aparece de novo na próxima conexão.</sys:String>
+    <sys:String x:Key="Devices.CreateProfile">Criar perfil para este aparelho</sys:String>
+    <sys:String x:Key="Devices.OpenProfile">Abrir o perfil deste aparelho</sys:String>
+    <sys:String x:Key="Devices.ProfileDraft">Perfil novo para "{0}": escolha a resolução, o HDR e o limite de FPS e clique em Salvar perfil. Nada é salvo antes disso.</sys:String>
 
     <sys:String x:Key="Panel.Status.Idle">Nenhuma transmissão ativa.</sys:String>
     <sys:String x:Key="Panel.Status.Active">Transmissão ativa: o ambiente está modificado.</sys:String>

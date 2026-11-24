@@ -3,6 +3,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using SunshineHelper.Domain.Devices;
+using SunshineHelper.Domain.Settings;
 
 namespace SunshineHelper.App;
 
@@ -46,7 +47,7 @@ public partial class MainWindow
         bool empty = devices.Count == 0;
         DevicesEmptyText.Visibility = empty ? Visibility.Visible : Visibility.Collapsed;
         DevicesList.Visibility = empty ? Visibility.Collapsed : Visibility.Visible;
-        ForgetDeviceButton.IsEnabled = DevicesList.SelectedItem is not null;
+        UpdateDeviceButtons();
     }
 
     /// <summary>Called by the one-second timer: a device that connects while the screen is
@@ -59,8 +60,56 @@ public partial class MainWindow
         }
     }
 
-    private void OnDeviceSelected(object sender, SelectionChangedEventArgs e) =>
-        ForgetDeviceButton.IsEnabled = DevicesList.SelectedItem is not null;
+    private void OnDeviceSelected(object sender, SelectionChangedEventArgs e) => UpdateDeviceButtons();
+
+    /// <summary>The profile button says "Open" when the device already has a profile and
+    /// "Create" when it does not.</summary>
+    private void UpdateDeviceButtons()
+    {
+        string? name = (DevicesList.SelectedItem as ListBoxItem)?.Tag as string;
+        bool selected = name is not null;
+        ForgetDeviceButton.IsEnabled = selected;
+        DeviceProfileButton.IsEnabled = selected;
+
+        bool hasProfile = selected && ClientProfileSelector.FindByClientName(_host.Settings.Current, name) is not null;
+        DeviceProfileButton.Content = Text(hasProfile ? "Devices.OpenProfile" : "Devices.CreateProfile");
+    }
+
+    /// <summary>Opens the Profiles screen: on the device's own profile if it has one,
+    /// otherwise on a new profile already named after the device. Nothing is saved until
+    /// the user clicks Save profile.</summary>
+    private void OnDeviceProfile(object sender, RoutedEventArgs e)
+    {
+        if (DevicesList.SelectedItem is not ListBoxItem { Tag: string name })
+        {
+            return;
+        }
+
+        var existing = ClientProfileSelector.FindByClientName(_host.Settings.Current, name);
+
+        foreach (ListBoxItem nav in NavList.Items)
+        {
+            if (nav.Tag is "Profiles")
+            {
+                NavList.SelectedItem = nav;
+            }
+        }
+
+        if (existing is not null)
+        {
+            LoadProfiles(existing.Id);
+            ProfilesMessage.Text = string.Empty;
+            return;
+        }
+
+        // The blank "(new profile)" entry, filled with the device's name.
+        LoadProfiles(selectId: null);
+        _loadingProfiles = true;
+        ProfileList.SelectedIndex = 0;
+        _loadingProfiles = false;
+        FillProfileForm(null, ProfileForm.NewForDevice(name));
+        ProfilesMessage.Text = string.Format(CultureInfo.CurrentCulture, Text("Devices.ProfileDraft"), name);
+    }
 
     private async void OnForgetDevice(object sender, RoutedEventArgs e)
     {

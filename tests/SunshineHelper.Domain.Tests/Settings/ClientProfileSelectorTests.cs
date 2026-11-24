@@ -75,6 +75,35 @@ public class ClientProfileSelectorTests
         selected.ShouldBe(tv);
     }
 
+    [Fact]
+    public void FindByClientName_acha_o_perfil_sem_diferenciar_maiusculas_nem_espacos()
+    {
+        var tv = Profile("tv-4k", "TV 4K", "Sala TV");
+        var settings = Settings(defaultProfileId: null, tv);
+
+        ClientProfileSelector.FindByClientName(settings, "  sala tv ").ShouldBe(tv);
+    }
+
+    [Fact]
+    public void FindByClientName_nao_cai_no_perfil_padrao()
+    {
+        var tv = Profile("tv-4k", "TV 4K", "Sala TV");
+        var settings = Settings(defaultProfileId: "tv-4k", tv);
+
+        ClientProfileSelector.FindByClientName(settings, "Outro aparelho").ShouldBeNull();
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void FindByClientName_com_nome_vazio_devolve_nulo(string? name)
+    {
+        var tv = Profile("tv-4k", "TV 4K", "Sala TV");
+
+        ClientProfileSelector.FindByClientName(Settings(defaultProfileId: null, tv), name).ShouldBeNull();
+    }
+
     private static ClientProfile Profile(string id, string name, params string[] clientNames) => new()
     {
         Id = id,

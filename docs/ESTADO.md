@@ -1,7 +1,7 @@
 # Estado do projeto
 
 Uma página para retomar o trabalho sem reler tudo. O Claude atualiza este arquivo no fim de cada PR
-(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-23**, `main` após o PR 60.
+(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-23**, `main` após o PR 61.
 
 ## Onde estamos
 
@@ -11,8 +11,9 @@ leitor do log do Sunshine, bandeja e janela (Painel, Geral, Perfis), log de diag
 diagnóstico. As decisões D2 (falha de um módulo vira aviso) e D3 (sessão anterior presa é restaurada antes da
 nova) estão no ADR 0011 e passaram no teste do PC. Situação do portão: `docs/fase1-portao.md`.
 
-**Último PR mesclado:** #60 (tela Dispositivos e registro dos aparelhos). **Versão de testes atual:** `v0.1.0-preview.2`; a `v0.1.0-preview.3` (com a tela Dispositivos) está sendo publicada. **Pré-lançamento `v0.1.0-preview.1` publicado** em 2026-11-23 (zip com o app e o
-auxiliar de gatilho, gerado pelo workflow `preview-release.yml`; testado no PC do autor, tudo funcionou; o Windows mostra
+**Último PR mesclado:** #61 (notas da `v0.1.0-preview.3`; antes, #60, a tela Dispositivos). **Versão de testes atual:**
+`v0.1.0-preview.3` (com a tela Dispositivos), publicada em 2026-11-23 pelo workflow `preview-release.yml` (zip com o app e o
+auxiliar de gatilho; as anteriores, `preview.1` e `preview.2`, foram testadas no PC do autor e funcionaram; o Windows mostra
 o aviso do SmartScreen porque não há assinatura de código).
 
 ## Próximos PRs
@@ -21,8 +22,7 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 | PR | O quê | Modelo |
 | --- | --- | --- |
-| 62 | Botão "Criar perfil para este aparelho" na tela Dispositivos | Sonnet · médio |
-| a seguir | Tela Log; depois o overlay pelo controle (Opus · alto, com ADR) | ver backlog |
+| a seguir | Tela Log (PR 63); depois o overlay pelo controle (Opus · alto, com ADR) | ver backlog |
 
 ## Decisões em aberto
 
@@ -52,6 +52,10 @@ Lista viva em `docs/testes-manuais.md`, "Ainda pendente":
 - **Aviso do SmartScreen:** some com assinatura de código (a Fundação SignPath assina projetos de código aberto de
   graça; o pedido é do autor e leva dias ou semanas) e, depois, com a reputação do programa; em certificado pago
   (validação estendida) a reputação vem mais rápido. Até lá o `LEIA-ME.md` do pré-lançamento explica como seguir.
+- **Atualização automática do app** (pedido do autor em 2026-11-23, deixada para uma etapa mais consolidada). Plano em dois
+  PRs: (1) só avisar que há versão nova, consultando as releases do GitHub, com opção de desligar a consulta; (2) baixar,
+  conferir o SHA256 e trocar os dois `.exe`, que pede ADR, Opus · esforço alto e revisão de segurança. Sem assinatura de
+  código e sem instalador, o SHA256 só garante que o arquivo não veio corrompido, não quem o publicou.
 - **Longo prazo (só depois de todo o escopo pronto):** telemetria própria do app, no estilo do OSD do RivaTuner
   (monitoramento de desempenho na tela; a decidir, sempre local, nada enviado pela internet), e um **limitador de FPS
   próprio**, para o app não depender do RTSS. Para o limitador, a direção a investigar é o driver da placa de vídeo

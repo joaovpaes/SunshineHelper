@@ -179,4 +179,25 @@ public class ProfileFormTests
     {
         ProfileForm.Slugify(name).ShouldBe(expected);
     }
+
+    [Fact]
+    public void NewForDevice_preenche_o_nome_e_o_nome_do_cliente()
+    {
+        var input = ProfileForm.NewForDevice("  Sala TV ");
+
+        input.Name.ShouldBe("Sala TV");
+        input.ClientNamesText.ShouldBe("Sala TV");
+        input.ResolutionMode.ShouldBe(ProfileValueMode.FollowClient);
+        input.FpsMode.ShouldBe(ProfileValueMode.Leave);
+    }
+
+    [Fact]
+    public void NewForDevice_vira_um_perfil_valido_que_casa_com_o_aparelho()
+    {
+        var result = ProfileForm.Build(ProfileForm.NewForDevice("Sala TV"), null, NoIds());
+
+        result.IsValid.ShouldBeTrue();
+        result.Profile!.Match.ClientNames.Count.ShouldBe(1);
+        result.Profile.Match.ClientNames[0].ShouldBe("Sala TV");
+    }
 }
