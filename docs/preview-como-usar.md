@@ -50,6 +50,34 @@ tem de ser igual ao do arquivo).
    Perfis mostra um aviso com o botão **Reparar**. O Windows pede confirmação uma vez e libera só esse arquivo.
    O RTSS precisa estar aberto para o limite valer.
 
+## Resolução maior que a do monitor (Super Resolução)
+
+O app só **pede ao Windows** a resolução do perfil. Se o seu monitor é 2560x1440 e o perfil pede 3840x2160, o
+Windows só aceita se a placa de vídeo oferecer essa resolução como "maior que a nativa". Isso se liga no driver:
+
+- **Placa AMD (Virtual Super Resolution, VSR):** abra o **AMD Software: Adrenalin Edition**, procure por **VSR** e
+  ligue **Virtual Super Resolution** (vem desligado; a tela pode apagar por alguns segundos). Depois disso, as
+  resoluções maiores aparecem nas configurações de vídeo do Windows. A AMD recomenda o Adrenalin mais recente.
+- **Placa NVIDIA (DSR):** no **Painel de Controle da NVIDIA**, escolha os fatores do **DSR** que você quer usar.
+  (Os nomes dos menus mudam conforme o driver.)
+- Depois de ligar, confira em Configurações do Windows, Sistema, Vídeo, Vídeo avançado (ou na lista de
+  resoluções) se a resolução desejada aparece. Se ela não aparecer ali, o app também não consegue aplicá-la.
+
+Se o perfil pedir uma resolução que o driver não oferece, o app **não derruba a transmissão**: ele registra
+"Troca de resolução recusada pelo driver de vídeo" no `app.log` e a sessão segue com a resolução que estava.
+
+## O que o app não cobre
+
+- **Problemas do Sunshine com o monitor.** O app não liga, não acorda nem troca o monitor: ele só muda
+  resolução, HDR e limite de FPS do **monitor principal** e devolve tudo no fim. Se o Sunshine precisa que o
+  monitor fique ligado ou ativo durante a transmissão (ou deixa a tela em um estado estranho), isso é do Sunshine
+  e do Windows, e o app não corrige.
+- **Monitor sem HDR.** Se o monitor principal não suporta HDR, a função de HDR não funciona: o app se recusa a
+  ligar o HDR com uma mensagem clara, avisa no Painel e no `app.log` e a transmissão continua **sem HDR**. Nesse
+  caso, deixe o HDR do perfil como "Deixar como está".
+- **Taxa de atualização:** o app não a muda (só resolução, HDR e limite de FPS).
+- Mais de um monitor: o app age só sobre o monitor principal.
+
 ## Como saber se funcionou
 
 - No **Painel**: "Transmissão ativa" durante a transmissão e "Nenhuma transmissão ativa" depois.
