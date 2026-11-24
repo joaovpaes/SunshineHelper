@@ -33,6 +33,14 @@
     <sys:String x:Key="Devices.CreateProfile">Create profile for this device</sys:String>
     <sys:String x:Key="Devices.OpenProfile">Open this device's profile</sys:String>
     <sys:String x:Key="Devices.ProfileDraft">New profile for "{0}": choose the resolution, HDR and FPS limit and click Save profile. Nothing is saved until then.</sys:String>
+    <sys:String x:Key="LogView.Hint">The end of the app's own log (app.log): what the app did in each session. It updates by itself. Nothing here is changed or sent anywhere. If you share it, read it first.</sys:String>
+    <sys:String x:Key="LogView.OnlyProblems">Show only warnings and errors</sys:String>
+    <sys:String x:Key="LogView.Copy">Copy</sys:String>
+    <sys:String x:Key="LogView.OpenFolder">Open log folder</sys:String>
+    <sys:String x:Key="LogView.Copied">Copied. Read it before sharing it with anyone.</sys:String>
+    <sys:String x:Key="LogView.CopyFailed">Could not copy: another program is using the clipboard. Try again.</sys:String>
+    <sys:String x:Key="LogView.NoFolder">The log folder does not exist yet. It is created with the first line the app writes.</sys:String>
+    <sys:String x:Key="LogView.Unavailable">The log file could not be read (it may not exist yet).</sys:String>
 
     <sys:String x:Key="Panel.Status.Idle">No active stream.</sys:String>
     <sys:String x:Key="Panel.Status.Active">Stream active: the environment is modified.</sys:String>

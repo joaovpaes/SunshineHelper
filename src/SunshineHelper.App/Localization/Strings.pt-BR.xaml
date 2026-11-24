@@ -33,6 +33,14 @@
     <sys:String x:Key="Devices.CreateProfile">Criar perfil para este aparelho</sys:String>
     <sys:String x:Key="Devices.OpenProfile">Abrir o perfil deste aparelho</sys:String>
     <sys:String x:Key="Devices.ProfileDraft">Perfil novo para "{0}": escolha a resolução, o HDR e o limite de FPS e clique em Salvar perfil. Nada é salvo antes disso.</sys:String>
+    <sys:String x:Key="LogView.Hint">O fim do log do próprio app (app.log): o que o app fez em cada sessão. Ele atualiza sozinho. Nada aqui é alterado nem enviado para lugar nenhum. Se for compartilhar, leia antes.</sys:String>
+    <sys:String x:Key="LogView.OnlyProblems">Mostrar só avisos e erros</sys:String>
+    <sys:String x:Key="LogView.Copy">Copiar</sys:String>
+    <sys:String x:Key="LogView.OpenFolder">Abrir a pasta do log</sys:String>
+    <sys:String x:Key="LogView.Copied">Copiado. Leia antes de compartilhar com alguém.</sys:String>
+    <sys:String x:Key="LogView.CopyFailed">Não deu para copiar: outro programa está usando a área de transferência. Tente de novo.</sys:String>
+    <sys:String x:Key="LogView.NoFolder">A pasta do log ainda não existe. Ela é criada na primeira linha que o app escrever.</sys:String>
+    <sys:String x:Key="LogView.Unavailable">Não foi possível ler o arquivo de log (talvez ele ainda não exista).</sys:String>
 
     <sys:String x:Key="Panel.Status.Idle">Nenhuma transmissão ativa.</sys:String>
     <sys:String x:Key="Panel.Status.Active">Transmissão ativa: o ambiente está modificado.</sys:String>

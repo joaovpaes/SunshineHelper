@@ -79,28 +79,23 @@ janela, na barra de tarefas e na bandeja; a opção "Iniciar com o Windows, mini
 Geral e, depois de marcar e reiniciar o PC, o app abriu **só na bandeja**, sem janela. Passou. (Uma cópia antiga já
 aberta na bandeja faz a cópia nova sair em silêncio; foi o que confundiu o primeiro teste.)
 
+**Dispositivos e botão "Criar perfil" (PRs 60 e 62), 2026-11-23, `v0.1.0-preview.3` e `.4`:** a tela Dispositivos mostrou
+o aparelho com nome, conexões, última vez e perfil. Na preview.4, "Criar perfil para este aparelho" abriu a tela Perfis
+com o nome já preenchido, o perfil foi salvo (1920x1080, FPS 120) e a transmissão seguinte usou o perfil novo (`app.log`:
+`apply start: profile 'celular'`). Passou.
+
 **Ainda pendente**
 - PR 12d, opcional: gerar o relatório com o caminho do log do Sunshine vazio (a seção diz "not configured").
 - Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada). A resolução já está corrigida e o
   fechamento do Playnite foi confirmado; falta só medir.
 - Versão no pacote de pré-lançamento (PR 56): na tela Geral, "Sobre" deve mostrar `0.1.0-preview.2` (no `dotnet run`
   aparece `1.0.0`, o que é normal).
-- Tela Dispositivos (PR 60), na `v0.1.0-preview.3`:
-  1. Abra a tela **Dispositivos**: no começo ela diz que nenhum aparelho conectou.
-  2. Faça uma transmissão pelo Moonlight. Com o app aberto e a tela Dispositivos visível, o aparelho aparece sozinho
-     (nome como no Moonlight, "conexões: 1", data de agora e o perfil usado).
-  3. Faça outra transmissão: "conexões" sobe para 2 e a data muda.
-  4. Teste com um aparelho **sem perfil** (e sem perfil padrão): ele aparece com "perfil: nenhum correspondeu".
-  5. Selecione um aparelho e clique em **Esquecer aparelho**: ele sai da lista e aparece de novo na próxima conexão.
-  6. Feche e abra o app: a lista continua (o arquivo é `%LOCALAPPDATA%\SunshineHelper\devices.json`).
-  7. Confira que a transmissão continua igual: o registro não deve atrasar nem impedir nada.
-- Botão "Criar perfil para este aparelho" (PR 62), na próxima versão de testes:
-  1. Tela **Dispositivos**, selecione um aparelho que **ainda não tem perfil** e clique em "Criar perfil para este aparelho".
-  2. O app abre a tela **Perfis** num perfil novo, com o nome do aparelho já preenchido em "Nome do perfil" e em
-     "Nomes dos dispositivos". Aparece o aviso de que nada foi salvo ainda.
-  3. Escolha resolução, HDR e FPS e clique em **Salvar perfil**. Volte em Dispositivos: o botão do mesmo aparelho agora diz
-     "Abrir o perfil deste aparelho" e abre esse perfil.
-  4. Feche a tela sem salvar em outro teste: nenhum perfil deve ser criado.
+- Tela Log (PR 64), na próxima versão de testes:
+  1. Abra a tela **Log**: aparece o fim do `app.log`, já rolado até a última linha, em letra de largura fixa.
+  2. Faça uma transmissão com a tela aberta: as linhas novas aparecem sozinhas, sem você clicar em nada.
+  3. Marque **Mostrar só avisos e erros**: ficam só as linhas `[WARNING]` e `[ERROR]`. Desmarque: voltam todas.
+  4. Clique em **Copiar** e cole num bloco de notas: o texto do quadro foi copiado.
+  5. Clique em **Abrir a pasta do log**: o Explorador abre a pasta onde está o `app.log`.
 
 Observação de uso: no Moonlight, só **encerrar a sessão** (Quit) faz o Sunshine rodar o comando Undo. Apenas
 sair/desconectar deixa tudo como está, a menos que o perfil tenha "Restaurar a tela ao desconectar".
