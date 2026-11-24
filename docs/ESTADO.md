@@ -11,7 +11,7 @@ leitor do log do Sunshine, bandeja e janela (Painel, Geral, Perfis), log de diag
 diagnóstico. As decisões D2 (falha de um módulo vira aviso) e D3 (sessão anterior presa é restaurada antes da
 nova) estão no ADR 0011 e passaram no teste do PC. Situação do portão: `docs/fase1-portao.md`.
 
-**Último PR mesclado:** #64 (tela Log; antes, #63, as notas da `v0.1.0-preview.4`).
+**Último PR mesclado:** #65 (guia com Super Resolução e limites conhecidos; antes, #64, a tela Log).
 **Versão de testes atual:** `v0.1.0-preview.4`, publicada em 2026-11-23 pelo workflow `preview-release.yml` (zip com o app e o
 auxiliar de gatilho). As versões `preview.1` a `preview.4` foram testadas no PC do autor e funcionaram; o Windows mostra
 o aviso do SmartScreen porque não há assinatura de código.
@@ -22,7 +22,7 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 | PR | O quê | Modelo |
 | --- | --- | --- |
-| 65 | Guia de configuração: Super Resolução e limites conhecidos (docs, neste PR) | Sonnet · baixo |
+| 66 | README: configurações necessárias e limites conhecidos (docs, neste PR) | Sonnet · baixo |
 | depois | Overlay pelo controle (Opus · alto, com ADR) | ver backlog |
 
 ## Decisões em aberto
