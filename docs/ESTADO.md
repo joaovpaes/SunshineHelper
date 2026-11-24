@@ -11,10 +11,10 @@ leitor do log do Sunshine, bandeja e janela (Painel, Geral, Perfis), log de diag
 diagnóstico. As decisões D2 (falha de um módulo vira aviso) e D3 (sessão anterior presa é restaurada antes da
 nova) estão no ADR 0011 e passaram no teste do PC. Situação do portão: `docs/fase1-portao.md`.
 
-**Último PR mesclado:** #62 (botão "Criar perfil para este aparelho"). **Versão de testes atual:**
-`v0.1.0-preview.3` (com a tela Dispositivos); a `v0.1.0-preview.4` (com o botão) está sendo publicada. A preview.3 foi publicada em 2026-11-23 pelo workflow `preview-release.yml` (zip com o app e o
-auxiliar de gatilho; as anteriores, `preview.1` e `preview.2`, foram testadas no PC do autor e funcionaram; o Windows mostra
-o aviso do SmartScreen porque não há assinatura de código).
+**Último PR mesclado:** #63 (notas da `v0.1.0-preview.4`; antes, #62, o botão "Criar perfil para este aparelho").
+**Versão de testes atual:** `v0.1.0-preview.4`, publicada em 2026-11-23 pelo workflow `preview-release.yml` (zip com o app e o
+auxiliar de gatilho). As versões `preview.1` a `preview.4` foram testadas no PC do autor e funcionaram; o Windows mostra
+o aviso do SmartScreen porque não há assinatura de código.
 
 ## Próximos PRs
 
@@ -22,7 +22,8 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 | PR | O quê | Modelo |
 | --- | --- | --- |
-| a seguir | Tela Log (PR 63); depois o overlay pelo controle (Opus · alto, com ADR) | ver backlog |
+| 64 | Tela Log (fim do `app.log` no app, filtro de avisos e erros, copiar, abrir a pasta) | Sonnet · médio |
+| depois | Overlay pelo controle (Opus · alto, com ADR) | ver backlog |
 
 ## Decisões em aberto
 
@@ -33,7 +34,7 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 Lista viva em `docs/testes-manuais.md`, "Ainda pendente":
 
-- Botão "Criar perfil para este aparelho" (PR 62), na `v0.1.0-preview.4`: testar (passo a passo no arquivo). A tela Dispositivos já foi conferida no PC na preview.3.
+- Tela Log (PR 64): testar na próxima versão de testes (passo a passo no arquivo).
 - Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada).
 - Opcional: relatório de diagnóstico com o caminho do log do Sunshine vazio.
 

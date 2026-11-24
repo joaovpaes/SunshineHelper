@@ -31,6 +31,7 @@ public partial class MainWindow : Window
 
         _statusTimer.Tick += async (_, _) => await RefreshPanelAsync();
         _statusTimer.Tick += (_, _) => RefreshDevicesIfVisible();
+        _statusTimer.Tick += (_, _) => RefreshLogViewIfVisible();
         _statusTimer.Start();
 
         // Not set in XAML: SelectionChanged would fire before PageTitle exists.
@@ -69,7 +70,15 @@ public partial class MainWindow : Window
         ProfilesCard.Visibility = isProfiles ? Visibility.Visible : Visibility.Collapsed;
         bool isDevices = page == "Devices";
         DevicesCard.Visibility = isDevices ? Visibility.Visible : Visibility.Collapsed;
-        NotReadyCard.Visibility = isPanel || isGeneral || isProfiles || isDevices ? Visibility.Collapsed : Visibility.Visible;
+        bool isLog = page == "Log";
+        LogCard.Visibility = isLog ? Visibility.Visible : Visibility.Collapsed;
+        NotReadyCard.Visibility = isPanel || isGeneral || isProfiles || isDevices || isLog ? Visibility.Collapsed : Visibility.Visible;
+
+        if (isLog)
+        {
+            LogViewMessage.Text = string.Empty;
+            LoadLogView(force: true);
+        }
 
         if (isDevices)
         {
