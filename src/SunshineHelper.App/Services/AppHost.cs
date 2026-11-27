@@ -302,7 +302,7 @@ internal sealed class AppHost : IAsyncDisposable
         // The watcher's loop must keep reading the controller while a game is being closed
         // (the wait for the game can take seconds), so the action runs on its own task; the
         // service lets only one round run at a time.
-        watcher.ComboFired += (combo, _) =>
+        watcher.ComboFired += (combo, slot) =>
         {
             if (string.Equals(combo.Id, ControllerSettings.CloseGameComboId, StringComparison.Ordinal))
             {
