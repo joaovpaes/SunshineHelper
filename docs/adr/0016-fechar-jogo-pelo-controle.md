@@ -125,7 +125,7 @@ se vier, terá ADR e revisão de segurança próprios.
 - Na configuração atual do autor (Playnite elevado no Sunshine), a função provavelmente vai avisar "roda como
   administrador" até ele desmarcar essa opção no Sunshine. Esse é o primeiro teste no PC.
 - `settings.json` ganha `controller.closeGame` (ligado, combo, tempo de segurar, teto do pedido, encerrar sem
-  confirmação, voltar ao launcher, protegidos), com migração.
+  confirmação, voltar ao launcher, protegidos); arquivo antigo carrega os padrões.
 - Roteiros novos em `docs/testes-manuais.md`: jogo com menu "Sair", jogo sem menu, jogo que pergunta "tem certeza?",
   combo segurado com o Playnite em foco (nada acontece), segunda segurada logo depois de fechar (nada acontece) e
   jogo elevado (aviso).

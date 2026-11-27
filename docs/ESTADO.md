@@ -1,7 +1,7 @@
 # Estado do projeto
 
 Uma página para retomar o trabalho sem reler tudo. O Claude atualiza este arquivo no fim de cada PR
-(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-23**, `main` após o PR 62.
+(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-27**, `main` após o PR 69.
 
 ## Onde estamos
 
@@ -11,7 +11,7 @@ leitor do log do Sunshine, bandeja e janela (Painel, Geral, Perfis), log de diag
 diagnóstico. As decisões D2 (falha de um módulo vira aviso) e D3 (sessão anterior presa é restaurada antes da
 nova) estão no ADR 0011 e passaram no teste do PC. Situação do portão: `docs/fase1-portao.md`.
 
-**Último PR mesclado:** #68 (notas da `v0.1.0-preview.5`; antes, #64 a #67: tela Log, guia, README e regra de revisão do README).
+**Último PR mesclado:** #69 (ADRs 0015 e 0016: overlay e fechar o jogo pelo controle; antes, #68: notas da `v0.1.0-preview.5`).
 **Versão de testes atual:** `v0.1.0-preview.5` (com a tela Log), publicada em 2026-11-23 pelo workflow `preview-release.yml` (zip com o app e o
 auxiliar de gatilho). As versões `preview.1` a `preview.5` foram testadas no PC do autor e funcionaram; o Windows mostra
 o aviso do SmartScreen porque não há assinatura de código.
@@ -22,9 +22,9 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 | PR | O quê | Modelo |
 | --- | --- | --- |
-| 69 | ADR 0015 (overlay pelo controle) e ADR 0016 (fechar o jogo pelo controle), docs, neste PR | Opus · alto |
-| a seguir | PR A do ADR 0015: detector de combo (vários combos) no Domain e a seção `controller` no `settings.json` | Opus · alto |
-| depois | PR B (leitor XInput), C e D (fechar o jogo, ADR 0016), depois E a H do ADR 0015 (gravar combo, protótipo, janela, perfis e ajustes com ADR próprio, atalhos) | ver ADR 0015 |
+| 70 | PR A do ADR 0015: detector de combo (vários combos) no Domain e a seção `controller` no `settings.json` (neste PR; o app ainda não lê o controle) | Opus · alto |
+| a seguir | PR B do ADR 0015: leitor XInput só durante a sessão, combo disparado vira linha no `app.log` | Sonnet · médio |
+| depois | PRs C e D (fechar o jogo, ADR 0016), depois E a H do ADR 0015 (gravar combo, protótipo, janela, perfis e ajustes com ADR próprio, atalhos) | ver ADR 0015 |
 
 ## Decisões em aberto
 
