@@ -32,6 +32,15 @@ public sealed class WindowsGameWindowController : IGameWindowController
     /// <summary>Slack when comparing a child's start time with its parent's.</summary>
     private static readonly TimeSpan _parentTolerance = TimeSpan.FromSeconds(1);
 
+    /// <summary>The id of the process that owns <paramref name="window"/>, or 0 when the
+    /// window no longer exists.</summary>
+    private static unsafe uint OwnerProcessId(HWND window)
+    {
+        uint processId = 0;
+        uint thread = PInvoke.GetWindowThreadProcessId(window, &processId);
+        return thread == 0 ? 0 : processId;
+    }
+
     public ForegroundWindow GetForeground()
     {
         HWND window = PInvoke.GetForegroundWindow();
@@ -40,7 +49,8 @@ public sealed class WindowsGameWindowController : IGameWindowController
             return ForegroundWindow.Nothing;
         }
 
-        if (PInvoke.GetWindowThreadProcessId(window, out uint processId) == 0 || processId == 0)
+        uint processId = OwnerProcessId(window);
+        if (processId == 0)
         {
             return ForegroundWindow.Nothing;
         }
@@ -75,7 +85,7 @@ public sealed class WindowsGameWindowController : IGameWindowController
         }
 
         var handle = new HWND(window);
-        if (PInvoke.GetWindowThreadProcessId(handle, out uint owner) == 0 || owner != (uint)process.Id)
+        if (OwnerProcessId(handle) != (uint)process.Id)
         {
             // The window is gone, or its handle now belongs to another process.
             return WindowCloseResult.Gone;
