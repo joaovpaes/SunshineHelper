@@ -99,8 +99,10 @@ se vier, terá ADR e revisão de segurança próprios.
 
 - **Domain:** o tipo das opções (`CloseGameSettings`) e a validação.
 - **Application:** `CloseGameService`, a máquina "ocioso → pedindo → confirmação pendente → pausa", com as
-  proteções, testada com relógio e controlador de processos falsos. Reaproveita `IProcessController` (ADR 0008),
-  com dois métodos novos: "processo da janela em foco" e "pedir para fechar a janela".
+  proteções em `CloseGameProtection`, testada com relógio, janelas e processos falsos. As operações de janela
+  (janela em foco, pedir para fechar a janela, filhos do processo, encerrar só o processo, trazer à frente) ficam
+  numa interface nova, `IGameWindowController`; esperar, encerrar a árvore e achar o launcher reaproveitam o
+  `IProcessController` do ADR 0008, sem mudar a interface dele.
 - **Infrastructure:** `GetForegroundWindow` e `GetWindowThreadProcessId` (CsWin32), `PostMessage(WM_CLOSE)`,
   encerramento pelo `WindowsProcessController` já existente (que confere PID e horário de novo antes de agir) e
   `SetForegroundWindow` para o launcher.
