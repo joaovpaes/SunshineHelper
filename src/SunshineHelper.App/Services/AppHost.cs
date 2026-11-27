@@ -2,6 +2,7 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using SunshineHelper.Application.Channel;
+using SunshineHelper.Application.Controller;
 using SunshineHelper.Application.Devices;
 using SunshineHelper.Application.Diagnostics;
 using SunshineHelper.Application.Launcher;
@@ -11,6 +12,7 @@ using SunshineHelper.Application.Settings;
 using SunshineHelper.Domain.Monitoring;
 using SunshineHelper.Domain.Settings;
 using SunshineHelper.Infrastructure.Channel;
+using SunshineHelper.Infrastructure.Controller;
 using SunshineHelper.Infrastructure.Diagnostics;
 using SunshineHelper.Infrastructure.Display;
 using SunshineHelper.Infrastructure.Fps;
@@ -40,6 +42,7 @@ internal sealed class AppHost : IAsyncDisposable
     private CancellationTokenSource? _monitorStopping;
     private Task? _monitorTask;
     private Task? _watchdogTask;
+    private Task? _controllerTask;
 
     private AppHost(
         CurrentSettingsHolder settings,
@@ -179,6 +182,7 @@ internal sealed class AppHost : IAsyncDisposable
         pipeServer.Start();
         host.StartLogMonitor();
         host.StartWatchdog();
+        host.StartControllerWatcher();
         return host;
     }
 
@@ -254,6 +258,11 @@ internal sealed class AppHost : IAsyncDisposable
             await _watchdogTask.ConfigureAwait(false);
         }
 
+        if (_controllerTask is not null)
+        {
+            await _controllerTask.ConfigureAwait(false);
+        }
+
         await _pipeServer.DisposeAsync().ConfigureAwait(false);
         _handler.Dispose();
         Devices.Dispose();
@@ -269,6 +278,17 @@ internal sealed class AppHost : IAsyncDisposable
         var watchdog = new SunshineProcessWatchdog(new SunshineProcessProbe(), _handler, _store, TimeProvider.System, _diagnosticLog);
         var token = _stopping.Token;
         _watchdogTask = Task.Run(() => watchdog.RunAsync(SunshineProcessWatchdog.DefaultInterval, token), CancellationToken.None);
+    }
+
+    /// <summary>Reads the controllers during a session and reports the combos the user turned
+    /// on (docs/adr/0015-overlay-pelo-controle.md). For now each combo only writes a line in
+    /// app.log; the actions come in later PRs. Outside a session, or with no combo turned
+    /// on, it does nothing but look once a second.</summary>
+    private void StartControllerWatcher()
+    {
+        var watcher = new ControllerWatcher(new XInputGamepadReader(), _store, Settings, TimeProvider.System, _diagnosticLog);
+        var token = _stopping.Token;
+        _controllerTask = Task.Run(() => watcher.RunAsync(token), CancellationToken.None);
     }
 
     private void StartLogMonitor()

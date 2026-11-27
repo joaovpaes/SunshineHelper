@@ -18,3 +18,6 @@ DisplayConfigSetDeviceInfo
 // above on its own — they need to be listed by name.
 DISPLAYCONFIG_GET_ADVANCED_COLOR_INFO
 DISPLAYCONFIG_SET_ADVANCED_COLOR_STATE
+
+// Controller/XInputGamepadReader.cs (digital buttons of Xbox-style controllers)
+XInputGetState

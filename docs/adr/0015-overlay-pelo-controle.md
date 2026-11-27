@@ -97,6 +97,19 @@ destrói nada, então pode segurar menos que o "fechar o jogo". O autor confirma
   completa (controle virtual intermediário com ViGEm e HidHide) continua na Fase 4, opcional.
 - Enquanto o overlay está aberto, o combo não o reabre; **B** na tela inicial fecha.
 
+**Navegação: o padrão do controle de Xbox (decisão do autor, 2026-11-27).** Em todas as telas e janelas de
+confirmação:
+
+- **A confirma** (abre, aplica, dispara, confirma) e **B volta** (sobe um nível, cancela e, na tela inicial, fecha o
+  overlay). Nunca o contrário, nem em telas novas.
+- O direcional (ou o analógico esquerdo) move o foco; esquerda e direita trocam o valor onde há valor.
+- **X** e **Y** são ações secundárias da tela e aparecem sempre no rodapé, com a cor do botão (A verde, B vermelho,
+  X azul, Y amarelo). Hoje: Janelas (X fecha, Y finaliza) e Ajustes (Y desfaz).
+- Uma confirmação de ação destrutiva mostra só **A Confirmar** e **B Cancelar**.
+
+O protótipo navegável do overlay (artifact, 2026-11-27) foi **aprovado pelo autor** como referência visual; a janela
+real (PR F) o segue.
+
 ### 4. O que entra em cada PR (ordem)
 
 Primeiro o "fechar o jogo" (pedido do autor), depois o overlay.
