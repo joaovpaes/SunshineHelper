@@ -136,19 +136,20 @@ public sealed class WindowsGameWindowControllerTests : IDisposable
 
     private async Task<List<ProcessIdentity>> WaitForChildrenAsync(ProcessIdentity parent)
     {
-        // The child starts a moment after the parent does.
+        // The ping starts a moment after cmd does (and cmd's console host shows up first).
+        var children = new List<ProcessIdentity>();
         for (int attempt = 0; attempt < 50; attempt++)
         {
-            var children = _controller.GetDescendants(parent).ToList();
-            if (children.Count > 0)
+            children = _controller.GetDescendants(parent).ToList();
+            if (children.Any(child => child.Name.Equals("ping", StringComparison.OrdinalIgnoreCase)))
             {
-                return children;
+                break;
             }
 
             await Task.Delay(100, TestContext.Current.CancellationToken);
         }
 
-        return [];
+        return children;
     }
 
     private ProcessIdentity IdentityOf(Process process, string name) =>
