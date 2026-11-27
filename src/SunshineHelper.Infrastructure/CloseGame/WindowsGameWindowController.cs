@@ -136,6 +136,55 @@ public sealed class WindowsGameWindowController : IGameWindowController
         return found;
     }
 
+    public LaunchedWindows GetWindowedDescendants(ProcessIdentity process)
+    {
+        ArgumentNullException.ThrowIfNull(process);
+
+        using (Process? live = WindowsProcessController.FindLive(process))
+        {
+            if (live is null)
+            {
+                return LaunchedWindows.None;
+            }
+        }
+
+        var windows = new List<WindowedProcess>();
+        int notInspectable = 0;
+        foreach (int id in ProcessTree.DescendantsOf(process.Id))
+        {
+            try
+            {
+                using Process child = Process.GetProcessById(id);
+
+                // Found by process id alone, so it works even for a program running as
+                // administrator; zero means no visible top-level window.
+                nint window = child.MainWindowHandle;
+                if (window == 0)
+                {
+                    continue;
+                }
+
+                if (WindowsProcessController.TryIdentify(child) is not { } identity)
+                {
+                    notInspectable++;
+                    continue;
+                }
+
+                // A child cannot be older than its parent; an older one is a recycled PID.
+                if (identity.StartedAt >= process.StartedAt - _parentTolerance)
+                {
+                    windows.Add(new WindowedProcess(identity, window));
+                }
+            }
+            catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or Win32Exception)
+            {
+                // Ended since the snapshot, or out of reach.
+            }
+        }
+
+        return new LaunchedWindows(windows, notInspectable);
+    }
+
     public async Task<bool> KillProcessAsync(ProcessIdentity process, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(process);

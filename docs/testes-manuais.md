@@ -420,6 +420,11 @@ na hora, sem reiniciar o app. Use um jogo que **não** rode como administrador (
 - [ ] **Jogo com menu "Sair" ou que fecha normal:** abra o jogo pelo Playnite numa transmissão e segure Select + Y
       por 5 s. O jogo fecha, o Playnite volta para a frente e o log mostra `asked '<jogo>' to close`, depois
       `'<jogo>' closed` e `brought 'Playnite...' to the front`.
+- [ ] **Playnite em tela cheia com o foco** (o primeiro teste, em 2026-11-27, falhou aqui: o log dizia
+      `'Playnite.FullscreenApp' is protected (it is the launcher)` com o jogo na tela): abra o jogo pelo Playnite e
+      segure o combo. Agora o log deve dizer `'Playnite.FullscreenApp' (the launcher) is in front; closing the game it
+      started, '<jogo>'` e o jogo fecha. Se aparecer `started 2 programs with a window ... (nomes)` ou
+      `started no game with a window`, mande a linha: ela diz o que o app viu.
 - [ ] **O Playnite não fecha junto:** logo depois de o jogo fechar, segure o combo de novo, de propósito, com o
       Playnite na frente. Nada pode fechar: o log mostra `combo ignored: pause after the last round` (primeiros 5 s)
       ou `'Playnite...' is protected (it is the launcher)`.

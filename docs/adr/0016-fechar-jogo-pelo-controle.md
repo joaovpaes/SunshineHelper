@@ -1,7 +1,7 @@
 # 0016. Fechar o jogo pelo controle sem atingir outro programa
 
 - Status: proposta
-- Data: 2026-11-27
+- Data: 2026-11-27 (revista no mesmo dia, depois do primeiro teste no PC: jogo do launcher em foco)
 
 ## Contexto
 
@@ -44,6 +44,17 @@ O app **recusa** (não faz nada, escreve o motivo no `app.log`) quando o process
 4. **começou antes da sessão** (com 1 s de folga): navegador, Discord, Steam e tudo que já estava aberto ficam a
    salvo; só o que abriu durante a transmissão pode ser fechado;
 5. não pode ser inspecionado (o Windows nega o acesso): o app não adivinha.
+
+**Quando o launcher está em foco** (regra 2), o launcher continua intocável, mas o app procura o jogo que ele
+abriu: um processo **descendente do launcher** (filho, neto...) com **janela visível**, que **começou durante a
+sessão** e que não cai em nenhuma das proteções acima. Se houver **exatamente um**, ele vira o alvo, com a mesma
+identidade guardada (PID e horário de início) e os mesmos passos abaixo. Com nenhum, o app não faz nada; com mais de
+um, também não adivinha e escreve no log os nomes que viu. Se o filho com janela não puder ser inspecionado
+(administrador), o app dá o aviso da seção 6.
+
+Motivo (teste no PC do autor, 2026-11-27): com o Playnite em tela cheia, o jogo aparecia na tela, mas o Windows
+dizia que a janela em foco era a do Playnite, e o combo não fazia nada. Jogos abertos por outro launcher a partir
+do Playnite (Steam, EA) não são filhos dele; esse caso fica para depois, se aparecer.
 
 A regra 2 é a que resolve o caso do Playnite. Se a lista do launcher estiver vazia, a tela avisa ao ligar a
 função: "Sem o nome do launcher, o combo pode fechá-lo se ele estiver em foco."
@@ -113,7 +124,8 @@ se vier, terá ADR e revisão de segurança próprios.
   não deixa responder o "tem certeza?". Fica como opção desligada.
 - **Fechar sempre o último processo aberto pelo launcher** (filho do Playnite) em vez da janela em foco: não
   depende do foco, mas erra com jogos que abrem por outro launcher (Steam, EA) ou por um processo intermediário.
-  A janela em foco é o que o jogador está vendo.
+  A janela em foco é o que o jogador está vendo. Ficou só como **segunda opção**, quando o foco está no próprio
+  launcher, e só com um candidato único (ver "Quem é o alvo").
 - **Confirmar numa janela na tela:** precisa do overlay, que vem depois. A segunda segurada funciona já, sem
   janela; quando o overlay existir, ele pode mostrar "Segure de novo para encerrar".
 - **Rodar o app como administrador:** resolveria o R10, mas aumenta muito o estrago de qualquer erro e contraria

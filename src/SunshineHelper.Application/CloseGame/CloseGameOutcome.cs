@@ -21,6 +21,10 @@ public enum CloseGameResult
     /// <summary>The program in the foreground is protected; nothing was done.</summary>
     Protected,
 
+    /// <summary>The launcher is in the foreground and it started more than one program with
+    /// a window during the stream; the app does not guess which one is the game.</summary>
+    AmbiguousTarget,
+
     /// <summary>The program in the foreground cannot be inspected (usually it runs as
     /// administrator); nothing was done.</summary>
     NotInspectable,

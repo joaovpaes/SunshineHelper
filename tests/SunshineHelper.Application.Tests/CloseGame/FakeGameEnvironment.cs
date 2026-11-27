@@ -23,6 +23,12 @@ internal sealed class FakeGameEnvironment : IGameWindowController, IProcessContr
 
     public Dictionary<int, List<ProcessIdentity>> Children { get; } = new();
 
+    /// <summary>Descendants with a visible window, by the PID of the process that started them.</summary>
+    public Dictionary<int, List<WindowedProcess>> WindowedChildren { get; } = new();
+
+    /// <summary>Descendants with a window that cannot be inspected, by parent PID.</summary>
+    public Dictionary<int, int> HiddenChildren { get; } = new();
+
     public bool BringToFrontWorks { get; set; } = true;
 
     /// <summary>When set, <see cref="WaitForExitAsync"/> waits for it before answering.</summary>
@@ -68,6 +74,29 @@ internal sealed class FakeGameEnvironment : IGameWindowController, IProcessContr
 
     public IReadOnlyList<ProcessIdentity> GetDescendants(ProcessIdentity process) =>
         Children.TryGetValue(process.Id, out var children) ? children : [];
+
+    public LaunchedWindows GetWindowedDescendants(ProcessIdentity process)
+    {
+        Calls.Add($"windowedChildren:{process.Id}");
+        List<WindowedProcess> windows = WindowedChildren.TryGetValue(process.Id, out var found)
+            ? found.Where(child => Running.Contains(child.Process)).ToList()
+            : [];
+        return new LaunchedWindows(windows, HiddenChildren.GetValueOrDefault(process.Id));
+    }
+
+    /// <summary>Starts <paramref name="name"/> as a windowed child of <paramref name="parent"/>.</summary>
+    public ProcessIdentity StartWindowedChild(ProcessIdentity parent, int id, string name, DateTimeOffset startedAt)
+    {
+        var child = Start(id, name, startedAt);
+        if (!WindowedChildren.TryGetValue(parent.Id, out var list))
+        {
+            list = [];
+            WindowedChildren[parent.Id] = list;
+        }
+
+        list.Add(new WindowedProcess(child, id * 10));
+        return child;
+    }
 
     public Task<bool> KillProcessAsync(ProcessIdentity process, CancellationToken cancellationToken)
     {

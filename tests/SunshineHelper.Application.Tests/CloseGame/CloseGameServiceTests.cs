@@ -17,6 +17,7 @@ public class CloseGameServiceTests
     private static readonly DateTimeOffset _sessionStart = new(2026, 11, 27, 20, 0, 0, TimeSpan.Zero);
     private static readonly string[] _noNames = [];
     private static readonly string[] _gameProtected = ["Hades2.exe"];
+    private static readonly string[] _helperProtected = ["PlayniteHelper"];
 
     private readonly FakeGameEnvironment _env = new();
     private readonly FakeSessionSnapshotStore _store = new();
@@ -134,6 +135,116 @@ public class CloseGameServiceTests
         outcome.Protection.ShouldBe(CloseGameProtectionReason.Launcher);
         _env.Calls.ShouldNotContain(c => c.StartsWith("closeWindow", StringComparison.Ordinal));
         _env.Running.ShouldContain(_playnite);
+    }
+
+    [Fact]
+    public async Task Launcher_em_foco_fecha_o_jogo_que_ele_abriu()
+    {
+        // Playnite em tela cheia fica com o foco enquanto o emulador mostra o jogo.
+        var emulator = _env.StartWindowedChild(_playnite, 300, "Ryujinx", _sessionStart.AddMinutes(5));
+        _env.ClosesPolitely.Add(emulator.Id);
+        _env.Focus(_playnite);
+
+        var outcome = await HoldAsync();
+
+        outcome.Result.ShouldBe(CloseGameResult.Closed);
+        outcome.ProcessName.ShouldBe("Ryujinx");
+        _env.Calls.ShouldContain("closeWindow:300:3000");
+        _env.Running.ShouldContain(_playnite);
+        _env.Running.ShouldNotContain(emulator);
+        _log.Contains(DiagnosticLevel.Info, "closing the game it started, 'Ryujinx'").ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task Launcher_em_foco_com_dois_programas_com_janela_nao_adivinha()
+    {
+        _env.StartWindowedChild(_playnite, 300, "Ryujinx", _sessionStart.AddMinutes(5));
+        _env.StartWindowedChild(_playnite, 400, "OutroJogo", _sessionStart.AddMinutes(6));
+        _env.Focus(_playnite);
+
+        var outcome = await HoldAsync();
+
+        outcome.Result.ShouldBe(CloseGameResult.AmbiguousTarget);
+        _env.Calls.ShouldNotContain(c => c.StartsWith("closeWindow", StringComparison.Ordinal));
+        _log.Contains(DiagnosticLevel.Info, "Ryujinx, OutroJogo").ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task Filho_do_launcher_aberto_antes_da_transmissao_nao_e_alvo()
+    {
+        _env.StartWindowedChild(_playnite, 300, "Ryujinx", _sessionStart.AddMinutes(-10));
+        _env.Focus(_playnite);
+
+        var outcome = await HoldAsync();
+
+        outcome.Result.ShouldBe(CloseGameResult.Protected);
+        outcome.Protection.ShouldBe(CloseGameProtectionReason.Launcher);
+        _env.Calls.ShouldNotContain(c => c.StartsWith("closeWindow", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Filho_protegido_do_launcher_e_ignorado_e_o_jogo_e_o_alvo()
+    {
+        _settings.Current = Settings(protectedNames: _helperProtected);
+        _env.StartWindowedChild(_playnite, 300, "PlayniteHelper", _sessionStart.AddMinutes(1));
+        var game = _env.StartWindowedChild(_playnite, 400, "Ryujinx", _sessionStart.AddMinutes(5));
+        _env.ClosesPolitely.Add(game.Id);
+        _env.Focus(_playnite);
+
+        var outcome = await HoldAsync();
+
+        outcome.Result.ShouldBe(CloseGameResult.Closed);
+        outcome.ProcessName.ShouldBe("Ryujinx");
+        _env.Calls.ShouldNotContain("closeWindow:300:3000");
+    }
+
+    [Fact]
+    public async Task Jogo_do_launcher_que_nao_pode_ser_inspecionado_avisa_do_administrador()
+    {
+        _env.HiddenChildren[_playnite.Id] = 1;
+        _env.Focus(_playnite);
+
+        var outcome = await HoldAsync();
+
+        outcome.Result.ShouldBe(CloseGameResult.NotInspectable);
+        _log.Contains(DiagnosticLevel.Warning, "administrator").ShouldBeTrue();
+        _env.Calls.ShouldNotContain(c => c.StartsWith("closeWindow", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Jogo_do_launcher_que_ignora_o_pedido_e_encerrado_na_segunda_segurada()
+    {
+        var emulator = _env.StartWindowedChild(_playnite, 300, "Ryujinx", _sessionStart.AddMinutes(5));
+        _env.Focus(_playnite);
+
+        var first = await HoldAsync();
+        first.Result.ShouldBe(CloseGameResult.AwaitingConfirmation);
+        first.ProcessName.ShouldBe("Ryujinx");
+
+        Advance(TimeSpan.FromSeconds(3));
+        var second = await HoldAsync();
+
+        second.Result.ShouldBe(CloseGameResult.Forced);
+        _env.Calls.ShouldContain("killTree:300");
+        _env.Calls.ShouldNotContain("killTree:100");
+        _env.Running.ShouldContain(_playnite);
+        _env.Running.ShouldNotContain(emulator);
+    }
+
+    [Fact]
+    public async Task Depois_de_fechar_o_jogo_do_launcher_o_launcher_sozinho_nao_e_alvo()
+    {
+        var emulator = _env.StartWindowedChild(_playnite, 300, "Ryujinx", _sessionStart.AddMinutes(5));
+        _env.ClosesPolitely.Add(emulator.Id);
+        _env.Focus(_playnite);
+        (await HoldAsync()).Result.ShouldBe(CloseGameResult.Closed);
+
+        Advance(CloseGameService.Cooldown + TimeSpan.FromSeconds(1));
+        var again = await HoldAsync();
+
+        again.Result.ShouldBe(CloseGameResult.Protected);
+        _env.Running.ShouldContain(_playnite);
+        _env.Calls.ShouldNotContain("killTree:100");
     }
 
     [Theory]

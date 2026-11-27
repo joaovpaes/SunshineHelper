@@ -51,6 +51,28 @@ public sealed class WindowsGameWindowControllerTests : IDisposable
     }
 
     [Fact]
+    public async Task GetWindowedDescendants_ignora_filhos_sem_janela()
+    {
+        var parent = StartTree();
+        var parentIdentity = IdentityOf(parent, "cmd");
+        await WaitForChildrenAsync(parentIdentity);
+
+        var launched = _controller.GetWindowedDescendants(parentIdentity);
+
+        // ping and the console host run without a visible window.
+        launched.Windows.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void GetWindowedDescendants_de_processo_que_nao_existe_devolve_vazio()
+    {
+        var parent = StartTree();
+        var stale = IdentityOf(parent, "cmd") with { StartedAt = DateTimeOffset.UtcNow.AddHours(-3) };
+
+        _controller.GetWindowedDescendants(stale).ShouldBe(LaunchedWindows.None);
+    }
+
+    [Fact]
     public async Task KillProcessAsync_encerra_so_o_pai_e_deixa_o_filho()
     {
         var parent = StartTree();
