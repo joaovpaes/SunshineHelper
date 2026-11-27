@@ -372,6 +372,41 @@ Passe a tabela preenchida: o padrão do atraso só muda com esses números.
       case com o seu Moonlight, conecte, confira que a resolução/HDR/FPS mudam, desconecte e
       confira que voltam.
 
+## PR B do ADR 0015 — leitor do controle (XInput)
+
+Ainda sem tela: o combo só aparece como linha no `app.log` (aba **Log** do app). O "fechar o jogo" vem
+**desligado** de fábrica, então este teste começa ligando-o à mão no `settings.json` (a caixa na tela Geral vem
+no PR D).
+
+Antes: no Sunshine, deixe a opção `gamepad` em `x360` (um controle virtual no estilo PlayStation não é visto
+pelo XInput). Feche o app. Abra `%LOCALAPPDATA%\SunshineHelper\settings.json` e, no fim, antes da última
+chave, acrescente (ou edite, se já existir) esta parte, com uma vírgula depois da seção anterior:
+
+```json
+"controller": {
+  "closeGame": { "enabled": true }
+}
+```
+
+- [ ] Abra o app e **sem transmitir** segure Select + Y por 10 s num controle ligado ao PC: nada aparece no
+      `app.log` (o app só lê o controle durante a transmissão).
+- [ ] Inicie uma transmissão pelo Moonlight. No `app.log` aparecem
+      `watching the controllers for 1 combo(s): closeGame` e `controller 0 connected (Xbox-style, read by XInput)`
+      (o número pode ser outro).
+- [ ] Pelo Moonlight, segure Select + Y por 5 s: aparece **uma** linha
+      `combo 'closeGame' fired on controller 0 (held 5000 ms)`. Continue segurando por mais 10 s: nenhuma linha nova.
+- [ ] Solte tudo e segure de novo por 5 s: aparece outra linha.
+- [ ] Segure Select + Y e, antes dos 5 s, aperte X também: não dispara. Solte o X e segure o combo certinho por 5 s:
+      dispara.
+- [ ] Segure Select + Y por 3 s e solte: não dispara.
+- [ ] Encerre a transmissão e segure o combo no controle do aparelho de novo (se ainda estiver ligado ao PC): nada
+      no log.
+- [ ] Veja o uso de CPU do app no Gerenciador de Tarefas durante a transmissão (esperado: menos de 1%).
+- [ ] Se o controle virtual for do tipo PlayStation: confirme que **não** aparece a linha "connected". Isso é o
+      limite conhecido (ADR 0015).
+
+Depois do teste, desligue (`"enabled": false`) ou apague a seção `controller` se não quiser o combo ligado.
+
 ## Automatizar isto (pendência, sem PR ainda)
 
 Pedido do autor: transformar estes itens em testes automáticos de verdade, em

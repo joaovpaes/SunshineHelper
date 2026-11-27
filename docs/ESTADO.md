@@ -1,7 +1,7 @@
 # Estado do projeto
 
 Uma página para retomar o trabalho sem reler tudo. O Claude atualiza este arquivo no fim de cada PR
-(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-27**, `main` após o PR 69.
+(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-27**, `main` após o PR 70.
 
 ## Onde estamos
 
@@ -11,7 +11,7 @@ leitor do log do Sunshine, bandeja e janela (Painel, Geral, Perfis), log de diag
 diagnóstico. As decisões D2 (falha de um módulo vira aviso) e D3 (sessão anterior presa é restaurada antes da
 nova) estão no ADR 0011 e passaram no teste do PC. Situação do portão: `docs/fase1-portao.md`.
 
-**Último PR mesclado:** #69 (ADRs 0015 e 0016: overlay e fechar o jogo pelo controle; antes, #68: notas da `v0.1.0-preview.5`).
+**Último PR mesclado:** #70 (detector de combo e seção `controller`; antes, #69: ADRs 0015 e 0016, overlay e fechar o jogo pelo controle).
 **Versão de testes atual:** `v0.1.0-preview.5` (com a tela Log), publicada em 2026-11-23 pelo workflow `preview-release.yml` (zip com o app e o
 auxiliar de gatilho). As versões `preview.1` a `preview.5` foram testadas no PC do autor e funcionaram; o Windows mostra
 o aviso do SmartScreen porque não há assinatura de código.
@@ -22,9 +22,9 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 | PR | O quê | Modelo |
 | --- | --- | --- |
-| 70 | PR A do ADR 0015: detector de combo (vários combos) no Domain e a seção `controller` no `settings.json` (neste PR; o app ainda não lê o controle) | Opus · alto |
-| a seguir | PR B do ADR 0015: leitor XInput só durante a sessão, combo disparado vira linha no `app.log` | Sonnet · médio |
-| depois | PRs C e D (fechar o jogo, ADR 0016), depois E a H do ADR 0015 (gravar combo, protótipo, janela, perfis e ajustes com ADR próprio, atalhos) | ver ADR 0015 |
+| 71 | PR B do ADR 0015: leitor XInput só durante a sessão; o combo disparado vira uma linha no `app.log` (neste PR; precisa de teste no PC, roteiro em `docs/testes-manuais.md`) | Sonnet · médio |
+| a seguir | PR C do ADR 0016: regras do "fechar o jogo" (alvo, proteções, confirmação, pausa) na camada Application | Opus · alto |
+| depois | PR D (fechar o jogo no Windows e caixa na tela Geral), depois E a H do ADR 0015 (gravar combo, protótipo, janela, perfis e ajustes com ADR próprio, atalhos) | ver ADR 0015 |
 
 ## Decisões em aberto
 
@@ -36,6 +36,7 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 Lista viva em `docs/testes-manuais.md`, "Ainda pendente":
 
 - Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada).
+- Leitor do controle (PR B): roteiro em `docs/testes-manuais.md`, "PR B do ADR 0015".
 - Opcional: relatório de diagnóstico com o caminho do log do Sunshine vazio.
 
 ## Backlog (sem PR marcado)
