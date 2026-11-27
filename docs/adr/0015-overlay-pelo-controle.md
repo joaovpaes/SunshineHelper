@@ -1,7 +1,7 @@
 # 0015. Overlay pelo controle: leitura do controle, combo e janela (Fase 2)
 
 - Status: proposta
-- Data: 2026-11-23
+- Data: 2026-11-23 (revista em 2026-11-27 com as respostas do autor)
 
 ## Contexto
 
@@ -10,6 +10,16 @@ resolução, HDR e limite de FPS na hora, listar e fechar janelas e processos e 
 tudo de longe, só com o controle. O autor definiu: combo e tempo de segurar configuráveis, e **Start + Select
 não pode ser o atalho**. A tabela de modelo e esforço põe a máquina de estados do combo (Fase 2) e a proteção e o
 encerramento de processos (Fase 3) em Opus · esforço alto.
+
+Respostas do autor (2026-11-24) que mudaram esta proposta:
+
+- **Select + Y segurando 5 s fecha o jogo em foco** (combo e tempo configuráveis). A ideia veio do AutoHotkey
+  que ele usa hoje para fechar o jogo e voltar ao Playnite. Esse comando **não pode vazar** para outro programa
+  (fechar o Playnite sem querer logo depois de fechar o jogo), e há jogos sem menu "Sair". Essa ação ganhou ADR
+  próprio, o [0016](0016-fechar-jogo-pelo-controle.md), e vem **antes** das telas do overlay.
+- O overlay abre com **outro combo**, também configurável.
+- Combinação exata (um botão a mais cancela): confirmada.
+- Na v1, o controle só é lido durante a transmissão: confirmado.
 
 Fatos que pesam na decisão:
 
@@ -52,17 +62,27 @@ Domain, sem relógio nem Windows, para ser testado com sequências inventadas.
   daquele controle.
 - Os gatilhos analógicos (LT e RT) e os direcionais analógicos **não** entram no combo na v1: só botões digitais
   (A, B, X, Y, LB, RB, Start, Back, L3, R3 e o direcional).
-- Cada controle tem o seu estado; qualquer um dos quatro pode abrir o overlay.
+- Cada controle tem o seu estado; qualquer um dos quatro pode disparar.
+- O mesmo detector vigia **vários combos** (hoje dois: "fechar o jogo" e "abrir o overlay"); cada um tem o seu
+  tempo de segurar. Como a combinação é exata, Select + Y e Select + Y + X são combos diferentes e não disparam
+  um ao outro.
 
-Regras de validação do combo (o app recusa salvar e diz por quê):
+Regras de validação de cada combo (o app recusa salvar e diz por quê):
 
 - de **2 a 4 botões**;
 - **não pode conter Start e Back juntos** (cobre Start + Select e o atalho de encerrar do Moonlight);
-- tempo de segurar de **500 a 5000 ms**;
-- o combo de emergência (Fase 3) tem de ser diferente do combo do overlay.
+- tempo de segurar de **500 a 10000 ms**;
+- dois combos ligados não podem ter os mesmos botões.
 
-Padrão sugerido (do plano): **L3 + R3 por 1500 ms**. Fica em `settings.json` (`overlay.openCombo`,
-`overlay.holdMs`), com subida do `schemaVersion` e migração que preenche o padrão.
+Padrões (no `settings.json`, seção `controller`, com subida do `schemaVersion` e migração que preenche o padrão):
+
+| Combo | Botões | Segurar | Ligado de fábrica |
+| --- | --- | --- | --- |
+| Fechar o jogo (ADR 0016) | Select (Back) + Y | 5000 ms | não: o usuário liga com uma caixa de marcar |
+| Abrir o overlay | L3 + R3 | 3000 ms | sim, quando a janela existir (PR F) |
+
+O padrão do overlay é **proposta**: L3 + R3 quase nunca é apertado junto de propósito, e abrir o overlay não
+destrói nada, então pode segurar menos que o "fechar o jogo". O autor confirma ou troca.
 
 ### 3. Janela do overlay
 
@@ -79,18 +99,22 @@ Padrão sugerido (do plano): **L3 + R3 por 1500 ms**. Fica em `settings.json` (`
 
 ### 4. O que entra em cada PR (ordem)
 
+Primeiro o "fechar o jogo" (pedido do autor), depois o overlay.
+
 | PR | O quê | Modelo |
 | --- | --- | --- |
-| A | Domain: detector de combo e validação; `settings.json` com o combo e migração; testes | Opus · alto |
-| B | Infrastructure: leitor XInput só durante a sessão; quando o combo dispara, só uma linha no `app.log` (sem janela). Teste no PC: segurar o combo numa transmissão | Sonnet · médio |
-| C | Tela de configurações "Controle": gravar o combo ("Aperte os botões...") com a barra do tempo de segurar e os avisos das regras | Sonnet · médio |
+| A | Domain: detector de combo (vários combos) e validação; `settings.json` com a seção `controller` e migração; testes | Opus · alto |
+| B | Infrastructure: leitor XInput só durante a sessão; quando um combo dispara, só uma linha no `app.log`. Teste no PC: segurar Select + Y numa transmissão | Sonnet · médio |
+| C | Application: regras do "fechar o jogo" (ADR 0016: alvo, proteção, confirmação, pausa), com testes | Opus · alto |
+| D | Infrastructure e tela: janela em foco, pedido de fechar, encerrar, devolver o foco ao launcher; caixa "Fechar o jogo com o controle" na tela Geral. Teste no PC com jogos de verdade | Sonnet · médio |
+| E | Tela de configurações "Controle": gravar os combos ("Aperte os botões...") com a barra do tempo de segurar e os avisos das regras | Sonnet · médio |
 | — | Protótipo navegável do overlay (artifact HTML) para o autor aprovar antes da janela, como o plano pede | Sonnet · médio |
-| D | Janela do overlay: tela Início, navegação, "Restaurar agora", foco | Sonnet · médio |
-| E | Telas Perfis e Ajustes: trocar de perfil e ajustar no meio da sessão. **Pede ADR próprio**: o orquestrador precisa aplicar um novo ambiente sem perder a foto tirada antes da sessão, para o fim da sessão ainda voltar ao estado original | Opus · alto |
-| F | Tela Atalhos: combinações de teclado criadas pelo usuário (SendInput) | Sonnet · médio |
+| F | Janela do overlay: tela Início, navegação, "Restaurar agora", foco | Sonnet · médio |
+| G | Telas Perfis e Ajustes: trocar de perfil e ajustar no meio da sessão. **Pede ADR próprio**: o orquestrador precisa aplicar um novo ambiente sem perder a foto tirada antes da sessão, para o fim da sessão ainda voltar ao estado original | Opus · alto |
+| H | Tela Atalhos: combinações de teclado criadas pelo usuário (SendInput) | Sonnet · médio |
 
-A **Fase 3** (lista de janelas e processos, fechar e finalizar com lista de proteção e confirmação, combo de
-emergência, tela cheia exclusiva) terá ADR próprio, em Opus · alto, porque um erro ali pode derrubar o PC.
+O que resta da **Fase 3** (lista de janelas e processos no overlay, combo de emergência, tela cheia exclusiva)
+terá ADR próprio, em Opus · alto, e reaproveita a lista de proteção do ADR 0016.
 
 ## Alternativas consideradas
 
@@ -111,9 +135,9 @@ emergência, tela cheia exclusiva) terá ADR próprio, em Opus · alto, porque u
 
 - O detector de combo é testável no CI sem controle nenhum; o leitor XInput e a janela só se validam no PC do autor
   (roteiros em `docs/testes-manuais.md`).
-- `settings.json` ganha a seção `overlay`; versões antigas do arquivo continuam abrindo (migração).
+- `settings.json` ganha a seção `controller`; versões antigas do arquivo continuam abrindo (migração).
 - Quem usa controle no estilo PlayStation precisa pôr o `gamepad` do Sunshine em `x360` até haver suporte; o guia
   e o README dizem isso.
 - O risco R8 continua aberto na v1: o guia explica que, se o Windows recusar a troca de foco, o jogo pode receber
   os botões enquanto o overlay está aberto.
-- A troca de perfil no meio da sessão mexe no núcleo e fica para um ADR próprio antes do PR E.
+- A troca de perfil no meio da sessão mexe no núcleo e fica para um ADR próprio antes do PR G.

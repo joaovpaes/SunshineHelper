@@ -22,9 +22,9 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 | PR | O quê | Modelo |
 | --- | --- | --- |
-| 69 | ADR 0015: overlay pelo controle (docs, neste PR) | Opus · alto |
-| a seguir | PR A do ADR 0015: detector de combo no Domain e o combo no `settings.json` | Opus · alto |
-| depois | PRs B a F do ADR 0015 (leitor XInput, gravar combo, protótipo, janela, perfis e ajustes com ADR próprio, atalhos) | ver ADR 0015 |
+| 69 | ADR 0015 (overlay pelo controle) e ADR 0016 (fechar o jogo pelo controle), docs, neste PR | Opus · alto |
+| a seguir | PR A do ADR 0015: detector de combo (vários combos) no Domain e a seção `controller` no `settings.json` | Opus · alto |
+| depois | PR B (leitor XInput), C e D (fechar o jogo, ADR 0016), depois E a H do ADR 0015 (gravar combo, protótipo, janela, perfis e ajustes com ADR próprio, atalhos) | ver ADR 0015 |
 
 ## Decisões em aberto
 
