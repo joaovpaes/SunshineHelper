@@ -407,6 +407,47 @@ chave, acrescente (ou edite, se já existir) esta parte, com uma vírgula depois
 
 Depois do teste, desligue (`"enabled": false`) ou apague a seção `controller` se não quiser o combo ligado.
 
+## PR D do ADR 0016 — fechar o jogo pelo controle
+
+Agora a função existe de verdade: a caixa **Fechar o jogo com o controle** fica na tela **Geral** (desligada de
+fábrica). O combo padrão é Select + Y por 5 s. Os textos de cada passo estão no `app.log` (aba **Log**), em
+linhas que começam com `closeGame`.
+
+Antes: no Sunshine, `gamepad` em `x360`. No app, na tela **Geral**, ponha o nome do launcher na lista de
+programas (por exemplo `Playnite.FullscreenApp`) e marque **Fechar o jogo que está na frente...**. A mudança vale
+na hora, sem reiniciar o app. Use um jogo que **não** rode como administrador (veja o último item).
+
+- [ ] **Jogo com menu "Sair" ou que fecha normal:** abra o jogo pelo Playnite numa transmissão e segure Select + Y
+      por 5 s. O jogo fecha, o Playnite volta para a frente e o log mostra `asked '<jogo>' to close`, depois
+      `'<jogo>' closed` e `brought 'Playnite...' to the front`.
+- [ ] **O Playnite não fecha junto:** logo depois de o jogo fechar, segure o combo de novo, de propósito, com o
+      Playnite na frente. Nada pode fechar: o log mostra `combo ignored: pause after the last round` (primeiros 5 s)
+      ou `'Playnite...' is protected (it is the launcher)`.
+- [ ] **Combo com o Playnite na frente desde o começo** (sem jogo aberto): nada fecha e o log diz que o launcher é
+      protegido.
+- [ ] **Jogo sem menu "Sair" ou que ignora o pedido:** segure o combo; passados 5 s o log diz
+      `did not close; hold the combo again within 15 s to end it`. Segure de novo dentro de 15 s: o jogo é
+      encerrado (`ended '<jogo>'`) e o Playnite volta.
+- [ ] **Segunda segurada depois dos 15 s:** espere mais de 15 s e segure: o log diz que a confirmação expirou e
+      recomeça do zero (pede para fechar de novo, não encerra direto).
+- [ ] **Jogo que pergunta "tem certeza?":** segure o combo, responda a pergunta com o controle. Se confirmar, o jogo
+      fecha como no primeiro item.
+- [ ] **Programa que já estava aberto antes da transmissão** (navegador, por exemplo) deixado na frente: o combo
+      não fecha nada e o log diz `it was open before the stream began`.
+- [ ] **Sem transmissão:** com a função ligada, segure o combo no controle do PC: nada acontece (o app só lê o
+      controle durante a transmissão).
+- [ ] **Função desligada:** desmarque a caixa e segure o combo: nada acontece e não há linha `fired` no log.
+- [ ] **Encerrar sem pedir confirmação** (marque só para testar): num jogo que ignora o pedido, o jogo é encerrado
+      sozinho depois de 5 s, sem segunda segurada. Desmarque depois.
+- [ ] **Jogo que roda como administrador** (por exemplo aberto pelo Playnite elevado no Sunshine): o app não
+      consegue fechá-lo e o log traz o aviso `... runs as administrator ... untick 'Run as administrator'`. No
+      Sunshine, desmarque "Run as elevated" no app do Playnite e repita o teste do primeiro item.
+- [ ] Esvazie a lista de programas do launcher e marque a caixa de novo: a tela mostra o aviso de que, sem o nome
+      do launcher, o combo pode fechá-lo.
+
+Anote o que acontecer de diferente (principalmente o Playnite não voltar para a frente, que o Windows pode
+recusar: nesse caso o log diz `Windows did not let the app bring ... to the front`).
+
 ## Automatizar isto (pendência, sem PR ainda)
 
 Pedido do autor: transformar estes itens em testes automáticos de verdade, em

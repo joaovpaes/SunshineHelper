@@ -21,3 +21,9 @@ DISPLAYCONFIG_SET_ADVANCED_COLOR_STATE
 
 // Controller/XInputGamepadReader.cs (digital buttons of Xbox-style controllers)
 XInputGetState
+
+// CloseGame/WindowsGameWindowController.cs (foreground window, polite close, bring to front)
+GetForegroundWindow
+GetWindowThreadProcessId
+PostMessage
+SetForegroundWindow

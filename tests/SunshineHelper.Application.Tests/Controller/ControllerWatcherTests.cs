@@ -149,6 +149,21 @@ public class ControllerWatcherTests
     }
 
     [Fact]
+    public void Fim_da_sessao_avisa_uma_vez()
+    {
+        int ended = 0;
+        _watcher.SessionEnded += () => ended++;
+        StartSession();
+        Run(2000);
+        ended.ShouldBe(0);
+
+        EndSession();
+        Run(3000);
+
+        ended.ShouldBe(1);
+    }
+
+    [Fact]
     public void Nova_sessao_conta_do_zero()
     {
         StartSession();

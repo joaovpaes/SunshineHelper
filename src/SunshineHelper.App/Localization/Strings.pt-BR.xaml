@@ -84,6 +84,16 @@
     <sys:String x:Key="General.Launcher.Saved">Salvo. Vale a partir da próxima transmissão.</sys:String>
     <sys:String x:Key="General.Launcher.DelayInvalid">Atraso inválido: use um número inteiro de 0 a 30000.</sys:String>
 
+    <sys:String x:Key="General.CloseGame">Fechar o jogo com o controle</sys:String>
+    <sys:String x:Key="General.CloseGame.Enable">Fechar o jogo que está na frente segurando Select + Y por 5 segundos</sys:String>
+    <sys:String x:Key="General.CloseGame.Hint">Só durante a transmissão. O app primeiro pede para o jogo fechar, como se você clicasse no X. Se o jogo não fechar, segure o combo de novo em até 15 segundos para encerrá-lo. Ele nunca fecha o Windows, o Sunshine, este app, o launcher nem nada que você já tinha aberto antes da transmissão. Precisa da opção gamepad do Sunshine em x360 e de um jogo que não rode como administrador.</sys:String>
+    <sys:String x:Key="General.CloseGame.NoLauncher">A lista de programas a fechar acima está vazia: sem o nome do launcher, o combo pode fechá-lo se ele for o programa que está na frente.</sys:String>
+    <sys:String x:Key="General.CloseGame.Return">Trazer o launcher de volta para a frente depois de fechar o jogo</sys:String>
+    <sys:String x:Key="General.CloseGame.Force">Encerrar o jogo sem pedir confirmação</sys:String>
+    <sys:String x:Key="General.CloseGame.Force.Hint">Desligado de fábrica. Ligado, o jogo que não fecha sozinho é encerrado na hora, e o que ele não tinha salvo se perde.</sys:String>
+    <sys:String x:Key="General.CloseGame.On">Fechar o jogo com o controle está ligado. Vale na hora, inclusive na transmissão atual.</sys:String>
+    <sys:String x:Key="General.CloseGame.Off">Fechar o jogo com o controle está desligado.</sys:String>
+
     <sys:String x:Key="General.Report">Relatório de diagnóstico</sys:String>
     <sys:String x:Key="General.Report.Hint">Descreva o problema com suas palavras (o que você fez, o que esperava e o que aconteceu). O botão junta isso com suas configurações e o fim dos logs num arquivo de texto, que você escolhe onde salvar. Endereços IP e MAC, chaves do Sunshine e o seu nome de usuário do Windows são trocados por marcadores. Nada é enviado pela internet: leia o arquivo antes de compartilhar.</sys:String>
     <sys:String x:Key="General.Report.Generate">Gerar relatório de diagnóstico</sys:String>

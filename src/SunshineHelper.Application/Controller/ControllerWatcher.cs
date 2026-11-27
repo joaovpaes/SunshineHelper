@@ -74,6 +74,10 @@ public sealed class ControllerWatcher
     /// slot (0 to 3). Later PRs hang the real actions here.</summary>
     public event Action<ComboDefinition, int>? ComboFired;
 
+    /// <summary>Raised on the loop's thread when the session the watcher was reading ends,
+    /// so whatever a combo left half-done (a game waiting for a second hold) is forgotten.</summary>
+    public event Action? SessionEnded;
+
     /// <summary>Runs until <paramref name="cancellationToken"/> is cancelled. Meant to live
     /// for the whole life of the app, in the background.</summary>
     public async Task RunAsync(CancellationToken cancellationToken)
@@ -125,6 +129,7 @@ public sealed class ControllerWatcher
                 if (!active)
                 {
                     Stop();
+                    SessionEnded?.Invoke();
                 }
             }
         }

@@ -66,6 +66,24 @@ Windows só aceita se a placa de vídeo oferecer essa resolução como "maior qu
 Se o perfil pedir uma resolução que o driver não oferece, o app **não derruba a transmissão**: ele registra
 "Troca de resolução recusada pelo driver de vídeo" no `app.log` e a sessão segue com a resolução que estava.
 
+## Fechar o jogo com o controle (opcional)
+
+Na tela **Geral**, a caixa **Fechar o jogo com o controle** vem desligada. Ligada, durante uma transmissão você
+segura **Select + Y por 5 segundos** no controle e o app fecha o jogo que está na frente. Ele só olha o controle
+durante a transmissão.
+
+- **Como fecha:** primeiro pede para o jogo fechar, como se você clicasse no X (o jogo pode salvar ou perguntar
+  "tem certeza?"). Se o jogo não fechar em 5 s, segure o combo **de novo em até 15 s** para encerrá-lo. Existe a
+  opção de encerrar sem pedir confirmação, desligada de fábrica.
+- **O que nunca fecha:** o Windows, o Sunshine, este app, o launcher da lista da tela Geral (Playnite, por
+  exemplo) e tudo que já estava aberto antes da transmissão. Depois que o jogo fecha, o combo fica parado por
+  5 s, para não atingir o launcher que volta para a frente. Por isso **preencha a lista de programas do launcher**.
+- **No Sunshine**, deixe a opção `gamepad` em `x360`: um controle virtual no estilo PlayStation não é visto.
+- **Jogo como administrador:** o app não é administrador e o Windows não deixa ele fechar um programa que é. Se o
+  Playnite está com "Run as elevated" no Sunshine, os jogos dele também ficam elevados. O app avisa no `app.log`;
+  a solução é desmarcar "Run as elevated" no app do Playnite, no Sunshine.
+- Combo e tempo de segurar ficam no `settings.json` (seção `controller`); a tela para gravá-los vem depois.
+
 ## O que o app não cobre
 
 - **Problemas do Sunshine com o monitor.** O app não liga, não acorda nem troca o monitor: ele só muda

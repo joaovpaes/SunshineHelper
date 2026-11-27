@@ -2,6 +2,7 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using SunshineHelper.Application.Channel;
+using SunshineHelper.Application.CloseGame;
 using SunshineHelper.Application.Controller;
 using SunshineHelper.Application.Devices;
 using SunshineHelper.Application.Diagnostics;
@@ -12,6 +13,7 @@ using SunshineHelper.Application.Settings;
 using SunshineHelper.Domain.Monitoring;
 using SunshineHelper.Domain.Settings;
 using SunshineHelper.Infrastructure.Channel;
+using SunshineHelper.Infrastructure.CloseGame;
 using SunshineHelper.Infrastructure.Controller;
 using SunshineHelper.Infrastructure.Diagnostics;
 using SunshineHelper.Infrastructure.Display;
@@ -280,15 +282,52 @@ internal sealed class AppHost : IAsyncDisposable
         _watchdogTask = Task.Run(() => watchdog.RunAsync(SunshineProcessWatchdog.DefaultInterval, token), CancellationToken.None);
     }
 
-    /// <summary>Reads the controllers during a session and reports the combos the user turned
-    /// on (docs/adr/0015-overlay-pelo-controle.md). For now each combo only writes a line in
-    /// app.log; the actions come in later PRs. Outside a session, or with no combo turned
-    /// on, it does nothing but look once a second.</summary>
+    /// <summary>Reads the controllers during a session and runs the action behind each combo
+    /// the user turned on (docs/adr/0015-overlay-pelo-controle.md). Today that is closing the
+    /// game in the foreground (docs/adr/0016-fechar-jogo-pelo-controle.md); the overlay joins
+    /// later. Outside a session, or with no combo turned on, it does nothing but look once a
+    /// second.</summary>
     private void StartControllerWatcher()
     {
         var watcher = new ControllerWatcher(new XInputGamepadReader(), _store, Settings, TimeProvider.System, _diagnosticLog);
+        var closeGame = new CloseGameService(
+            new WindowsGameWindowController(),
+            new WindowsProcessController(),
+            Settings,
+            Status,
+            TimeProvider.System,
+            _diagnosticLog);
         var token = _stopping.Token;
+
+        // The watcher's loop must keep reading the controller while a game is being closed
+        // (the wait for the game can take seconds), so the action runs on its own task; the
+        // service lets only one round run at a time.
+        watcher.ComboFired += (combo, _) =>
+        {
+            if (string.Equals(combo.Id, ControllerSettings.CloseGameComboId, StringComparison.Ordinal))
+            {
+                _ = Task.Run(() => RunCloseGameAsync(closeGame, token), CancellationToken.None);
+            }
+        };
+        watcher.SessionEnded += closeGame.Reset;
+
         _controllerTask = Task.Run(() => watcher.RunAsync(token), CancellationToken.None);
+    }
+
+    private async Task RunCloseGameAsync(CloseGameService closeGame, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await closeGame.HandleComboAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _diagnosticLog.Write(DiagnosticLevel.Error, "closeGame", "failed: " + ex.Message);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            // The app is shutting down.
+        }
     }
 
     private void StartLogMonitor()
