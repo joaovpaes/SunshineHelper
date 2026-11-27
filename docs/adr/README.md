@@ -19,5 +19,7 @@ Formato e modelo: `0000-template.md`. Um ADR por arquivo; quando um deles for tr
 | 0012 | Permissão de escrita só no perfil global do RTSS; o app não é elevado | aceita | 2026-11-23 |
 | 0013 | Restaurar sozinho quando o Sunshine encerra no meio da sessão (PR 16) | aceita | 2026-11-23 |
 | 0014 | Registro dos aparelhos que conectaram (`devices.json`) | proposta | 2026-11-23 |
+| 0015 | Overlay pelo controle: leitura do controle (XInput), máquina de estados do combo e janela (Fase 2) | proposta | 2026-11-23 |
+| 0016 | Fechar o jogo pelo controle sem atingir outro programa (Select + Y, proteções, confirmação, pausa) | proposta | 2026-11-27 |
 
 Estado geral do projeto: `docs/ESTADO.md`.
