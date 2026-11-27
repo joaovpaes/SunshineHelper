@@ -32,6 +32,10 @@ public sealed record AppSettings
     /// Optional, so older files load unchanged — no schema bump.</summary>
     public string? Language { get; init; }
 
+    /// <summary>What the controller does during a stream: the close-game combo and the
+    /// overlay combo (docs/adr/0015 and 0016). Optional, so older files load unchanged.</summary>
+    public ControllerSettings Controller { get; init; } = new();
+
     /// <summary>What a brand-new installation starts with: no profiles yet, schema
     /// at the current version, default timing. The UI (Phase 1, PR "Casca da
     /// interface") is where the user actually sets up their first profile.</summary>
@@ -44,5 +48,6 @@ public sealed record AppSettings
         SunshineLogPath = null,
         Language = null,
         Launcher = new LauncherSettings(),
+        Controller = new ControllerSettings(),
     };
 }

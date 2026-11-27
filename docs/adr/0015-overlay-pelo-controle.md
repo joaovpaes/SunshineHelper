@@ -72,9 +72,9 @@ Regras de validação de cada combo (o app recusa salvar e diz por quê):
 - de **2 a 4 botões**;
 - **não pode conter Start e Back juntos** (cobre Start + Select e o atalho de encerrar do Moonlight);
 - tempo de segurar de **500 a 10000 ms**;
-- dois combos ligados não podem ter os mesmos botões.
+- os dois combos não podem ter os mesmos botões (mesmo com o "fechar o jogo" desligado, para não surpreender quem ligar depois).
 
-Padrões (no `settings.json`, seção `controller`, com subida do `schemaVersion` e migração que preenche o padrão):
+Padrões (no `settings.json`, seção `controller`). A seção é opcional: um arquivo antigo carrega os padrões, sem subir o `schemaVersion`, como já acontece com `launcher` e `language`:
 
 | Combo | Botões | Segurar | Ligado de fábrica |
 | --- | --- | --- | --- |
@@ -135,7 +135,7 @@ terá ADR próprio, em Opus · alto, e reaproveita a lista de proteção do ADR 
 
 - O detector de combo é testável no CI sem controle nenhum; o leitor XInput e a janela só se validam no PC do autor
   (roteiros em `docs/testes-manuais.md`).
-- `settings.json` ganha a seção `controller`; versões antigas do arquivo continuam abrindo (migração).
+- `settings.json` ganha a seção `controller`; versões antigas do arquivo continuam abrindo com os padrões.
 - Quem usa controle no estilo PlayStation precisa pôr o `gamepad` do Sunshine em `x360` até haver suporte; o guia
   e o README dizem isso.
 - O risco R8 continua aberto na v1: o guia explica que, se o Windows recusar a troca de foco, o jogo pode receber
