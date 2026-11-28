@@ -520,8 +520,11 @@ Sunshine (pelo Playnite), por exemplo o MKW Recomp elevado. Depois de cada item,
 - [ ] **Sem a permissão:** clique em Remover, abra o jogo de novo e segure o combo: nada fecha, e o log diz "runs as
       administrator, and closing such games is not allowed yet; on the General screen, use 'Allow closing
       administrator games'". (Depois, Permitir de novo.)
-- [ ] **Jogo aberto fora do Sunshine:** (visto sem querer em 2026-11-28: com o Playnite **sem** administrador e o jogo
-      com administrador, a tarefa recusou com "not started by Sunshine"; é o limite do guia) com a transmissão já começada, abra um jogo de administrador **direto no
+- [x] **Playnite sem administrador e jogo com administrador:** passou em 2026-11-28 (05:11). A cadeia medida foi
+      jogo → Playnite (sem administrador) → `sunshine.exe` (SYSTEM), e o modo elevado rodado à mão deu `0`. Uma recusa
+      "not started by Sunshine" às 04:43 ficou sem explicação; se voltar, rodar na hora o script da cadeia de processos
+      (ADR 0017, "Suposição a confirmar").
+- [ ] **Jogo aberto fora do Sunshine:** com a transmissão já começada, abra um jogo de administrador **direto no
       Windows** (clique duplo e "Sim" no aviso), não pelo Playnite, e segure o combo com ele na frente: nada fecha,
       e o log diz "the scheduled task did not close '…': the process was not started by Sunshine".
 - [ ] **Jogo comum continua igual:** um jogo sem administrador fecha como antes, sem passar pela tarefa (o log não
