@@ -46,7 +46,9 @@ where a vulnerability matters most:
   the same user and session, has a visible window and descends from a `sunshine.exe` running as `SYSTEM` or
   elevated. It writes nothing and reads no settings. Anything that makes it act on another process, run
   other code elevated, or that lets the installed copy be replaced without administrator, is in scope. Known
-  and accepted: any program running as you can start the task and close such a game.
+  and accepted: any program running as you can start the task and close such a game, and can change the
+  auxiliary next to the app before you click "Allow" or "Update" (as with any program you approve in UAC;
+  code signing is on the backlog).
 - **The diagnostic report**, which must never leak IPs, MAC addresses, Sunshine keys or the Windows user name.
 
 Out of scope: vulnerabilities in Sunshine, Moonlight, RTSS or Windows themselves (report those to their own
@@ -107,7 +109,8 @@ importam principalmente:
   rodando como `SYSTEM` ou elevado. Não grava nada nem lê configurações. Qualquer forma de fazê-lo agir em
   outro processo, rodar outro código como administrador, ou de trocar a cópia instalada sem administrador,
   está no escopo. Conhecido e aceito: qualquer programa rodando como você pode disparar a tarefa e fechar um
-  jogo assim.
+  jogo assim, e pode trocar o auxiliar ao lado do app antes de você clicar em "Permitir" ou "Atualizar" (como
+  qualquer programa que você aprova no UAC; a assinatura de código está no backlog).
 - **O relatório de diagnóstico**, que nunca pode vazar IPs, MACs, chaves do Sunshine nem o nome de usuário do
   Windows.
 

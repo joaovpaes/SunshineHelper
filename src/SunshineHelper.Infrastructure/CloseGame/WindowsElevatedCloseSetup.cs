@@ -49,8 +49,13 @@ public sealed class WindowsElevatedCloseSetup
     }
 
     /// <summary>Allows (or updates): asks UAC, then the auxiliary copies itself and registers the task.</summary>
-    public Task<ElevatedCloseSetupResult> InstallAsync(CancellationToken cancellationToken) =>
-        RunElevatedAsync(ElevatedCloseContract.InstallVerb, cancellationToken);
+    public Task<ElevatedCloseSetupResult> InstallAsync(CancellationToken cancellationToken)
+    {
+        // The auxiliary compares this with the account that approved UAC and refuses a mismatch.
+        using var identity = WindowsIdentity.GetCurrent();
+        string sid = identity.User?.Value ?? string.Empty;
+        return RunElevatedAsync(ElevatedCloseContract.InstallVerb + " " + sid, cancellationToken);
+    }
 
     /// <summary>Removes: asks UAC, then the auxiliary deletes the task and the installed copy.</summary>
     public Task<ElevatedCloseSetupResult> UninstallAsync(CancellationToken cancellationToken) =>
@@ -77,7 +82,7 @@ public sealed class WindowsElevatedCloseSetup
         return false;
     }
 
-    private async Task<ElevatedCloseSetupResult> RunElevatedAsync(string verb, CancellationToken cancellationToken)
+    private async Task<ElevatedCloseSetupResult> RunElevatedAsync(string arguments, CancellationToken cancellationToken)
     {
         if (!File.Exists(BundledPath))
         {
@@ -86,7 +91,7 @@ public sealed class WindowsElevatedCloseSetup
 
         var info = new ProcessStartInfo(BundledPath)
         {
-            Arguments = verb,
+            Arguments = arguments,
             UseShellExecute = true,
             Verb = "runas",
             WindowStyle = ProcessWindowStyle.Hidden,

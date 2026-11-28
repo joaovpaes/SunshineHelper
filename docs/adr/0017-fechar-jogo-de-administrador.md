@@ -161,9 +161,13 @@ Se a lista chegar a `sunshine.exe`, a regra fica como está. Se não, este ADR �
 - **Este PR:** só o ADR, para aprovação.
 - **D2a:** o modo `elevated-close` no auxiliar, com as regras da seção 3 numa parte pura testada no CI com processos
   falsos (o auxiliar continua sem referência a Application nem Infrastructure).
-- **D2b:** instalar/remover/atualizar (UAC), chamada pelo Agendador de Tarefas, ligação no `CloseGameService`, botões na
-  tela Geral, `SECURITY.md`, guia e roteiro em `docs/testes-manuais.md`.
-- Os dois com Opus · esforço alto e **revisão de segurança por um agente separado** antes de mesclar.
+- **D2b:** instalar/remover/atualizar pelo UAC e a situação na tela Geral, `SECURITY.md`, guia e roteiro em
+  `docs/testes-manuais.md`. Pela revisão de segurança: a pasta instalada é recusada se for um link e recebe
+  permissões explícitas (só administradores gravam); uma tarefa de mesmo nome criada antes por outro programa é
+  apagada antes de criar a nova; e o app manda o SID da conta que clicou, para a instalação recusar se o UAC for
+  aprovado por outra conta de administrador.
+- **D2c:** a chamada pelo Agendador de Tarefas e a ligação no `CloseGameService`.
+- Todos com Opus · esforço alto e **revisão de segurança por um agente separado** antes de mesclar.
 
 ## Alternativas consideradas
 

@@ -100,7 +100,9 @@ confirme o aviso do Windows (uma vez só).
 - **Se aparecer um código:** `40` o aviso do Windows não deu administrador; `41` o app não achou o
   `SunshineHelper.Trigger.exe` ao lado dele; `42` não deu para copiar ou apagar em `Program Files` (feche o que
   estiver usando o arquivo e tente de novo); `43` o Agendador de Tarefas recusou; `44` não deu para ler a sua conta
-  do Windows; `30` erro inesperado.
+  do Windows; `45` o aviso do Windows foi aprovado com **outra** conta de administrador (aprove com a sua);
+  `46` a pasta em `Program Files` não é segura (é um atalho para outro lugar) e nada foi instalado; `30` erro
+  inesperado.
 
 ## O que o app não cobre
 

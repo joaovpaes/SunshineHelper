@@ -107,6 +107,7 @@
     <sys:String x:Key="General.CloseGame.Admin.Remove">Remove</sys:String>
     <sys:String x:Key="General.CloseGame.Admin.Done.Allowed">Done: allowed.</sys:String>
     <sys:String x:Key="General.CloseGame.Admin.Done.Removed">Removed: the scheduled task and the copy in Program Files were deleted.</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.Error">It did not work: {0}</sys:String>
     <sys:String x:Key="General.CloseGame.Admin.Canceled">Canceled at the Windows prompt. Nothing changed.</sys:String>
     <sys:String x:Key="General.CloseGame.Admin.Failed">It did not work (code {0}). The codes are in the guide (LEIA-ME), section "Fechar jogos de administrador".</sys:String>
 

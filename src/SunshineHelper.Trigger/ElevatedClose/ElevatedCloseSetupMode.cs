@@ -29,10 +29,17 @@ internal sealed record ElevatedCloseInstallPaths(string Folder, string Executabl
 /// </summary>
 internal static class ElevatedCloseSetupMode
 {
-    private const int SchtasksTimeoutMs = 30_000;
+    private const int ToolTimeoutMs = 30_000;
 
     private static readonly string[] _queryTask = ["/Query", "/TN", ElevatedCloseContract.TaskName];
     private static readonly string[] _deleteTask = ["/Delete", "/TN", ElevatedCloseContract.TaskName, "/F"];
+
+    // icacls, applied to the install folder and everything in it: first the Administrators group
+    // becomes the owner (an owner can always rewrite permissions, so a folder left by someone else
+    // must not keep its old owner), then every permission goes back to what Program Files hands
+    // down (only administrators and the system write), dropping any extra one found there.
+    private static readonly string[] _ownByAdministrators = ["/setowner", "*S-1-5-32-544", "/T"];
+    private static readonly string[] _resetToInherited = ["/reset", "/T"];
 
     /// <summary>Whether <paramref name="verb"/> selects one of these modes.</summary>
     public static bool IsSetupVerb(string verb) =>
@@ -44,7 +51,10 @@ internal static class ElevatedCloseSetupMode
     {
         try
         {
-            if (args is not [string verb] || !IsSetupVerb(verb))
+            // install <SID of the account that clicked>; uninstall alone.
+            bool install = args is [ElevatedCloseContract.InstallVerb, _];
+            bool uninstall = args is [ElevatedCloseContract.UninstallVerb];
+            if (!install && !uninstall)
             {
                 return (int)ElevatedCloseSetupExitCode.BadArguments;
             }
@@ -57,9 +67,7 @@ internal static class ElevatedCloseSetupMode
             // Known-folder lookups, not environment variables: the user's environment could point
             // %ProgramFiles% or %SystemRoot% somewhere they can write.
             var paths = ElevatedCloseInstallPaths.Under(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles));
-            ElevatedCloseSetupExitCode result = string.Equals(verb, ElevatedCloseContract.InstallVerb, StringComparison.Ordinal)
-                ? Install(paths)
-                : Uninstall(paths);
+            ElevatedCloseSetupExitCode result = install ? Install(paths, args[1]) : Uninstall(paths);
             return (int)result;
         }
         catch (Exception)
@@ -69,7 +77,7 @@ internal static class ElevatedCloseSetupMode
         }
     }
 
-    private static ElevatedCloseSetupExitCode Install(ElevatedCloseInstallPaths paths)
+    private static ElevatedCloseSetupExitCode Install(ElevatedCloseInstallPaths paths, string requestedSid)
     {
         string? source = Environment.ProcessPath;
         if (string.IsNullOrEmpty(source) || !File.Exists(source))
@@ -84,15 +92,37 @@ internal static class ElevatedCloseSetupMode
             return ElevatedCloseSetupExitCode.UserUnknown;
         }
 
+        // The SID from the app is only compared, never used: the task always runs as the account
+        // this elevated process belongs to. A different one means another administrator approved
+        // the UAC prompt, and the task would be useless (and run for the wrong person).
+        if (!string.Equals(requestedSid, userSid, StringComparison.OrdinalIgnoreCase))
+        {
+            return ElevatedCloseSetupExitCode.OtherAccount;
+        }
+
         try
         {
             Directory.CreateDirectory(paths.Folder);
+
+            // The whole design rests on this folder being writable by administrators only. A folder
+            // that already existed (left by something else) is not trusted as found: a link anywhere
+            // in it is refused (writing through one would land somewhere else), and the owner and
+            // permissions are set again.
+            if (IsLink(paths.Folder) || ContainsLinks(paths.Folder))
+            {
+                return ElevatedCloseSetupExitCode.UnsafeFolder;
+            }
+
+            string[] own = [paths.Folder, .. _ownByAdministrators];
+            string[] reset = [paths.Folder, .. _resetToInherited];
+            if (!RunSystemTool("icacls.exe", own) || !RunSystemTool("icacls.exe", reset))
+            {
+                return ElevatedCloseSetupExitCode.UnsafeFolder;
+            }
+
             if (!SamePath(source, paths.Executable))
             {
-                // Copy next to the target first, then swap, so a failed copy never leaves half a file.
-                string staging = paths.Executable + ".new";
-                File.Copy(source, staging, overwrite: true);
-                File.Move(staging, paths.Executable, overwrite: true);
+                CopyLocked(source, paths.Executable);
             }
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
@@ -104,9 +134,13 @@ internal static class ElevatedCloseSetupMode
         string definition = Path.Combine(paths.Folder, "task.xml");
         try
         {
+            File.Delete(definition);
             File.WriteAllText(definition, ElevatedCloseTaskDefinition.Build(userSid, paths), Encoding.Unicode);
+            // A task with this name made earlier by anyone else goes first, so nothing of it (its
+            // permissions included) survives into the new one.
+            _ = RunSystemTool("schtasks.exe", _deleteTask);
             string[] create = ["/Create", "/TN", ElevatedCloseContract.TaskName, "/XML", definition, "/F"];
-            return RunSchtasks(create) ? ElevatedCloseSetupExitCode.Done : ElevatedCloseSetupExitCode.TaskFailed;
+            return RunSystemTool("schtasks.exe", create) ? ElevatedCloseSetupExitCode.Done : ElevatedCloseSetupExitCode.TaskFailed;
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
@@ -120,7 +154,9 @@ internal static class ElevatedCloseSetupMode
 
     private static ElevatedCloseSetupExitCode Uninstall(ElevatedCloseInstallPaths paths)
     {
-        if (RunSchtasks(_queryTask) && !RunSchtasks(_deleteTask))
+        // Delete, then make sure it is gone: "not found" and "deleted" both end with no task.
+        _ = RunSystemTool("schtasks.exe", _deleteTask);
+        if (RunSystemTool("schtasks.exe", _queryTask))
         {
             return ElevatedCloseSetupExitCode.TaskFailed;
         }
@@ -147,10 +183,17 @@ internal static class ElevatedCloseSetupMode
         return ElevatedCloseSetupExitCode.Done;
     }
 
-    private static bool RunSchtasks(IReadOnlyList<string> arguments)
+    /// <summary>Runs a Windows tool from System32 by its full path (never through PATH), from
+    /// System32, without a window; true when it exits with 0.</summary>
+    private static bool RunSystemTool(string tool, string[] arguments)
     {
-        string schtasks = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "schtasks.exe");
-        var info = new ProcessStartInfo(schtasks) { UseShellExecute = false };
+        string system = Environment.GetFolderPath(Environment.SpecialFolder.System);
+        var info = new ProcessStartInfo(Path.Combine(system, tool))
+        {
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            WorkingDirectory = system,
+        };
         foreach (string argument in arguments)
         {
             info.ArgumentList.Add(argument);
@@ -162,13 +205,45 @@ internal static class ElevatedCloseSetupMode
             return false;
         }
 
-        if (!process.WaitForExit(SchtasksTimeoutMs))
+        if (!process.WaitForExit(ToolTimeoutMs))
         {
             process.Kill();
             return false;
         }
 
         return process.ExitCode == 0;
+    }
+
+    /// <summary>Copies while holding the source open for reading only, so it cannot be renamed or
+    /// changed halfway; writes next to the target first, then swaps, so a failed copy never leaves
+    /// half a file.</summary>
+    private static void CopyLocked(string source, string target)
+    {
+        string staging = target + ".new";
+        File.Delete(staging);
+        using (var from = new FileStream(source, FileMode.Open, FileAccess.Read, FileShare.Read))
+        using (var to = new FileStream(staging, FileMode.Create, FileAccess.Write, FileShare.None))
+        {
+            from.CopyTo(to);
+        }
+
+        File.Move(staging, target, overwrite: true);
+    }
+
+    private static bool IsLink(string path) => (File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0;
+
+    private static bool ContainsLinks(string folder)
+    {
+        var options = new EnumerationOptions { RecurseSubdirectories = true, AttributesToSkip = 0, IgnoreInaccessible = false };
+        foreach (string entry in Directory.EnumerateFileSystemEntries(folder, "*", options))
+        {
+            if (IsLink(entry))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static bool SamePath(string? first, string second) =>

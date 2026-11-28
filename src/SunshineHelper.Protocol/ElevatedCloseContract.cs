@@ -20,7 +20,7 @@ public static class ElevatedCloseContract
     public const string TaskName = "SunshineHelper Close Elevated Game";
 
     /// <summary>Copies the auxiliary to the install folder and registers the task. Run elevated,
-    /// through UAC.</summary>
+    /// through UAC, followed by the SID of the account that clicked "Allow".</summary>
     public const string InstallVerb = "install";
 
     /// <summary>Removes the task and the installed copy. Run elevated, through UAC.</summary>
@@ -53,4 +53,12 @@ public enum ElevatedCloseSetupExitCode
 
     /// <summary>The user account could not be read to name the task's principal.</summary>
     UserUnknown = 44,
+
+    /// <summary>The UAC prompt was approved by another administrator account than the one that
+    /// clicked "Allow"; the task would run for the wrong user, so nothing was installed.</summary>
+    OtherAccount = 45,
+
+    /// <summary>The install folder or the installed copy is a link to somewhere else, or its
+    /// permissions could not be locked down to administrators.</summary>
+    UnsafeFolder = 46,
 }

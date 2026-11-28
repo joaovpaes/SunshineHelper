@@ -23,9 +23,11 @@ public sealed class ElevatedCloseSetupTests
         0xE9, 0x03, 0, 0,
     ];
 
-    private static readonly string[] _installTwice = ["install", "install"];
-    private static readonly string[] _installUpper = ["Install"];
-    private static readonly string[] _installAndMore = ["install", "--force"];
+    // None of these may reach the elevated part: on the runner that would really install.
+    private static readonly string[] _installWithoutSid = ["install"];
+    private static readonly string[] _installUpper = ["Install", "S-1-5-18"];
+    private static readonly string[] _installAndMore = ["install", "S-1-5-18", "--force"];
+    private static readonly string[] _uninstallAndMore = ["uninstall", "S-1-5-18"];
 
     [Fact]
     public void Caminhos_ficam_dentro_de_Program_Files()
@@ -115,9 +117,10 @@ public sealed class ElevatedCloseSetupTests
     [Fact]
     public void Argumentos_a_mais_ou_diferentes_sao_recusados_antes_de_qualquer_coisa()
     {
-        ElevatedCloseSetupMode.Run(_installTwice).ShouldBe((int)ElevatedCloseSetupExitCode.BadArguments);
+        ElevatedCloseSetupMode.Run(_installWithoutSid).ShouldBe((int)ElevatedCloseSetupExitCode.BadArguments);
         ElevatedCloseSetupMode.Run(_installUpper).ShouldBe((int)ElevatedCloseSetupExitCode.BadArguments);
         ElevatedCloseSetupMode.Run(_installAndMore).ShouldBe((int)ElevatedCloseSetupExitCode.BadArguments);
+        ElevatedCloseSetupMode.Run(_uninstallAndMore).ShouldBe((int)ElevatedCloseSetupExitCode.BadArguments);
         ElevatedCloseSetupMode.Run([]).ShouldBe((int)ElevatedCloseSetupExitCode.BadArguments);
     }
 

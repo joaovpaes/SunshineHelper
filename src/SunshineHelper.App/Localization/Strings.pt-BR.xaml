@@ -107,6 +107,7 @@
     <sys:String x:Key="General.CloseGame.Admin.Remove">Remover</sys:String>
     <sys:String x:Key="General.CloseGame.Admin.Done.Allowed">Pronto: permitido.</sys:String>
     <sys:String x:Key="General.CloseGame.Admin.Done.Removed">Removido: a tarefa agendada e a cópia em Arquivos de Programas foram apagadas.</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.Error">Não deu certo: {0}</sys:String>
     <sys:String x:Key="General.CloseGame.Admin.Canceled">Cancelado no aviso do Windows. Nada mudou.</sys:String>
     <sys:String x:Key="General.CloseGame.Admin.Failed">Não deu certo (código {0}). Os códigos estão no guia, em "Fechar jogos de administrador".</sys:String>
 

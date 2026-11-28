@@ -23,6 +23,7 @@ public partial class MainWindow : Window
     private readonly AppHost _host;
     private readonly WindowsStartupRegistration _startup = new();
     private readonly WindowsElevatedCloseSetup _elevatedClose = new();
+    private int _elevatedCloseCheck;
     private readonly DispatcherTimer _statusTimer = new() { Interval = TimeSpan.FromSeconds(1) };
     private bool _refreshing;
     private bool _loadingGeneral;
@@ -278,12 +279,20 @@ public partial class MainWindow : Window
     /// Scheduler), so the buttons stay off until the answer is in.</summary>
     private async void RefreshElevatedClose()
     {
+        // Two checks can overlap (opening the screen, then right after allowing); only the last
+        // one may touch the screen, or the buttons could end up showing an older answer.
+        int check = ++_elevatedCloseCheck;
         ElevatedCloseAllowButton.IsEnabled = false;
         ElevatedCloseRemoveButton.IsEnabled = false;
         ElevatedCloseStatus.Text = Text("General.CloseGame.Admin.Checking");
         try
         {
             ElevatedCloseSetupState state = await _elevatedClose.GetStateAsync(CancellationToken.None);
+            if (check != _elevatedCloseCheck)
+            {
+                return;
+            }
+
             ElevatedCloseStatus.Text = Text("General.CloseGame.Admin." + state.ToString());
             ElevatedCloseAllowButton.Content = Text(state == ElevatedCloseSetupState.Outdated
                 ? "General.CloseGame.Admin.Update"
@@ -291,9 +300,13 @@ public partial class MainWindow : Window
             ElevatedCloseAllowButton.IsEnabled = state is ElevatedCloseSetupState.NotAllowed or ElevatedCloseSetupState.Outdated;
             ElevatedCloseRemoveButton.IsEnabled = state is ElevatedCloseSetupState.Allowed or ElevatedCloseSetupState.Outdated;
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException or Win32Exception)
+        catch (Exception ex)
         {
-            ElevatedCloseStatus.Text = string.Format(CultureInfo.CurrentCulture, Text("General.CloseGame.Admin.CheckFailed"), ex.Message);
+            // An event handler must never throw: it would close the app.
+            if (check == _elevatedCloseCheck)
+            {
+                ElevatedCloseStatus.Text = string.Format(CultureInfo.CurrentCulture, Text("General.CloseGame.Admin.CheckFailed"), ex.Message);
+            }
         }
     }
 
@@ -322,9 +335,10 @@ public partial class MainWindow : Window
                 _ => string.Format(CultureInfo.CurrentCulture, Text("General.CloseGame.Admin.Failed"), code),
             };
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException or Win32Exception)
+        catch (Exception ex)
         {
-            GeneralMessage.Text = string.Format(CultureInfo.CurrentCulture, Text("General.CloseGame.Admin.Failed"), ex.Message);
+            // An event handler must never throw: it would close the app.
+            GeneralMessage.Text = string.Format(CultureInfo.CurrentCulture, Text("General.CloseGame.Admin.Error"), ex.Message);
         }
 
         RefreshElevatedClose();
