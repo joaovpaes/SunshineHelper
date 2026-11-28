@@ -1,5 +1,4 @@
 using Shouldly;
-using SunshineHelper.Application.CloseGame;
 using SunshineHelper.Domain.Settings;
 using SunshineHelper.Trigger.ElevatedClose;
 using Xunit;
@@ -266,7 +265,7 @@ public sealed class ElevatedCloseRulesTests : IDisposable
             ElevatedCloseRules.ForbiddenNames.ShouldContain(name);
         }
 
-        foreach (string name in CloseGameProtection.ExtraFixedNames)
+        foreach (string name in SunshineHelper.Application.CloseGame.CloseGameProtection.ExtraFixedNames)
         {
             ElevatedCloseRules.ForbiddenNames.ShouldContain(name);
         }
