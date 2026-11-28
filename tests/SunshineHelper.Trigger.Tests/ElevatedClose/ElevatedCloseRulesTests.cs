@@ -8,7 +8,7 @@ namespace SunshineHelper.Trigger.Tests.ElevatedClose;
 
 /// <summary>The rules of section 3 of ADR 0017, on a made-up process list: services (50) started
 /// sunshine (100), which started Playnite (200), which started the game (300).</summary>
-public sealed class ElevatedCloseRulesTests
+public sealed class ElevatedCloseRulesTests : IDisposable
 {
     private const int GameId = 300;
     private const long GameStart = 3_000;
@@ -242,6 +242,8 @@ public sealed class ElevatedCloseRulesTests
             ElevatedCloseRules.ForbiddenNames.ShouldContain(name);
         }
     }
+
+    public void Dispose() => _game.Dispose();
 
     private ElevatedCloseExitCode Run(ElevatedCloseOperation operation, int processId = GameId, long startTime = GameStart) =>
         ElevatedCloseRules.Run(new ElevatedCloseRequest(operation, processId, startTime), _system);
