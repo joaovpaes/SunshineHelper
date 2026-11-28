@@ -88,7 +88,7 @@ The controller combo to close the game, including games that run as administrato
 ## Planned
 
 - Installer (`SunshineHelper-vX.Y.Z-setup.exe`) and code signing, with `SHA256SUMS.txt`.
-- Gamepad overlay (the close-game combo already exists; the overlay window and a screen to record your own combos come next), and reading PlayStation-style virtual controllers.
+- Gamepad overlay (the close-game combo and the screen to record your own combos already exist; the overlay window comes next), and reading PlayStation-style virtual controllers.
 - Update notice and, later, automatic update.
 
 ## Related projects
@@ -185,7 +185,7 @@ O combo do controle para fechar o jogo, inclusive jogos que rodam como administr
 ### Planejado
 
 - Instalador (`SunshineHelper-vX.Y.Z-setup.exe`) e assinatura de código, com `SHA256SUMS.txt`.
-- Overlay pelo controle (o combo de fechar o jogo já existe; a janela do overlay e a tela para gravar os próprios combos vêm a seguir) e leitura de controles virtuais estilo PlayStation.
+- Overlay pelo controle (o combo de fechar o jogo e a tela para gravar os próprios combos já existem; a janela do overlay vem a seguir) e leitura de controles virtuais estilo PlayStation.
 - Aviso de versão nova e, depois, atualização automática.
 
 ### Contribuir

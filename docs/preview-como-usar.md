@@ -83,7 +83,10 @@ durante a transmissão.
   é. Com a permissão da seção abaixo, o combo fecha esses jogos também. Se o Playnite está com "Run as elevated" no
   Sunshine, os jogos dele ficam todos elevados; se o jogo não precisa disso, o melhor é desmarcar "Run as elevated"
   no app do Playnite, no Sunshine.
-- Combo e tempo de segurar ficam no `settings.json` (seção `controller`); a tela para gravá-los vem depois.
+- **Mudar o combo ou o tempo:** na tela **Controle** (menu à esquerda) clique em **Gravar**, segure os botões do novo combo
+  e solte tudo. O app avisa se a combinação não vale (de 2 a 4 botões, nunca Start + Select juntos, nunca igual à
+  do outro combo). Os botões **−** e **+** mudam o tempo de segurar, e a barra mostra, ao vivo, quanto você já segurou.
+  Se houver transmissão e o combo estiver ligado, segurar até o fim faz mesmo o que o combo faz.
 
 ### Fechar jogos de administrador (opcional)
 

@@ -28,6 +28,7 @@
                     <ListBoxItem Tag="Panel" Content="{DynamicResource Nav.Panel}" />
                     <ListBoxItem Tag="Profiles" Content="{DynamicResource Nav.Profiles}" />
                     <ListBoxItem Tag="Devices" Content="{DynamicResource Nav.Devices}" />
+                    <ListBoxItem Tag="Controller" Content="{DynamicResource Nav.Controller}" />
                     <ListBoxItem Tag="Log" Content="{DynamicResource Nav.Log}" />
                     <ListBoxItem Tag="General" Content="{DynamicResource Nav.General}" />
                 </ListBox>
@@ -193,6 +194,21 @@
                                 Content="{DynamicResource Devices.Forget}" Click="OnForgetDevice" />
                     </StackPanel>
                     <TextBlock x:Name="DevicesMessage" Margin="0,16,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- Controller: record the combos and try the hold time (ADR 0015, PR E). The two
+                 combo blocks are built in MainWindow.Controller.cs. -->
+            <Border x:Name="ControllerCard" Margin="0,32,0,0" Padding="16" Visibility="Collapsed"
+                    Background="{DynamicResource Brush.Panel}"
+                    BorderBrush="{DynamicResource Brush.Line}"
+                    BorderThickness="1"
+                    CornerRadius="{StaticResource Radius.Medium}">
+                <StackPanel x:Name="ControllerHost">
+                    <TextBlock x:Name="ControllerStatusText" Style="{StaticResource Text.Label}" />
+                    <TextBlock Margin="0,8,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap"
+                               Text="{DynamicResource Controller.Hint}" />
+                    <TextBlock x:Name="ControllerMessage" Margin="0,16,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
 

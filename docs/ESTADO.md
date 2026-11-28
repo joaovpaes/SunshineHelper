@@ -23,7 +23,7 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 | PR | O quê | Modelo |
 | --- | --- | --- |
 | a seguir | Testar a `preview.6` instalada (zip) no PC e os itens que faltam do roteiro D2c | (autor) |
-| a seguir | PR E do ADR 0015: tela "Controle" para gravar os combos | Sonnet · médio |
+| neste PR | PR E do ADR 0015: tela "Controle" para gravar os combos (roteiro "PR E do ADR 0015" em `docs/testes-manuais.md`) | Sonnet · médio |
 | depois | PR F a H do ADR 0015 (janela do overlay seguindo o protótipo aprovado, perfis e ajustes com ADR próprio, atalhos) | ver ADR 0015 |
 
 ## Decisões em aberto
