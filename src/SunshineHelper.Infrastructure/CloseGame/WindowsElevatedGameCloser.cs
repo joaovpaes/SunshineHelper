@@ -62,24 +62,26 @@ public sealed class WindowsElevatedGameCloser : IElevatedGameCloser
             task.RunEx(values, 0, 0, string.Empty);
 
             DateTimeOffset deadline = DateTimeOffset.UtcNow + _answerTimeout;
+            int? finishedOnce = null;
             while (DateTimeOffset.UtcNow < deadline)
             {
                 await Task.Delay(_poll, cancellationToken).ConfigureAwait(false);
 
                 // Read again each time, so the state is the scheduler's, not a cached copy.
-                dynamic? current = GetTask((object)service);
-                if (current is null)
+                int? finished = ReadFinished((object)service, lastRunBefore, out bool missing);
+                if (missing)
                 {
                     return new ElevatedCloseAttempt(ElevatedCloseStatus.Unknown);
                 }
 
-                int state = (int)current.State;
-                DateTime lastRun = (DateTime)current.LastRunTime;
-                int result = (int)current.LastTaskResult;
-                if (state != TaskStateRunning && lastRun != lastRunBefore && result is not (TaskStillRunning or TaskNotYetRun))
+                // State, last run and last result are three separate reads; a result is taken only
+                // when two reads in a row agree, so a value left from the previous run is not.
+                if (finished is { } code && finishedOnce == code)
                 {
-                    return new ElevatedCloseAttempt(ElevatedCloseStatus.Finished, result);
+                    return new ElevatedCloseAttempt(ElevatedCloseStatus.Finished, code);
                 }
+
+                finishedOnce = finished;
             }
 
             return new ElevatedCloseAttempt(ElevatedCloseStatus.Unknown);
@@ -118,6 +120,31 @@ public sealed class WindowsElevatedGameCloser : IElevatedGameCloser
             }
 
             await Task.Delay(_exitPoll, cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    /// <summary>The task's result when it has finished the run started after
+    /// <paramref name="lastRunBefore"/>, or null while it has not.</summary>
+    private static int? ReadFinished(object service, DateTime lastRunBefore, out bool missing)
+    {
+        dynamic? current = GetTask(service);
+        missing = current is null;
+        if (current is null)
+        {
+            return null;
+        }
+
+        try
+        {
+            int state = (int)current.State;
+            DateTime lastRun = (DateTime)current.LastRunTime;
+            int result = (int)current.LastTaskResult;
+            bool done = state != TaskStateRunning && lastRun != lastRunBefore && result is not (TaskStillRunning or TaskNotYetRun);
+            return done ? result : null;
+        }
+        finally
+        {
+            Marshal.FinalReleaseComObject((object)current);
         }
     }
 

@@ -743,4 +743,19 @@ public class CloseGameServiceTests
     {
         ElevatedCloseReasons.Describe(code).ShouldContain(expected);
     }
+
+    [Fact]
+    public async Task Transmissao_que_termina_durante_a_espera_nao_deixa_confirmacao_pendente()
+    {
+        _env.WaitGate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        Task<CloseGameOutcome> hold = HoldAsync();
+
+        _service.Reset();
+        _env.WaitGate.SetResult();
+        var outcome = await hold;
+
+        outcome.Result.ShouldBe(CloseGameResult.NoSession);
+        _service.PendingConfirmation.ShouldBeNull();
+        _log.Contains(DiagnosticLevel.Info, "the stream ended meanwhile").ShouldBeTrue();
+    }
 }

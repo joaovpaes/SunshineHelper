@@ -61,6 +61,11 @@ public sealed class CloseGameService
     private readonly Lock _gate = new();
 
     private int _busy;
+
+    /// <summary>How many times <see cref="Reset"/> ran, and its value when the current round
+    /// began: a round that outlives the session must not leave a confirmation behind.</summary>
+    private int _resets;
+    private int _roundResets;
     private Target? _pending;
     private DateTimeOffset _pendingUntil;
     private DateTimeOffset _cooldownUntil;
@@ -128,6 +133,7 @@ public sealed class CloseGameService
             _pending = null;
             _pendingUntil = default;
             _cooldownUntil = default;
+            _resets++;
         }
     }
 
@@ -144,6 +150,7 @@ public sealed class CloseGameService
         Target? pending;
         lock (_gate)
         {
+            _roundResets = _resets;
             if (now < _cooldownUntil)
             {
                 _log.Write(DiagnosticLevel.Info, Area, "combo ignored: pause after the last round");
@@ -271,6 +278,12 @@ public sealed class CloseGameService
 
         lock (_gate)
         {
+            if (_resets != _roundResets)
+            {
+                _log.Write(DiagnosticLevel.Info, Area, "'" + target.Process.Name + "' did not close, and the stream ended meanwhile; nothing waits for a second hold");
+                return new CloseGameOutcome(CloseGameResult.NoSession, target.Process.Name);
+            }
+
             _pending = target;
             _pendingUntil = _time.GetUtcNow() + ConfirmWindow;
         }
