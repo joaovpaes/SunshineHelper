@@ -69,21 +69,20 @@ jobs:
         # the runtime tried to load any of them, the process would fail to start instead of answering
         # 10 (bad arguments).
         shell: pwsh
-        env:
-          DOTNET_GCName: nope-gc.dll
-          DOTNET_GCPath: C:\nope\nope-gc.dll
-          COMPlus_GCName: nope-gc.dll
-          COMPlus_GCPath: C:\nope\nope-gc.dll
-          DOTNET_STARTUP_HOOKS: C:\nope\nope-hook.dll
-          CORECLR_ENABLE_PROFILING: '1'
-          CORECLR_PROFILER: '{00000000-0000-0000-0000-000000000001}'
-          CORECLR_PROFILER_PATH: C:\nope\nope-profiler.dll
-          CORECLR_PROFILER_PATH_64: C:\nope\nope-profiler.dll
-          DOTNET_EnableEventPipe: '1'
         run: |
           $exe = Get-ChildItem -Path src/SunshineHelper.Trigger/bin/Release -Recurse -Filter SunshineHelper.Trigger.exe |
             Where-Object { $_.DirectoryName -like '*publish*' } | Select-Object -First 1
           if (-not $exe) { throw 'Published SunshineHelper.Trigger.exe not found.' }
+          # Set here, not in the step's env: PowerShell is .NET too and must start normally first.
+          $env:DOTNET_GCName = 'nope-gc.dll'
+          $env:DOTNET_GCPath = 'C:\nope\nope-gc.dll'
+          $env:COMPlus_GCName = 'nope-gc.dll'
+          $env:COMPlus_GCPath = 'C:\nope\nope-gc.dll'
+          $env:DOTNET_STARTUP_HOOKS = 'C:\nope\nope-hook.dll'
+          $env:CORECLR_ENABLE_PROFILING = '1'
+          $env:CORECLR_PROFILER = '{00000000-0000-0000-0000-000000000001}'
+          $env:CORECLR_PROFILER_PATH = 'C:\nope\nope-profiler.dll'
+          $env:CORECLR_PROFILER_PATH_64 = 'C:\nope\nope-profiler.dll'
           & $exe.FullName elevated-close close abc 1
           $code = $LASTEXITCODE
           Write-Host "Exit code: $code"
