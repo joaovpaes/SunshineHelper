@@ -3,6 +3,7 @@ using System.IO.Pipes;
 using System.Text;
 using System.Text.Json;
 using SunshineHelper.Protocol;
+using SunshineHelper.Trigger.ElevatedClose;
 
 // SunshineHelper.Trigger: called by Sunshine as a Prep Command (Do/Undo).
 // Rule that must never break (docs/adr/0002-arquitetura-do-nucleo.md):
@@ -30,6 +31,15 @@ const int ReplyGraceMs = 2_000;
 // command before the stream starts: spending the whole barrier here would add 20 s to
 // every single stream start whenever the app happens not to be running.
 const int ConnectTimeoutMs = 2_000;
+
+// A third mode, never run by Sunshine: "elevated-close", started elevated by a scheduled task to
+// close a game that runs as administrator (docs/adr/0017-fechar-jogo-de-administrador.md). It has
+// its own exit codes, and it never reaches the pipe code below. The always-exit-0 rule above is
+// for "start" and "end", which Sunshine runs.
+if (args.Length > 0 && string.Equals(args[0], ElevatedCloseRequest.Verb, StringComparison.Ordinal))
+{
+    return ElevatedCloseMode.Run(args);
+}
 
 try
 {

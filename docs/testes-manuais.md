@@ -417,7 +417,8 @@ Antes: no Sunshine, `gamepad` em `x360`. No app, na tela **Geral**, ponha o nome
 programas (por exemplo `Playnite.FullscreenApp`) e marque **Fechar o jogo que está na frente...**. A mudança vale
 na hora, sem reiniciar o app. Use um jogo que **não** rode como administrador (veja o último item).
 
-- [ ] **Jogo com menu "Sair" ou que fecha normal:** abra o jogo pelo Playnite numa transmissão e segure Select + Y
+- [x] **Jogo com menu "Sair" ou que fecha normal** (2026-11-27, Mortal Shell 2: fechou em 1,6 s e o Playnite voltou;
+      o log disse que o Windows não deixou trazer o Playnite para a frente, mas ele já estava na frente): abra o jogo pelo Playnite numa transmissão e segure Select + Y
       por 5 s. O jogo fecha, o Playnite volta para a frente e o log mostra `asked '<jogo>' to close`, depois
       `'<jogo>' closed` e `brought 'Playnite...' to the front`.
 - [ ] **Playnite em tela cheia com o foco** (o primeiro teste, em 2026-11-27, falhou aqui: o log dizia
@@ -452,6 +453,30 @@ na hora, sem reiniciar o app. Use um jogo que **não** rode como administrador (
 
 Anote o que acontecer de diferente (principalmente o Playnite não voltar para a frente, que o Windows pode
 recusar: nesse caso o log diz `Windows did not let the app bring ... to the front`).
+
+## PR D2a do ADR 0017 — modo `elevated-close` do auxiliar (chamado à mão)
+
+Ainda sem tarefa agendada nem botão (vêm no D2b). Aqui o modo é chamado direto, de um terminal **de administrador**,
+para provar que ele fecha um jogo que roda como administrador e que recusa o resto. O código de saída diz o que
+aconteceu: `0` feito, `11` não achou (PID ou horário errados), `13` nome proibido, `15` não está elevado, `17` não veio
+do Sunshine, `18` sem janela, `20` o Windows recusou, `30` erro inesperado.
+
+Antes: atualize o código (`git pull`) e abra o **PowerShell como administrador** na pasta do projeto. Abra uma
+transmissão e, nela, o SuperOdyssey pelo Playnite.
+
+```powershell
+$g = Get-Process SuperOdysseyRecomp
+dotnet run --project src\SunshineHelper.Trigger -- elevated-close close $g.Id $g.StartTime.ToFileTime(); $LASTEXITCODE
+```
+
+- [ ] **Fechar o jogo elevado:** o comando acima mostra `0` e o jogo fecha (como clicar no X). Se o jogo não fechar
+      mas o código for `0`, troque `close` por `kill` e repita: o jogo é encerrado.
+- [ ] **Horário errado:** repita com `($g.StartTime.ToFileTime() + 1)` no lugar do horário: mostra `11` e nada fecha.
+- [ ] **Programa comum:** troque o jogo pelo Playnite (`$g = Get-Process Playnite.FullscreenApp`): mostra `15` (o app
+      fecha programas comuns sozinho) e nada fecha.
+- [ ] **Nome proibido:** `$g = Get-Process explorer | Select-Object -First 1`: mostra `13` e nada fecha.
+- [ ] **Fora do Sunshine:** abra o Bloco de Notas como administrador, fora da transmissão
+      (`$g = Get-Process notepad`): mostra `17` e nada fecha.
 
 ## Automatizar isto (pendência, sem PR ainda)
 
