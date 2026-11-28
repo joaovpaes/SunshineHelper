@@ -19,6 +19,12 @@ internal sealed partial class WindowsElevatedProcessSystem : IElevatedProcessSys
     private const uint Synchronize = 0x0010_0000;
     private const int ErrorInvalidParameter = 87;
 
+    /// <summary>Whether this process runs elevated (the setup modes must be started through UAC).</summary>
+    public static bool IsCurrentProcessElevated() => NativeMethods.IsElevated(NativeMethods.CurrentProcess);
+
+    /// <summary>The SID of the user this process runs as, as bytes; null when unreadable.</summary>
+    public static byte[]? CurrentUserSid() => NativeMethods.UserSid(NativeMethods.CurrentProcess);
+
     /// <inheritdoc />
     public OpenStatus Open(int processId, bool forKill, out ITargetProcess? process)
     {
@@ -122,7 +128,7 @@ internal sealed partial class WindowsElevatedProcessSystem : IElevatedProcessSys
     {
         private const uint SnapProcess = 0x0000_0002;
         private const nint InvalidHandle = -1;
-        private const nint CurrentProcess = -1;
+        public const nint CurrentProcess = -1;
         private const uint TokenQuery = 0x0008;
         private const int TokenUserClass = 1;
         private const int TokenElevationClass = 20;
@@ -262,7 +268,7 @@ internal sealed partial class WindowsElevatedProcessSystem : IElevatedProcessSys
         public static bool PostClose(nint window) => PostMessageW(window, WmClose, 0, 0) != 0;
 
         /// <summary>The SID of the user a process runs as, as bytes; null when unreadable.</summary>
-        private static byte[]? UserSid(nint process)
+        public static byte[]? UserSid(nint process)
         {
             nint token;
             if (OpenProcessToken(process, TokenQuery, &token) == 0)

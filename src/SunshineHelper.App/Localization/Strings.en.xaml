@@ -93,6 +93,22 @@
     <sys:String x:Key="General.CloseGame.Force.Hint">Off by default. When on, a game that does not close by itself is ended right away, and anything it had not saved is lost.</sys:String>
     <sys:String x:Key="General.CloseGame.On">Closing the game with the controller is on. It takes effect right away, in the current stream too.</sys:String>
     <sys:String x:Key="General.CloseGame.Off">Closing the game with the controller is off.</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin">Games that run as administrator</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.Hint">Some games only start as administrator, and Windows does not let this app (which runs without administrator) close them. Allowing copies SunshineHelper.Trigger.exe to the Program Files folder and creates a scheduled task that only closes games started by Sunshine that run as administrator. Windows asks for confirmation once; the app keeps running without administrator.</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.Checking">Checking…</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.NotAllowed">Not allowed.</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.Allowed">Allowed.</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.Outdated">Allowed, but the app was updated since. Click Update to use the new version.</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.NotAdminAccount">Unavailable: this Windows account is not an administrator.</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.AuxiliaryMissing">Unavailable: SunshineHelper.Trigger.exe is not in the app's folder.</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.CheckFailed">Could not check: {0}</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.Allow">Allow closing administrator games</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.Update">Update</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.Remove">Remove</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.Done.Allowed">Done: allowed.</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.Done.Removed">Removed: the scheduled task and the copy in Program Files were deleted.</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.Canceled">Canceled at the Windows prompt. Nothing changed.</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.Failed">It did not work (code {0}). The codes are in the guide (LEIA-ME), section "Fechar jogos de administrador".</sys:String>
 
     <sys:String x:Key="General.Report">Diagnostic report</sys:String>
     <sys:String x:Key="General.Report.Hint">Describe the problem in your own words (what you did, what you expected and what happened). The button gathers that with your settings and the end of the logs into a text file you choose where to save. IP and MAC addresses, Sunshine keys and your Windows user name are replaced by placeholders. Nothing is sent over the internet: read the file before sharing it.</sys:String>

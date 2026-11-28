@@ -80,9 +80,27 @@ durante a transmissão.
   5 s, para não atingir o launcher que volta para a frente. Por isso **preencha a lista de programas do launcher**.
 - **No Sunshine**, deixe a opção `gamepad` em `x360`: um controle virtual no estilo PlayStation não é visto.
 - **Jogo como administrador:** o app não é administrador e o Windows não deixa ele fechar um programa que é. Se o
-  Playnite está com "Run as elevated" no Sunshine, os jogos dele também ficam elevados. O app avisa no `app.log`;
-  a solução é desmarcar "Run as elevated" no app do Playnite, no Sunshine.
+  Playnite está com "Run as elevated" no Sunshine, os jogos dele também ficam elevados: desmarque "Run as elevated"
+  no app do Playnite, no Sunshine. Para jogos que exigem administrador de verdade, veja a seção abaixo.
 - Combo e tempo de segurar ficam no `settings.json` (seção `controller`); a tela para gravá-los vem depois.
+
+### Fechar jogos de administrador (opcional)
+
+Alguns jogos só abrem como administrador. Para o app conseguir fechá-los sem ele mesmo virar administrador, na
+tela **Geral**, em "Jogos que rodam como administrador", clique em **Permitir fechar jogos de administrador** e
+confirme o aviso do Windows (uma vez só).
+
+- **O que isso faz:** copia o `SunshineHelper.Trigger.exe` para `C:\Program Files\SunshineHelper` e cria uma
+  tarefa agendada chamada "SunshineHelper Close Elevated Game". Ela só roda quando o app pede, e só fecha um jogo
+  que roda como administrador, é seu, tem janela e foi aberto pelo Sunshine.
+- **Desfazer:** botão **Remover**, no mesmo lugar (outro aviso do Windows). Apaga a tarefa e a cópia.
+- **Depois de atualizar o app:** se a tela disser "precisa atualizar", clique em **Atualizar**.
+- **Conta sem administrador:** a função fica indisponível.
+- **Nesta versão** a permissão só é criada e removida; o combo passa a usá-la na próxima.
+- **Se aparecer um código:** `40` o aviso do Windows não deu administrador; `41` o app não achou o
+  `SunshineHelper.Trigger.exe` ao lado dele; `42` não deu para copiar ou apagar em `Program Files` (feche o que
+  estiver usando o arquivo e tente de novo); `43` o Agendador de Tarefas recusou; `44` não deu para ler a sua conta
+  do Windows; `30` erro inesperado.
 
 ## O que o app não cobre
 

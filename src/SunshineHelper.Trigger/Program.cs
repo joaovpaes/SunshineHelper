@@ -41,6 +41,14 @@ if (args.Length > 0 && string.Equals(args[0], ElevatedCloseRequest.Verb, StringC
     return ElevatedCloseMode.Run(args);
 }
 
+// "install" and "uninstall": started by the app through UAC to copy this file to Program Files and
+// register (or remove) that scheduled task (ADR 0017, section 5). The task cannot reach them: it
+// always passes "elevated-close" first.
+if (args.Length > 0 && ElevatedCloseSetupMode.IsSetupVerb(args[0]))
+{
+    return ElevatedCloseSetupMode.Run(args);
+}
+
 try
 {
     await RunAsync(args).ConfigureAwait(false);

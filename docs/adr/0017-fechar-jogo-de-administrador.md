@@ -45,7 +45,8 @@ configuração e sai em seguida.
 
 ### 2. Como o app chama o modo elevado
 
-- A tarefa `\SunshineHelper\CloseElevatedGame` é registrada com: conta = o próprio usuário, "executar só com o usuário
+- A tarefa `SunshineHelper Close Elevated Game`, na pasta raiz do Agendador de Tarefas (uma tarefa na raiz cujo
+  principal é o usuário pode ser iniciada por ele sem elevação), é registrada com: conta = o próprio usuário, "executar só com o usuário
   conectado" (sem senha guardada), **"executar com privilégios mais altos"**, oculta, sem gatilho (só sob demanda),
   limite de 30 s, e "não iniciar outra instância" se uma já estiver rodando.
 - A ação é fixa: `"<pasta protegida>\SunshineHelper.Trigger.exe" elevated-close $(Arg0) $(Arg1) $(Arg2)`, com a pasta
@@ -112,7 +113,7 @@ processo elevado também aumentaria o que pode dar errado lá dentro.
   Command do Sunshine. Não é obrigatório (a cópia da pasta do zip continua funcionando para `start` e `end`), mas evita
   ter duas cópias com versões diferentes.
 - **Remover:** botão **"Remover"** no mesmo lugar (UAC de novo): apaga a tarefa e a cópia. Manualmente:
-  `schtasks /delete /tn "\SunshineHelper\CloseElevatedGame" /f` e apagar a pasta.
+  `schtasks /delete /tn "SunshineHelper Close Elevated Game" /f` e apagar a pasta.
 - **Versão:** a tela compara a versão do auxiliar instalado com a do pacote. Se o app for atualizado e o auxiliar
   mudar, aparece **"Atualizar"** (UAC de novo). Uma cópia antiga continua segura: só faz menos.
 - Este é o primeiro passo do instalador que está no backlog; quando ele existir (já rodando como administrador), faz o
