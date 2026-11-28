@@ -22,7 +22,7 @@ public sealed class ElevatedCloseRulesTests : IDisposable
     public ElevatedCloseRulesTests()
     {
         _system.Add(new ProcessNode(50, 4, "services", 500));
-        _system.Add(new ProcessNode(100, 50, "sunshine", 1_000));
+        _system.Add(new ProcessNode(100, 50, "sunshine", 1_000, RunsAsSystemOrElevated: true));
         _system.Add(new ProcessNode(200, 100, "Playnite.FullscreenApp", 2_000));
         _game = new FakeTarget(new ProcessNode(GameId, 200, "SuperOdysseyRecomp", GameStart));
         _system.Target = _game;
@@ -162,9 +162,38 @@ public sealed class ElevatedCloseRulesTests : IDisposable
     public void Um_sunshine_falso_mais_novo_que_o_filho_nao_conta()
     {
         _system.Target = new FakeTarget(new ProcessNode(GameId, 900, "game", GameStart));
-        _system.Add(new ProcessNode(900, 50, "sunshine", GameStart + 1));
+        _system.Add(new ProcessNode(900, 50, "sunshine", GameStart + 1, RunsAsSystemOrElevated: true));
 
         Run(ElevatedCloseOperation.Kill).ShouldBe(ElevatedCloseExitCode.NotStartedBySunshine);
+    }
+
+    [Fact]
+    public void Sunshine_de_um_programa_comum_nao_conta()
+    {
+        // A sunshine.exe copy dropped and started by an ordinary program: neither LocalSystem nor elevated.
+        _system.Add(new ProcessNode(100, 50, "sunshine", 1_000));
+
+        Run(ElevatedCloseOperation.Kill).ShouldBe(ElevatedCloseExitCode.NotStartedBySunshine);
+        _game.Actions.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void Pai_com_o_mesmo_horario_do_filho_nao_conta()
+    {
+        _system.Add(new ProcessNode(200, 100, "Playnite.FullscreenApp", GameStart));
+
+        ElevatedCloseRules.IsStartedBySunshine(_game.Node, _system).ShouldBeFalse();
+    }
+
+    [Theory]
+    [InlineData("cmd")]
+    [InlineData("powershell.exe")]
+    [InlineData("pwsh")]
+    [InlineData("WindowsTerminal")]
+    [InlineData("msiexec")]
+    public void Consoles_e_instaladores_elevados_nunca_sao_fechados(string name)
+    {
+        ElevatedCloseRules.IsForbidden(name).ShouldBeTrue();
     }
 
     [Fact]
@@ -185,7 +214,7 @@ public sealed class ElevatedCloseRulesTests : IDisposable
     public void Ciclo_de_pais_nao_trava()
     {
         _system.Add(new ProcessNode(200, 201, "a", 2_000));
-        _system.Add(new ProcessNode(201, 200, "b", 2_000));
+        _system.Add(new ProcessNode(201, 200, "b", 1_999));
 
         ElevatedCloseRules.IsStartedBySunshine(_game.Node, _system).ShouldBeFalse();
     }
@@ -203,10 +232,10 @@ public sealed class ElevatedCloseRulesTests : IDisposable
     {
         // A chain of MaxAncestryDepth + 1 levels with Sunshine at the very top.
         int top = 1_000 + ElevatedCloseRules.MaxAncestryDepth + 1;
-        _system.Add(new ProcessNode(top, 50, "sunshine", 1));
+        _system.Add(new ProcessNode(top, 50, "sunshine", 1, RunsAsSystemOrElevated: true));
         for (int id = 1_000; id < top; id++)
         {
-            _system.Add(new ProcessNode(id, id + 1, "step", 2));
+            _system.Add(new ProcessNode(id, id + 1, "step", 2_000 - (id - 1_000)));
         }
 
         var deep = new ProcessNode(GameId, 1_000, "game", GameStart);
@@ -218,10 +247,10 @@ public sealed class ElevatedCloseRulesTests : IDisposable
     public void Arvore_dentro_do_limite_e_aceita()
     {
         int top = 1_000 + ElevatedCloseRules.MaxAncestryDepth - 1;
-        _system.Add(new ProcessNode(top, 50, "sunshine.exe", 1));
+        _system.Add(new ProcessNode(top, 50, "sunshine.exe", 1, RunsAsSystemOrElevated: true));
         for (int id = 1_000; id < top; id++)
         {
-            _system.Add(new ProcessNode(id, id + 1, "step", 2));
+            _system.Add(new ProcessNode(id, id + 1, "step", 2_000 - (id - 1_000)));
         }
 
         var deep = new ProcessNode(GameId, 1_000, "game", GameStart);

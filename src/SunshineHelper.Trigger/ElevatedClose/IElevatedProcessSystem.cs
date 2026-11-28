@@ -7,7 +7,10 @@ namespace SunshineHelper.Trigger.ElevatedClose;
 /// start times for that.</param>
 /// <param name="Name">The executable's file name without the folder or <c>.exe</c>.</param>
 /// <param name="StartTime">Creation time as a Windows FILETIME (UTC).</param>
-internal sealed record ProcessNode(int ProcessId, int ParentProcessId, string Name, long StartTime);
+/// <param name="RunsAsSystemOrElevated">Whether it runs as LocalSystem or with an elevated token. Only
+/// filled for ancestors (<see cref="IElevatedProcessSystem.Describe"/>): a <c>sunshine.exe</c> counts
+/// only when true, so a copy dropped and started by an ordinary program does not.</param>
+internal sealed record ProcessNode(int ProcessId, int ParentProcessId, string Name, long StartTime, bool RunsAsSystemOrElevated = false);
 
 /// <summary>What happened when opening a process.</summary>
 internal enum OpenStatus

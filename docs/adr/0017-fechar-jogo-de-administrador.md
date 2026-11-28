@@ -70,14 +70,20 @@ Ele não lê o `settings.json` nem nenhum arquivo do usuário: tudo vem do próp
    elevado restrito ao buraco que ele cobre.
 4. **Mesmo usuário e mesma sessão do Windows:** o dono do processo é o usuário da tarefa, na sessão interativa dele.
    Processos do `SYSTEM`, de serviços ou de outro usuário são recusados.
-5. **Foi aberto pelo Sunshine:** subindo pelos pais do processo, com cada pai mais antigo que o filho (para não ser
-   enganado por PID reaproveitado), chega-se a um `sunshine.exe` em execução. Tudo o que já estava aberto antes, ou foi
+5. **Foi aberto pelo Sunshine:** subindo pelos pais do processo, com cada pai **estritamente** mais antigo que o filho
+   (para não ser enganado por PID reaproveitado), chega-se a um `sunshine.exe` em execução **que roda como SYSTEM ou
+   elevado** (o serviço do Sunshine o abre como SYSTEM). Uma cópia de `sunshine.exe` largada e aberta por um programa
+   comum não conta (revisão de segurança do D2a). Tudo o que já estava aberto antes, ou foi
    aberto pelo usuário fora da transmissão (antivírus, ferramentas de administrador, o Playnite aberto à mão), fica de
    fora sem depender de lista nenhuma.
 6. **Tem janela visível** de primeiro nível. Programas de fundo e ferramentas sem janela ficam de fora.
 7. **Não está na lista fixa de nomes proibidos** (a mesma do ADR 0016: Windows, Sunshine, este app,
-   `ApplicationFrameHost`), compilada no auxiliar.
+   `ApplicationFrameHost`), compilada no auxiliar, mais consoles e instaladores elevados que o próprio Sunshine pode
+   rodar (`cmd`, `powershell`, `pwsh`, `WindowsTerminal`, `OpenConsole`, `msiexec`).
 8. **Não é um processo crítico do Windows** (`IsProcessCritical`).
+
+Consequências aceitas dessas regras (todas recusam, o que é o lado seguro): um filho do jogo **sem janela** não é
+encerrado pelo modo elevado; e um jogo cujo launcher **já fechou** perde o caminho até o Sunshine e também é recusado.
 
 As proteções do usuário (lista do launcher, lista de protegidos, "começou antes da sessão", alvo único, confirmação e
 pausa) continuam sendo feitas pelo app, **antes** de chamar a tarefa, como no ADR 0016. O modo elevado não as repete
@@ -89,7 +95,9 @@ processo elevado também aumentaria o que pode dar errado lá dentro.
 - **Não escreve em disco.** Nada de log no `%LOCALAPPDATA%`: um processo elevado gravando numa pasta que o usuário
   controla é a porta clássica para um atalho (link simbólico) redirecionar a gravação para um arquivo do sistema. O
   resultado sai só pelo código de saída.
-- **Não lê configuração**, não monta caminho a partir de variável de ambiente e não carrega DLL de pasta do usuário.
+- **Não lê configuração**, não monta caminho a partir de variável de ambiente e não carrega DLL de pasta do usuário. As
+  DLLs do Windows só vêm da System32, e o CI roda o auxiliar publicado com as variáveis que mandariam o .NET carregar
+  outro GC, um *startup hook* ou um *profiler*, para provar que o NativeAOT as ignora.
 - **Não encerra árvores**, não inicia processos e não aceita caminho, nome ou comando como argumento.
 
 ### 5. Instalar no PC: o auxiliar vai para uma pasta protegida

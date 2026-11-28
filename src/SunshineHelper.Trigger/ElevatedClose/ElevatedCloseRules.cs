@@ -40,6 +40,15 @@ internal static class ElevatedCloseRules
         "fontdrvhost",
         "conhost",
         "ApplicationFrameHost",
+
+        // Not in the app's list, only here: elevated consoles and installers that Sunshine itself may run
+        // during a stream (prep commands marked elevated). Ending one midway helps nobody.
+        "cmd",
+        "powershell",
+        "pwsh",
+        "WindowsTerminal",
+        "OpenConsole",
+        "msiexec",
     };
 
     /// <summary>Checks every rule and, only if all pass, does what <paramref name="request"/> asks.</summary>
@@ -80,9 +89,11 @@ internal static class ElevatedCloseRules
     }
 
     /// <summary>
-    /// Whether a running <c>sunshine.exe</c> is among the ancestors of <paramref name="process"/>. Each
-    /// parent must have started no later than its child: Windows keeps the parent's id after the parent
-    /// exits, and a newer process holding that id is not the real parent.
+    /// Whether a running <c>sunshine.exe</c> that runs as LocalSystem or elevated is among the ancestors
+    /// of <paramref name="process"/>. Each parent must have started strictly before its child: Windows
+    /// keeps the parent's id after the parent exits, and a newer process holding that id is not the real
+    /// parent. A <c>sunshine.exe</c> without those rights (a copy an ordinary program dropped and started)
+    /// ends the walk with a refusal.
     /// </summary>
     public static bool IsStartedBySunshine(ProcessNode process, IElevatedProcessSystem system)
     {
@@ -100,14 +111,14 @@ internal static class ElevatedCloseRules
             }
 
             ProcessNode? parent = system.Describe(parentId);
-            if (parent is null || parent.ProcessId != parentId || parent.StartTime > child.StartTime)
+            if (parent is null || parent.ProcessId != parentId || parent.StartTime >= child.StartTime)
             {
                 return false;
             }
 
             if (string.Equals(NormalizeName(parent.Name), SunshineName, StringComparison.OrdinalIgnoreCase))
             {
-                return true;
+                return parent.RunsAsSystemOrElevated;
             }
 
             child = parent;

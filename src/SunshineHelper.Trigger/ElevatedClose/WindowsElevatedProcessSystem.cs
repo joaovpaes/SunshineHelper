@@ -59,7 +59,13 @@ internal sealed partial class WindowsElevatedProcessSystem : IElevatedProcessSys
             int parentId = NativeMethods.ParentOf(processId);
             string? name = NativeMethods.ImageName(handle);
             long? startTime = NativeMethods.StartTime(handle);
-            return name is null || startTime is null ? null : new ProcessNode(processId, parentId, name, startTime.Value);
+            if (name is null || startTime is null)
+            {
+                return null;
+            }
+
+            bool trusted = NativeMethods.IsElevated(handle) || NativeMethods.IsLocalSystem(handle);
+            return new ProcessNode(processId, parentId, name, startTime.Value, trusted);
         }
         finally
         {
@@ -123,6 +129,9 @@ internal sealed partial class WindowsElevatedProcessSystem : IElevatedProcessSys
         private const uint GwOwner = 4;
         private const uint WmClose = 0x0010;
         private const int MaxPath = 32_768;
+
+        /// <summary>S-1-5-18 (LocalSystem), the account Sunshine's service runs <c>sunshine.exe</c> as.</summary>
+        private static readonly byte[] _localSystemSid = [1, 1, 0, 0, 0, 0, 0, 5, 18, 0, 0, 0];
 
         /// <summary>The parent id the process list shows for <paramref name="processId"/>; 0 when it is
         /// not in the list.</summary>
@@ -201,6 +210,12 @@ internal sealed partial class WindowsElevatedProcessSystem : IElevatedProcessSys
             {
                 _ = CloseHandle(token);
             }
+        }
+
+        public static bool IsLocalSystem(nint process)
+        {
+            byte[]? sid = UserSid(process);
+            return sid is not null && sid.AsSpan().SequenceEqual(_localSystemSid);
         }
 
         public static bool SameUserAndSession(nint process, int processId)
