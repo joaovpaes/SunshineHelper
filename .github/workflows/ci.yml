@@ -87,6 +87,8 @@ jobs:
           $code = $LASTEXITCODE
           Write-Host "Exit code: $code"
           if ($code -ne 10) { throw "Expected exit code 10 (bad arguments), got $code." }
+          # The runner ends the step with $LASTEXITCODE (10 here); the check above already passed.
+          exit 0
 
       - name: Upload test results
         if: always()
