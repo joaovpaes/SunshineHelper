@@ -86,7 +86,7 @@
 
     <sys:String x:Key="General.CloseGame">Close the game with the controller</sys:String>
     <sys:String x:Key="General.CloseGame.Enable">Close the game in front by holding Select + Y for 5 seconds</sys:String>
-    <sys:String x:Key="General.CloseGame.Hint">Only during a stream. The app first asks the game to close, like clicking its X. If the game does not close, hold the combo again within 15 seconds to end it. It never closes Windows, Sunshine, this app, the launcher or anything you had open before the stream. Needs the Sunshine option gamepad set to x360, and a game that does not run as administrator.</sys:String>
+    <sys:String x:Key="General.CloseGame.Hint">Only during a stream. The app first asks the game to close, like clicking its X. If the game does not close, hold the combo again within 15 seconds to end it. It never closes Windows, Sunshine, this app, the launcher or anything you had open before the stream. Needs the Sunshine option gamepad set to x360. Games that run as administrator also need the permission below.</sys:String>
     <sys:String x:Key="General.CloseGame.NoLauncher">The list of programs to close above is empty: without the launcher's name, the combo could close it if it is the program in front.</sys:String>
     <sys:String x:Key="General.CloseGame.Return">Bring the launcher back to the front after closing the game</sys:String>
     <sys:String x:Key="General.CloseGame.Force">End the game without asking for confirmation</sys:String>

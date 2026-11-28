@@ -1,7 +1,7 @@
 # Estado do projeto
 
 Uma página para retomar o trabalho sem reler tudo. O Claude atualiza este arquivo no fim de cada PR
-(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-28**, `main` após o PR 76 (o PR D2b está em andamento).
+(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-28**, `main` após o PR 77 (o PR D2c está em andamento).
 
 ## Onde estamos
 
@@ -11,7 +11,7 @@ leitor do log do Sunshine, bandeja e janela (Painel, Geral, Perfis), log de diag
 diagnóstico. As decisões D2 (falha de um módulo vira aviso) e D3 (sessão anterior presa é restaurada antes da
 nova) estão no ADR 0011 e passaram no teste do PC. Situação do portão: `docs/fase1-portao.md`.
 
-**Último PR mesclado:** #76 (ADR 0017, D2a: modo `elevated-close` no auxiliar; testado à mão no PC com o MKW Recomp elevado: fechou). Antes, #75 (ADR 0017) e #74 (fechar o jogo pelo controle no Windows, desligado de fábrica; testado no PC com um jogo comum: fecha e o Playnite volta). Antes, #73 regras do "fechar o jogo", #72 regra A/B do overlay, #71 leitor XInput, #70 detector de combo e seção `controller`, #69 ADRs 0015 e 0016.
+**Último PR mesclado:** #77 (ADR 0017, D2b: permitir e remover pela tela Geral, com cópia em Program Files e tarefa agendada; testado no PC: a tarefa roda sem aviso do Windows). Antes, #76 (ADR 0017, D2a: modo `elevated-close` no auxiliar; testado à mão no PC com o MKW Recomp elevado: fechou), #75 (ADR 0017) e #74 (fechar o jogo pelo controle no Windows, desligado de fábrica; testado no PC com um jogo comum: fecha e o Playnite volta). Antes, #73 regras do "fechar o jogo", #72 regra A/B do overlay, #71 leitor XInput, #70 detector de combo e seção `controller`, #69 ADRs 0015 e 0016.
 **Versão de testes atual:** `v0.1.0-preview.5` (com a tela Log), publicada em 2026-11-23 pelo workflow `preview-release.yml` (zip com o app e o
 auxiliar de gatilho). As versões `preview.1` a `preview.5` foram testadas no PC do autor e funcionaram; o Windows mostra
 o aviso do SmartScreen porque não há assinatura de código.
@@ -22,8 +22,8 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 | PR | O quê | Modelo |
 | --- | --- | --- |
-| D2b | ADR 0017: permitir/remover pelo UAC (cópia em Program Files e tarefa agendada) e a situação na tela Geral (neste PR) | Opus · alto |
-| D2c | ADR 0017: o fechar o jogo chama a tarefa quando o Windows recusa (pedir para fechar e encerrar) | Opus · alto |
+| D2c | ADR 0017: o combo fecha jogos de administrador pela tarefa (pedir para fechar e encerrar) (neste PR) | Opus · alto |
+| D2d | ADR 0017: aceitar o jogo de administrador também quando o Playnite roda sem administrador (regra 7 hoje exige Sunshine elevado). Ideia: aceitar um `sunshine.exe` cujo arquivo está em pasta só de administrador | Opus · alto |
 | a seguir | PR E do ADR 0015: tela "Controle" para gravar os combos | Sonnet · médio |
 | depois | PR F a H do ADR 0015 (janela do overlay seguindo o protótipo aprovado, perfis e ajustes com ADR próprio, atalhos) | ver ADR 0015 |
 
@@ -39,8 +39,7 @@ Lista viva em `docs/testes-manuais.md`, "Ainda pendente":
 - Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada).
 - Fechar o jogo (PR D): o caminho principal passou (jogo comum fecha e o Playnite volta). Faltam os outros itens do roteiro
   "PR D do ADR 0016" (segunda segurada encerra, pausa, jogo sem menu).
-- ADR 0017: roteiro "PR D2b do ADR 0017" (permitir, remover e a tarefa rodar sem administrador). O D2a já passou
-  no PC (MKW Recomp elevado fechou; o MKW comum foi recusado com 15).
+- ADR 0017: roteiro "PR D2c do ADR 0017" (o combo fecha um jogo de administrador). O D2a e o D2b já passaram no PC.
 - No teste do PR D o log disse que o Windows não deixou trazer o Playnite para a frente (ele já estava na frente). Rever a
   mensagem para não parecer erro.
 - Opcional: relatório de diagnóstico com o caminho do log do Sunshine vazio.

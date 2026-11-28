@@ -79,9 +79,10 @@ durante a transmissão.
   exemplo) e tudo que já estava aberto antes da transmissão. Depois que o jogo fecha, o combo fica parado por
   5 s, para não atingir o launcher que volta para a frente. Por isso **preencha a lista de programas do launcher**.
 - **No Sunshine**, deixe a opção `gamepad` em `x360`: um controle virtual no estilo PlayStation não é visto.
-- **Jogo como administrador:** o app não é administrador e o Windows não deixa ele fechar um programa que é. Se o
-  Playnite está com "Run as elevated" no Sunshine, os jogos dele também ficam elevados: desmarque "Run as elevated"
-  no app do Playnite, no Sunshine. Para jogos que exigem administrador de verdade, veja a seção abaixo.
+- **Jogo como administrador:** o app não é administrador e o Windows não deixa ele fechar sozinho um programa que
+  é. Com a permissão da seção abaixo, o combo fecha esses jogos também. Se o Playnite está com "Run as elevated" no
+  Sunshine, os jogos dele ficam todos elevados; se o jogo não precisa disso, o melhor é desmarcar "Run as elevated"
+  no app do Playnite, no Sunshine.
 - Combo e tempo de segurar ficam no `settings.json` (seção `controller`); a tela para gravá-los vem depois.
 
 ### Fechar jogos de administrador (opcional)
@@ -96,7 +97,16 @@ confirme o aviso do Windows (uma vez só).
 - **Desfazer:** botão **Remover**, no mesmo lugar (outro aviso do Windows). Apaga a tarefa e a cópia.
 - **Depois de atualizar o app:** se a tela disser "precisa atualizar", clique em **Atualizar**.
 - **Conta sem administrador:** a função fica indisponível.
-- **Nesta versão** a permissão só é criada e removida; o combo passa a usá-la na próxima.
+- **Com a permissão ligada,** o combo funciona igual para esses jogos: pede para fechar, e a segunda segurada
+  encerra. Encerrar um jogo de administrador encerra só o jogo, não os programas que ele abriu. As proteções
+  continuam valendo (o launcher, a lista protegida e o que já estava aberto antes da transmissão).
+- **Sem a permissão,** o combo não fecha esses jogos e o log diz para usar o botão da tela Geral.
+- **Limite conhecido:** a tarefa só aceita um jogo aberto por um Sunshine que roda como administrador. Por isso, para
+  fechar um jogo de administrador, o app do Playnite (ou do launcher) precisa estar com **"Run as elevated"** no
+  Sunshine. Com o Playnite sem administrador e o jogo com administrador, a tarefa recusa e o log diz "the process was
+  not started by Sunshine". Isso será revisto em um PR próprio.
+- **Se o log disser que a tarefa recusou,** o motivo vem junto. Por exemplo, "not started by Sunshine": o jogo não
+  foi aberto pelo Sunshine (nem pelo Playnite que o Sunshine abriu).
 - **Se aparecer um código:** `40` o aviso do Windows não deu administrador; `41` o app não achou o
   `SunshineHelper.Trigger.exe` ao lado dele; `42` não deu para copiar ou apagar em `Program Files` (feche o que
   estiver usando o arquivo e tente de novo); `43` o Agendador de Tarefas recusou; `44` não deu para ler a sua conta

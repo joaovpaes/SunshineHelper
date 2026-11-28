@@ -33,7 +33,7 @@ public class CloseGameServiceTests
     {
         _store.Content = SessionSnapshotSerializer.Serialize(
             SessionSnapshot.Create("sessao-1", BootIdentity.Unknown, _sessionStart, [], "tv-4k", "Sala").WithState(SessionState.Applied));
-        _service = new CloseGameService(_env, _env, _settings, new SessionStatusReader(_store), _time, _log);
+        _service = new CloseGameService(_env, _env, _settings, new SessionStatusReader(_store), _time, _log, _env);
 
         _playnite = _env.Start(100, "Playnite.FullscreenApp", _sessionStart.AddSeconds(2));
         _game = _env.Start(200, "Hades2", _sessionStart.AddMinutes(1));
@@ -99,13 +99,14 @@ public class CloseGameServiceTests
     }
 
     [Fact]
-    public async Task Janela_que_nao_pode_ser_inspecionada_avisa_do_administrador()
+    public async Task Janela_que_nao_pode_ser_identificada_nao_fecha_nada()
     {
         _env.Foreground = new ForegroundWindow(ForegroundStatus.NotInspectable);
 
         (await HoldAsync()).Result.ShouldBe(CloseGameResult.NotInspectable);
 
-        _log.Contains(DiagnosticLevel.Warning, "administrator").ShouldBeTrue();
+        _log.Contains(DiagnosticLevel.Warning, "could not be identified").ShouldBeTrue();
+        _env.Calls.ShouldNotContain(c => c.StartsWith("task", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -199,7 +200,7 @@ public class CloseGameServiceTests
     }
 
     [Fact]
-    public async Task Jogo_do_launcher_que_nao_pode_ser_inspecionado_avisa_do_administrador()
+    public async Task Jogo_do_launcher_que_nao_pode_ser_identificado_nao_fecha_nada()
     {
         _env.HiddenChildren[_playnite.Id] = 1;
         _env.Focus(_playnite);
@@ -207,7 +208,7 @@ public class CloseGameServiceTests
         var outcome = await HoldAsync();
 
         outcome.Result.ShouldBe(CloseGameResult.NotInspectable);
-        _log.Contains(DiagnosticLevel.Warning, "administrator").ShouldBeTrue();
+        _log.Contains(DiagnosticLevel.Warning, "could not be identified").ShouldBeTrue();
         _env.Calls.ShouldNotContain(c => c.StartsWith("closeWindow", StringComparison.Ordinal));
     }
 
@@ -376,14 +377,15 @@ public class CloseGameServiceTests
     }
 
     [Fact]
-    public async Task Pedido_recusado_pelo_windows_avisa_do_administrador()
+    public async Task Pedido_recusado_pelo_windows_sem_permissao_aponta_a_tela_Geral()
     {
         _env.DeniesClose.Add(_game.Id);
 
         var outcome = await HoldAsync();
 
         outcome.Result.ShouldBe(CloseGameResult.AccessDenied);
-        _log.Contains(DiagnosticLevel.Warning, "administrator").ShouldBeTrue();
+        _log.Contains(DiagnosticLevel.Warning, "Allow closing administrator games").ShouldBeTrue();
+        _env.Calls.ShouldContain("task:close:200");
         _env.Calls.ShouldNotContain(c => c.StartsWith("wait", StringComparison.Ordinal));
     }
 
@@ -464,5 +466,296 @@ public class CloseGameServiceTests
         Should.Throw<ArgumentNullException>(() => new CloseGameService(_env, null!, _settings, reader));
         Should.Throw<ArgumentNullException>(() => new CloseGameService(_env, _env, null!, reader));
         Should.Throw<ArgumentNullException>(() => new CloseGameService(_env, _env, _settings, null!));
+    }
+
+    [Fact]
+    public async Task Jogo_de_administrador_sem_permissao_aponta_a_tela_Geral()
+    {
+        _env.FocusElevated(_game);
+
+        var outcome = await HoldAsync();
+
+        outcome.Result.ShouldBe(CloseGameResult.AccessDenied);
+        outcome.ProcessName.ShouldBe("Hades2");
+        _log.Contains(DiagnosticLevel.Warning, "Allow closing administrator games").ShouldBeTrue();
+        _env.Calls.ShouldNotContain(c => c.StartsWith("closeWindow", StringComparison.Ordinal));
+        _env.Calls.ShouldNotContain(c => c.StartsWith("wait", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Sem_o_fechador_de_administrador_o_jogo_de_administrador_nao_e_tocado()
+    {
+        var service = new CloseGameService(_env, _env, _settings, new SessionStatusReader(_store), _time, _log);
+        _env.AllowTask();
+        _env.FocusElevated(_game);
+
+        var outcome = await service.HandleComboAsync(TestContext.Current.CancellationToken);
+
+        outcome.Result.ShouldBe(CloseGameResult.AccessDenied);
+        _env.Calls.ShouldNotContain(c => c.StartsWith("task", StringComparison.Ordinal));
+        _env.Running.ShouldContain(_game);
+    }
+
+    [Fact]
+    public async Task Jogo_de_administrador_fecha_pela_tarefa()
+    {
+        _env.AllowTask();
+        _env.ClosesPolitely.Add(_game.Id);
+        _env.FocusElevated(_game);
+
+        var outcome = await HoldAsync();
+
+        outcome.Result.ShouldBe(CloseGameResult.Closed);
+        _env.Calls.ShouldContain("task:close:200");
+        _env.Calls.ShouldContain("waitElevated:200:5000");
+        _env.Calls.ShouldNotContain(c => c.StartsWith("closeWindow", StringComparison.Ordinal));
+        _env.Calls.ShouldContain("front:Playnite.FullscreenApp");
+        (await HoldAsync()).Result.ShouldBe(CloseGameResult.CoolingDown);
+    }
+
+    [Fact]
+    public async Task Jogo_de_administrador_que_ignora_o_pedido_e_encerrado_pela_tarefa_na_segunda_segurada()
+    {
+        _env.AllowTask();
+        _env.FocusElevated(_game);
+
+        var first = await HoldAsync();
+        first.Result.ShouldBe(CloseGameResult.AwaitingConfirmation);
+        _service.PendingConfirmation.ShouldBe(_game);
+
+        _env.Focus(_playnite);
+        var second = await HoldAsync();
+
+        second.Result.ShouldBe(CloseGameResult.Forced);
+        _env.Calls.ShouldContain("task:kill:200");
+        _env.Calls.ShouldNotContain(c => c.StartsWith("killTree", StringComparison.Ordinal));
+        _env.Calls.ShouldNotContain(c => c.StartsWith("killOne", StringComparison.Ordinal));
+        _env.Running.ShouldNotContain(_game);
+        _log.Contains(DiagnosticLevel.Info, "through the scheduled task").ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task Jogo_de_administrador_encerrado_sem_confirmar_na_primeira_segurada()
+    {
+        _settings.Current = Settings(force: true);
+        _env.AllowTask();
+        _env.FocusElevated(_game);
+
+        var outcome = await HoldAsync();
+
+        outcome.Result.ShouldBe(CloseGameResult.Forced);
+        _env.Calls.ShouldContain("task:close:200");
+        _env.Calls.ShouldContain("task:kill:200");
+    }
+
+    [Fact]
+    public async Task Tarefa_que_recusa_escreve_o_motivo_e_nao_espera()
+    {
+        _env.AllowTask((int)ElevatedCloseReason.NotStartedBySunshine);
+        _env.FocusElevated(_game);
+
+        var outcome = await HoldAsync();
+
+        outcome.Result.ShouldBe(CloseGameResult.AccessDenied);
+        _log.Contains(DiagnosticLevel.Warning, "not started by Sunshine").ShouldBeTrue();
+        _env.Calls.ShouldNotContain(c => c.StartsWith("wait", StringComparison.Ordinal));
+        _service.PendingConfirmation.ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task Tarefa_que_nao_inicia_avisa()
+    {
+        _env.TaskStatus = ElevatedCloseStatus.Failed;
+        _env.FocusElevated(_game);
+
+        var outcome = await HoldAsync();
+
+        outcome.Result.ShouldBe(CloseGameResult.AccessDenied);
+        _log.Contains(DiagnosticLevel.Warning, "could not start the scheduled task").ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task Resposta_da_tarefa_que_nao_chegou_a_tempo_segue_olhando_o_processo()
+    {
+        _env.TaskStatus = ElevatedCloseStatus.Unknown;
+        _env.ClosesPolitely.Add(_game.Id);
+        _env.FocusElevated(_game);
+
+        var outcome = await HoldAsync();
+
+        outcome.Result.ShouldBe(CloseGameResult.Closed);
+        _log.Contains(DiagnosticLevel.Info, "not read in time").ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task Tarefa_que_nao_acha_o_jogo_que_ja_fechou_conta_como_fechado()
+    {
+        _env.AllowTask((int)ElevatedCloseReason.NotFound);
+        _env.FocusElevated(_game);
+        _env.Running.Remove(_game);
+
+        (await HoldAsync()).Result.ShouldBe(CloseGameResult.Closed);
+    }
+
+    [Fact]
+    public async Task Tarefa_que_nao_acha_o_jogo_ainda_aberto_recusa()
+    {
+        _env.AllowTask((int)ElevatedCloseReason.NotFound);
+        _env.FocusElevated(_game);
+
+        var outcome = await HoldAsync();
+
+        outcome.Result.ShouldBe(CloseGameResult.AccessDenied);
+        _log.Contains(DiagnosticLevel.Warning, "its id now belongs").ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task Encerrar_recusado_pela_tarefa_vira_aviso_e_pausa()
+    {
+        _env.AllowTask();
+        _env.FocusElevated(_game);
+        await HoldAsync();
+        _env.AllowTask((int)ElevatedCloseReason.ActionFailed);
+
+        var outcome = await HoldAsync();
+
+        outcome.Result.ShouldBe(CloseGameResult.ForceFailed);
+        _log.Contains(DiagnosticLevel.Warning, "Windows refused the close or the kill").ShouldBeTrue();
+        (await HoldAsync()).Result.ShouldBe(CloseGameResult.CoolingDown);
+    }
+
+    [Fact]
+    public async Task Jogo_de_administrador_que_nao_morre_vira_aviso()
+    {
+        _env.AllowTask();
+        _env.Unkillable.Add(_game.Id);
+        _env.FocusElevated(_game);
+        await HoldAsync();
+
+        var outcome = await HoldAsync();
+
+        outcome.Result.ShouldBe(CloseGameResult.ForceFailed);
+        _log.Contains(DiagnosticLevel.Warning, "could not end 'Hades2' (runs as administrator)").ShouldBeTrue();
+        _env.Calls.ShouldContain("waitElevated:200:3000");
+    }
+
+    [Fact]
+    public async Task Jogo_de_administrador_que_sumiu_antes_de_encerrar_conta_como_fechado()
+    {
+        _env.AllowTask();
+        _env.FocusElevated(_game);
+        await HoldAsync();
+        _env.AllowTask((int)ElevatedCloseReason.NotFound);
+        _env.Running.Remove(_game);
+
+        (await HoldAsync()).Result.ShouldBe(CloseGameResult.Closed);
+    }
+
+    [Fact]
+    public async Task Pedido_recusado_pelo_windows_vai_pela_tarefa_quando_permitido()
+    {
+        _env.AllowTask();
+        _env.DeniesClose.Add(_game.Id);
+        _env.ClosesPolitely.Add(_game.Id);
+
+        var outcome = await HoldAsync();
+
+        outcome.Result.ShouldBe(CloseGameResult.Closed);
+        _env.Calls.ShouldContain("closeWindow:200:2000");
+        _env.Calls.ShouldContain("task:close:200");
+        _env.Calls.ShouldContain("waitElevated:200:5000");
+    }
+
+    [Fact]
+    public async Task Jogo_de_administrador_aberto_antes_da_transmissao_fica_protegido()
+    {
+        var old = _env.Start(400, "OldAdminGame", _sessionStart.AddMinutes(-10));
+        _env.AllowTask();
+        _env.FocusElevated(old);
+
+        var outcome = await HoldAsync();
+
+        outcome.Result.ShouldBe(CloseGameResult.Protected);
+        outcome.Protection.ShouldBe(CloseGameProtectionReason.StartedBeforeSession);
+        _env.Calls.ShouldNotContain(c => c.StartsWith("task", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Launcher_de_administrador_continua_protegido()
+    {
+        _env.AllowTask();
+        _env.FocusElevated(_playnite);
+
+        var outcome = await HoldAsync();
+
+        outcome.Result.ShouldBe(CloseGameResult.Protected);
+        outcome.Protection.ShouldBe(CloseGameProtectionReason.Launcher);
+        _env.Calls.ShouldNotContain(c => c.StartsWith("task", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Jogo_de_administrador_aberto_pelo_launcher_fecha_pela_tarefa()
+    {
+        var admin = _env.Start(500, "AdminGame", _sessionStart.AddMinutes(2));
+        _env.ElevatedChildren[_playnite.Id] = [new WindowedProcess(admin, 5000)];
+        _env.AllowTask();
+        _env.ClosesPolitely.Add(admin.Id);
+        _env.Focus(_playnite);
+
+        var outcome = await HoldAsync();
+
+        outcome.Result.ShouldBe(CloseGameResult.Closed);
+        outcome.ProcessName.ShouldBe("AdminGame");
+        _env.Calls.ShouldContain("task:close:500");
+        _env.Calls.ShouldNotContain(c => c.StartsWith("closeWindow", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Launcher_com_jogo_comum_e_jogo_de_administrador_nao_adivinha()
+    {
+        _env.StartWindowedChild(_playnite, 300, "Ryujinx", _sessionStart.AddMinutes(2));
+        var admin = _env.Start(500, "AdminGame", _sessionStart.AddMinutes(3));
+        _env.ElevatedChildren[_playnite.Id] = [new WindowedProcess(admin, 5000)];
+        _env.AllowTask();
+        _env.Focus(_playnite);
+
+        var outcome = await HoldAsync();
+
+        outcome.Result.ShouldBe(CloseGameResult.AmbiguousTarget);
+        _env.Calls.ShouldNotContain(c => c.StartsWith("task", StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [InlineData(0, "done")]
+    [InlineData(10, "malformed")]
+    [InlineData(11, "is gone")]
+    [InlineData(12, "look at the process")]
+    [InlineData(13, "Sunshine or SunshineHelper")]
+    [InlineData(14, "critical")]
+    [InlineData(15, "does not run as administrator")]
+    [InlineData(16, "another user")]
+    [InlineData(17, "not started by Sunshine")]
+    [InlineData(18, "no visible window")]
+    [InlineData(20, "refused")]
+    [InlineData(30, "unexpected")]
+    [InlineData(unchecked((int)0x80070002), "0x80070002")]
+    public void Cada_resultado_da_tarefa_tem_um_motivo_no_log(int code, string expected)
+    {
+        ElevatedCloseReasons.Describe(code).ShouldContain(expected);
+    }
+
+    [Fact]
+    public async Task Transmissao_que_termina_durante_a_espera_nao_deixa_confirmacao_pendente()
+    {
+        _env.WaitGate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        Task<CloseGameOutcome> hold = HoldAsync();
+
+        _service.Reset();
+        _env.WaitGate.SetResult();
+        var outcome = await hold;
+
+        outcome.Result.ShouldBe(CloseGameResult.NoSession);
+        _service.PendingConfirmation.ShouldBeNull();
+        _log.Contains(DiagnosticLevel.Info, "the stream ended meanwhile").ShouldBeTrue();
     }
 }

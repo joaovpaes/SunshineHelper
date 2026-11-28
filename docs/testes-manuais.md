@@ -480,28 +480,52 @@ dotnet run --project src\SunshineHelper.Trigger -- elevated-close close $g.Id $g
 
 ## PR D2b do ADR 0017 — permitir e remover (tela Geral)
 
+Passou no PC do autor em 2026-11-28 (todos os itens; a tarefa rodou num PowerShell comum, sem aviso, e deu `10`).
+
 O botão precisa do `SunshineHelper.Trigger.exe` ao lado do app, então este teste usa o **pacote de prévia** que o
 próprio PR gera (link no PR). Feche o SunshineHelper que estiver aberto (bandeja → Sair), descompacte o pacote
 numa pasta sua e abra o `SunshineHelper.exe` de lá. Não precisa de transmissão.
 
-- [ ] **Situação inicial:** em Geral → "Jogos que rodam como administrador" aparece "Não permitido." e o botão
+- [x] **Situação inicial:** em Geral → "Jogos que rodam como administrador" aparece "Não permitido." e o botão
       **Permitir fechar jogos de administrador** está ligado; **Remover** está desligado.
-- [ ] **Cancelar:** clique em Permitir e responda **Não** no aviso do Windows: aparece "Cancelado no aviso do
+- [x] **Cancelar:** clique em Permitir e responda **Não** no aviso do Windows: aparece "Cancelado no aviso do
       Windows. Nada mudou." e a situação continua "Não permitido.".
-- [ ] **Permitir:** clique de novo e responda **Sim**: aparece "Pronto: permitido.", a situação vira "Permitido.",
+- [x] **Permitir:** clique de novo e responda **Sim**: aparece "Pronto: permitido.", a situação vira "Permitido.",
       Permitir desliga e Remover liga.
-- [ ] **O que foi criado:** existe `C:\Program Files\SunshineHelper\SunshineHelper.Trigger.exe`, e o Agendador de
+- [x] **O que foi criado:** existe `C:\Program Files\SunshineHelper\SunshineHelper.Trigger.exe`, e o Agendador de
       Tarefas (`taskschd.msc`, pasta "Biblioteca do Agendador de Tarefas") mostra "SunshineHelper Close Elevated
       Game". O app continua **sem** administrador (Gerenciador de Tarefas → Detalhes → Elevado = Não).
-- [ ] **A tarefa roda sem administrador (o teste que importa para o próximo PR):** num PowerShell **comum**:
+- [x] **A tarefa roda sem administrador (o teste que importa para o próximo PR):** num PowerShell **comum**:
       ```powershell
       schtasks /Run /TN "SunshineHelper Close Elevated Game"
       schtasks /Query /TN "SunshineHelper Close Elevated Game" /V /FO LIST | Select-String "Resultado|Result"
       ```
       O primeiro responde "ÊXITO" (ou "SUCCESS"), sem aviso do Windows. O segundo mostra o último resultado `10`:
       a tarefa rodou e recusou, de propósito, porque foi chamada sem jogo.
-- [ ] **Remover:** clique em Remover e responda Sim: aparece "Removido…", a pasta e a tarefa somem e a situação
+- [x] **Remover:** clique em Remover e responda Sim: aparece "Removido…", a pasta e a tarefa somem e a situação
       volta a "Não permitido.".
+
+## PR D2c do ADR 0017 — o combo fecha jogos de administrador
+
+Use o **pacote de prévia** do PR, com a permissão ligada (Geral → "Jogos que rodam como administrador" →
+Permitir). O "fechar o jogo" precisa estar ligado. Use um jogo que roda **como administrador** e foi aberto pelo
+Sunshine (pelo Playnite), por exemplo o MKW Recomp elevado. Depois de cada item, veja a tela **Log**.
+
+- [x] **Fecha pedindo:** (passou em 2026-11-28, com o Playnite como administrador no Sunshine) com o jogo na frente, segure Select + Y por 5 s. O jogo fecha como se você clicasse no X,
+      o Playnite volta, e o log diz "asked '…' (runs as administrator) to close through the scheduled task" e
+      "'…' closed".
+- [ ] **Segunda segurada encerra:** (ainda não testado) com um jogo que não fecha pelo X (ou que pede confirmação), segure o combo: o
+      log diz "did not close; hold the combo again". Segure de novo em até 15 s: o jogo é encerrado e o log diz
+      "ended '…' (runs as administrator) through the scheduled task".
+- [ ] **Sem a permissão:** clique em Remover, abra o jogo de novo e segure o combo: nada fecha, e o log diz "runs as
+      administrator, and closing such games is not allowed yet; on the General screen, use 'Allow closing
+      administrator games'". (Depois, Permitir de novo.)
+- [ ] **Jogo aberto fora do Sunshine:** (visto sem querer em 2026-11-28: com o Playnite **sem** administrador e o jogo
+      com administrador, a tarefa recusou com "not started by Sunshine"; é o limite do guia) com a transmissão já começada, abra um jogo de administrador **direto no
+      Windows** (clique duplo e "Sim" no aviso), não pelo Playnite, e segure o combo com ele na frente: nada fecha,
+      e o log diz "the scheduled task did not close '…': the process was not started by Sunshine".
+- [ ] **Jogo comum continua igual:** um jogo sem administrador fecha como antes, sem passar pela tarefa (o log não
+      fala em "scheduled task").
 
 ## Automatizar isto (pendência, sem PR ainda)
 
