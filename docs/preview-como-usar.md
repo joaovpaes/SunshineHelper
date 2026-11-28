@@ -113,6 +113,21 @@ confirme o aviso do Windows (uma vez só).
   `46` a pasta em `Program Files` não é segura (é um atalho para outro lugar) e nada foi instalado; `30` erro
   inesperado.
 
+## Overlay pelo controle (L3 + R3)
+
+Durante uma transmissão, segure **L3 + R3 por 3 segundos** (apertar os dois direcionais analógicos) e abre uma faixa
+escura na direita da tela, por cima do jogo. Ela vem **ligada** e se controla só pelo controle: o direcional move, **A**
+escolhe e **B** volta ou fecha. Nesta versão ela tem uma ação: **Restaurar agora**, que devolve a resolução, o HDR e o
+limite de FPS ao que eram antes da transmissão **sem encerrar a transmissão** (o launcher continua aberto, e os
+combos só voltam na próxima transmissão). Perfis, Ajustes, Janelas e Atalhos aparecem apagados, "em breve".
+
+- **Foco:** o app tenta pôr o overlay na frente e devolver o foco ao jogo quando você fecha. Se o Windows recusar a
+  troca, o overlay funciona assim mesmo, mas o jogo também pode receber os botões; o log diz quando isso acontece.
+- **Mudar ou desligar:** na tela **Controle** você grava outro combo, muda o tempo, desliga o overlay ou desliga a troca
+  de foco. O combo do overlay não pode ser igual ao de fechar o jogo.
+- **Jogo em tela cheia exclusiva:** nesse modo o Windows pode esconder o overlay. Se acontecer, use a tela cheia em
+  janela do jogo.
+
 ## O que o app não cobre
 
 - **Problemas do Sunshine com o monitor.** O app não liga, não acorda nem troca o monitor: ele só muda

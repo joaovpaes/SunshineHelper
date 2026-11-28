@@ -21,10 +21,12 @@ public partial class MainWindow
 
     private readonly DispatcherTimer _controllerTimer = new() { Interval = TimeSpan.FromMilliseconds(50) };
     private readonly Stopwatch _controllerClock = Stopwatch.StartNew();
-    private readonly TimeSpan[] _controllerNextProbe = new TimeSpan[ComboDetector.MaxControllers];
-    private readonly bool[] _controllerSeen = new bool[ComboDetector.MaxControllers];
     private readonly List<ComboPanel> _comboPanels = [];
     private readonly ComboRecorder _recorder = new();
+    private readonly System.Windows.Controls.CheckBox _overlayEnableBox = new();
+    private readonly System.Windows.Controls.CheckBox _overlayFocusBox = new();
+    private GamepadPoller? _controllerPoller;
+    private bool _loadingController;
     private ComboPanel? _recording;
 
     /// <summary>The controls of one combo and how to read and write it in the settings.</summary>
@@ -89,6 +91,62 @@ public partial class MainWindow
                 (c, combo) => c with { Overlay = c.Overlay with { Combo = combo } },
                 c => c.CloseGame.Combo,
                 new OverlaySettings().Combo));
+        AddOverlayOptions();
+    }
+
+    /// <summary>The overlay's two switches, right under its combo: on or off, and whether it takes
+    /// the focus from the game (docs/adr/0015-overlay-pelo-controle.md, "Janela do overlay").</summary>
+    private void AddOverlayOptions()
+    {
+        _overlayEnableBox.Margin = new Thickness(0, 16, 0, 0);
+        _overlayEnableBox.SetResourceReference(ContentControl.ContentProperty, "Controller.Overlay.Enable");
+        _overlayEnableBox.Checked += OnOverlayOptionsChanged;
+        _overlayEnableBox.Unchecked += OnOverlayOptionsChanged;
+
+        _overlayFocusBox.Margin = new Thickness(0, 8, 0, 0);
+        _overlayFocusBox.SetResourceReference(ContentControl.ContentProperty, "Controller.Overlay.TakeFocus");
+        _overlayFocusBox.Checked += OnOverlayOptionsChanged;
+        _overlayFocusBox.Unchecked += OnOverlayOptionsChanged;
+
+        var hint = new TextBlock { Margin = new Thickness(0, 8, 0, 0), Style = (Style)FindResource("Text.Dim"), TextWrapping = TextWrapping.Wrap };
+        hint.SetResourceReference(TextBlock.TextProperty, "Controller.Overlay.TakeFocus.Hint");
+
+        int at = ControllerHost.Children.IndexOf(ControllerMessage);
+        foreach (UIElement element in new UIElement[] { _overlayEnableBox, _overlayFocusBox, hint })
+        {
+            ControllerHost.Children.Insert(at++, element);
+        }
+    }
+
+    private async void OnOverlayOptionsChanged(object sender, RoutedEventArgs e)
+    {
+        if (_loadingController)
+        {
+            return;
+        }
+
+        bool enabled = _overlayEnableBox.IsChecked == true;
+        bool takeFocus = _overlayFocusBox.IsChecked == true;
+        bool saved = await TrySaveAsync(settings => settings with
+        {
+            Controller = settings.Controller with
+            {
+                Overlay = settings.Controller.Overlay with { Enabled = enabled, TakeFocus = takeFocus },
+            },
+        });
+
+        ShowOverlayOptions();
+        ControllerMessage.Text = saved ? string.Empty : GeneralMessage.Text;
+    }
+
+    /// <summary>Puts the saved overlay switches on screen without counting as the user changing them.</summary>
+    private void ShowOverlayOptions()
+    {
+        _loadingController = true;
+        var overlay = _host.Settings.Current.Controller.Overlay;
+        _overlayEnableBox.IsChecked = overlay.Enabled;
+        _overlayFocusBox.IsChecked = overlay.TakeFocus;
+        _loadingController = false;
     }
 
     private void AddComboPanel(string titleKey, string hintKey, ComboPanel panel)
@@ -174,6 +232,7 @@ public partial class MainWindow
             ShowCombo(panel);
         }
 
+        ShowOverlayOptions();
         _controllerTimer.Start();
     }
 
@@ -217,7 +276,7 @@ public partial class MainWindow
         }
 
         CancelRecording();
-        if (!Array.Exists(_controllerSeen, seen => seen))
+        if (_controllerPoller is not { AnyConnected: true })
         {
             panel.Message.Text = Text("Controller.Record.NoController");
             return;
@@ -248,9 +307,9 @@ public partial class MainWindow
             return;
         }
 
-        var held = ReadControllers();
-        bool anyConnected = Array.Exists(_controllerSeen, seen => seen);
-        ControllerStatusText.Text = Text(anyConnected ? "Controller.Status.Connected" : "Controller.Status.None");
+        _controllerPoller ??= new GamepadPoller(_host.GamepadReader);
+        var held = _controllerPoller.Read(_controllerClock.Elapsed);
+        ControllerStatusText.Text = Text(_controllerPoller.AnyConnected ? "Controller.Status.Connected" : "Controller.Status.None");
 
         if (_recording is { } recording)
         {
@@ -272,35 +331,6 @@ public partial class MainWindow
         {
             UpdateHoldBar(panel, held);
         }
-    }
-
-    /// <summary>The buttons held on every controller together. A slot with nothing plugged in
-    /// is looked at again only once a second: asking XInput about an empty slot is slow on
-    /// some systems.</summary>
-    private GamepadButtons ReadControllers()
-    {
-        var now = _controllerClock.Elapsed;
-        var held = GamepadButtons.None;
-        for (int i = 0; i < ComboDetector.MaxControllers; i++)
-        {
-            if (!_controllerSeen[i] && now < _controllerNextProbe[i])
-            {
-                continue;
-            }
-
-            var sample = _host.GamepadReader.Read(i);
-            _controllerSeen[i] = sample.Connected;
-            if (sample.Connected)
-            {
-                held |= sample.Buttons;
-            }
-            else
-            {
-                _controllerNextProbe[i] = now + TimeSpan.FromSeconds(1);
-            }
-        }
-
-        return held;
     }
 
     private void UpdateHoldBar(ComboPanel panel, GamepadButtons held)

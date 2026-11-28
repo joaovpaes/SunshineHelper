@@ -20,14 +20,18 @@ public sealed record ControllerSettings
     public OverlaySettings Overlay { get; init; } = new();
 
     /// <summary>The combos the detector should watch right now: the close-game one only
-    /// when the user turned it on. The overlay combo joins once the overlay window exists
-    /// (ADR 0015, PR F).</summary>
+    /// when the user turned it on, and the overlay one unless the user turned it off.</summary>
     public IReadOnlyList<ComboDefinition> ActiveCombos()
     {
         var combos = new List<ComboDefinition>();
         if (CloseGame.Enabled)
         {
             combos.Add(CloseGame.Combo.ToDefinition(CloseGameComboId));
+        }
+
+        if (Overlay.Enabled)
+        {
+            combos.Add(Overlay.Combo.ToDefinition(OverlayComboId));
         }
 
         return combos;
@@ -100,6 +104,14 @@ public sealed record CloseGameSettings
 /// <summary>The overlay opened from the controller (ADR 0015).</summary>
 public sealed record OverlaySettings
 {
+    /// <summary>On by default (ADR 0015): opening the overlay destroys nothing.</summary>
+    public bool Enabled { get; init; } = true;
+
+    /// <summary>When the overlay opens, try to bring it to the front and give the focus back
+    /// to the window that had it when it closes. Turn it off to keep the game in front
+    /// (the buttons then also reach the game).</summary>
+    public bool TakeFocus { get; init; } = true;
+
     /// <summary>L3 + R3 held for 3 s: rarely pressed together on purpose, and opening the
     /// overlay destroys nothing, so it can be shorter than the close-game hold.</summary>
     public ComboSettings Combo { get; init; } = new()

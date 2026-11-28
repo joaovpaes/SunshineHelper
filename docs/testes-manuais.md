@@ -552,6 +552,33 @@ virtual do Sunshine numa transmissão com `gamepad` em `x360`).
       "Nenhum controle visto. Conecte um…".
 - [ ] **Idiomas:** a tela segue o idioma escolhido na tela Geral (nomes dos botões incluídos).
 
+## PR F do ADR 0015 — janela do overlay (L3 + R3)
+
+Use o **pacote de prévia** do PR, **numa transmissão de verdade** (o overlay só abre durante a transmissão), com o
+controle do aparelho visto pelo Windows (`gamepad` em `x360` no Sunshine). Depois de cada item, veja a tela **Log**.
+
+- [ ] **Abrir:** segure **L3 + R3** por 3 s: aparece uma faixa escura na **direita da tela**, com a tela mais escura ao
+      redor, por cima do jogo. O topo diz "Transmitindo para <aparelho> · perfil <perfil>". As linhas Perfis,
+      Ajustes, Janelas e Atalhos aparecem apagadas com "EM BREVE"; **Restaurar agora** está selecionada. No log:
+      `overlay: opened`.
+- [ ] **Foco:** com "Tirar o foco do jogo…" ligada (tela Controle), os botões do controle **não** devem mexer no jogo
+      enquanto o overlay está aberto. Se o jogo reagir, veja no log a linha "opened without the focus" e conte aqui
+      (é o risco R8 do ADR).
+- [ ] **Fechar com B:** apertar **B** fecha o overlay e o jogo volta a ficar na frente (o foco é devolvido). Nada mudou
+      na tela nem na resolução.
+- [ ] **Não reabre sozinho:** com o overlay aberto, segurar L3 + R3 de novo não abre outro.
+- [ ] **Restaurar agora, cancelar:** **A** em "Restaurar agora" abre a pergunta; **B** cancela e volta ao menu (não
+      fecha o overlay).
+- [ ] **Restaurar agora, confirmar:** **A** de novo: a resolução, o HDR e o limite de FPS voltam ao que eram antes da
+      transmissão, **a transmissão continua** e o **launcher continua aberto**. O overlay mostra "Pronto…" e "Ambiente
+      restaurado · a transmissão continua"; "Restaurar agora" fica apagada. Depois disso os combos param até a próxima
+      transmissão (é de propósito).
+- [ ] **Fim da transmissão:** com o overlay aberto (sem ter restaurado), encerre a transmissão: o overlay fecha sozinho
+      e a tela volta ao normal.
+- [ ] **Desligar:** na tela Controle, desmarque "Abrir o overlay segurando este combo…": segurar L3 + R3 não abre mais.
+      Marque "Tirar o foco…" desligada e abra de novo: o overlay abre sem tirar o foco do jogo.
+- [ ] **Fechar o jogo ainda funciona** (Select + Y) com o overlay ligado.
+
 ## Automatizar isto (pendência, sem PR ainda)
 
 Pedido do autor: transformar estes itens em testes automáticos de verdade, em

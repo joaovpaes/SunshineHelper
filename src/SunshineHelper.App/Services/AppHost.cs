@@ -22,6 +22,7 @@ using SunshineHelper.Infrastructure.Launcher;
 using SunshineHelper.Infrastructure.Monitoring;
 using SunshineHelper.Infrastructure.Session;
 using SunshineHelper.Infrastructure.Settings;
+using SunshineHelper.Protocol;
 
 namespace SunshineHelper.App.Services;
 
@@ -74,6 +75,21 @@ internal sealed class AppHost : IAsyncDisposable
     public DeviceRegistry Devices { get; }
 
     public SessionStatusReader Status { get; }
+
+    /// <summary>Raised (on a background thread) when the user holds the overlay combo during a
+    /// stream. The window opens on the UI thread, in <see cref="OverlayHost"/>.</summary>
+    public event Action? OverlayRequested;
+
+    /// <summary>Writes a line to the app log, for the parts of the UI that have something to
+    /// say about a stream (the overlay's focus, for one).</summary>
+    public void Log(DiagnosticLevel level, string source, string message) =>
+        _diagnosticLog.Write(level, source, message);
+
+    /// <summary>"Restore now" from the overlay: puts the screen back like a plain disconnect
+    /// with "revert on disconnect" on. The launcher stays open, because the stream goes on and
+    /// the game was started from it (docs/adr/0008-modulo-launcher.md).</summary>
+    public Task<ChannelResponse> RestoreNowAsync(CancellationToken cancellationToken) =>
+        _handler.HandleAsync(new TriggerRequest { Op = TriggerOp.SessionEnd, Reason = SessionEndReason.Disconnect }, cancellationToken);
 
     /// <summary>The controller reader, shared by the watcher and the Controller screen.</summary>
     public IGamepadReader GamepadReader { get; } = new XInputGamepadReader();
@@ -311,6 +327,10 @@ internal sealed class AppHost : IAsyncDisposable
             if (string.Equals(combo.Id, ControllerSettings.CloseGameComboId, StringComparison.Ordinal))
             {
                 _ = Task.Run(() => RunCloseGameAsync(closeGame, token), CancellationToken.None);
+            }
+            else if (string.Equals(combo.Id, ControllerSettings.OverlayComboId, StringComparison.Ordinal))
+            {
+                OverlayRequested?.Invoke();
             }
         };
         watcher.SessionEnded += closeGame.Reset;

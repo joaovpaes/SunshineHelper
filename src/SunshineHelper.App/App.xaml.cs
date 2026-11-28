@@ -26,6 +26,7 @@ public partial class App : System.Windows.Application
     private AppHost? _host;
     private TrayIcon? _tray;
     private MainWindow? _window;
+    private OverlayHost? _overlay;
 
     /// <summary>True once the user chose Exit; until then closing the window only hides it.</summary>
     internal bool IsExiting { get; private set; }
@@ -60,6 +61,11 @@ public partial class App : System.Windows.Application
         ApplyLanguage(_host.Settings.Current.Language);
         _tray = new TrayIcon(ShowMainWindow, ExitApp);
 
+        // The combo fires on a background thread; the window must open on this one.
+        var overlay = new OverlayHost(_host);
+        _overlay = overlay;
+        _host.OverlayRequested += () => Dispatcher.InvokeAsync(overlay.Open);
+
         KeepStartupEntryCurrent();
 
         _window = new MainWindow(_host);
@@ -77,6 +83,7 @@ public partial class App : System.Windows.Application
         // A static event: left subscribed, it would keep this object alive.
         SystemEvents.UserPreferenceChanged -= OnUserPreferenceChanged;
 
+        _overlay?.Close();
         _tray?.Dispose();
 
         // Stops the pipe and the log reader. Blocking is safe: nothing in the host
