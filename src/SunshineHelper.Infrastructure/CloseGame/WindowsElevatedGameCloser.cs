@@ -1,7 +1,6 @@
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Threading;
-using Microsoft.CSharp.RuntimeBinder;
 using SunshineHelper.Application.CloseGame;
 using SunshineHelper.Application.Launcher;
 using SunshineHelper.Protocol;
@@ -85,8 +84,11 @@ public sealed class WindowsElevatedGameCloser : IElevatedGameCloser
 
             return new ElevatedCloseAttempt(ElevatedCloseStatus.Unknown);
         }
-        catch (Exception ex) when (ex is COMException or RuntimeBinderException or InvalidCastException)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
+            // The late binder turns a COM error into the matching .NET exception
+            // (FileNotFoundException, UnauthorizedAccessException, COMException...); any of
+            // them means the task could not be used, never a crash of the round.
             return new ElevatedCloseAttempt(ElevatedCloseStatus.Failed);
         }
         finally
@@ -140,8 +142,9 @@ public sealed class WindowsElevatedGameCloser : IElevatedGameCloser
             dynamic folder = ((dynamic)service).GetFolder("\\");
             return folder.GetTask(ElevatedCloseContract.TaskName);
         }
-        catch (COMException ex) when (ex.HResult is FileNotFound or PathNotFound)
+        catch (Exception ex) when (ex.HResult is FileNotFound or PathNotFound)
         {
+            // The binder raises FileNotFoundException (or a COMException) for a missing task.
             return null;
         }
     }
