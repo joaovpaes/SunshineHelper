@@ -35,28 +35,31 @@ public sealed class ElevatedCloseRequestTests
     }
 
     [Theory]
-    [InlineData(new[] { "elevated-close" })]
-    [InlineData(new[] { "elevated-close", "close", "1234" })]
-    [InlineData(new[] { "elevated-close", "close", "1234", "5", "install" })]
-    [InlineData(new[] { "start", "close", "1234", "5" })]
-    [InlineData(new[] { "Elevated-Close", "close", "1234", "5" })]
-    [InlineData(new[] { "elevated-close", "Close", "1234", "5" })]
-    [InlineData(new[] { "elevated-close", "terminate", "1234", "5" })]
-    [InlineData(new[] { "elevated-close", "close", "0", "5" })]
-    [InlineData(new[] { "elevated-close", "close", "-12", "5" })]
-    [InlineData(new[] { "elevated-close", "close", "+12", "5" })]
-    [InlineData(new[] { "elevated-close", "close", " 12", "5" })]
-    [InlineData(new[] { "elevated-close", "close", "12 ", "5" })]
-    [InlineData(new[] { "elevated-close", "close", "1,234", "5" })]
-    [InlineData(new[] { "elevated-close", "close", "0x10", "5" })]
-    [InlineData(new[] { "elevated-close", "close", "99999999999", "5" })]
-    [InlineData(new[] { "elevated-close", "close", "12", "0" })]
-    [InlineData(new[] { "elevated-close", "close", "12", "-5" })]
-    [InlineData(new[] { "elevated-close", "close", "12", "abc" })]
-    [InlineData(new[] { "elevated-close", "close", "12", "" })]
-    [InlineData(new[] { "elevated-close", "close", "12", "5\" install" })]
-    public void Recusa_qualquer_outra_forma(string[] args)
+    [InlineData("elevated-close")]
+    [InlineData("elevated-close|close|1234")]
+    [InlineData("elevated-close|close|1234|5|install")]
+    [InlineData("start|close|1234|5")]
+    [InlineData("Elevated-Close|close|1234|5")]
+    [InlineData("elevated-close|Close|1234|5")]
+    [InlineData("elevated-close|terminate|1234|5")]
+    [InlineData("elevated-close|close|0|5")]
+    [InlineData("elevated-close|close|-12|5")]
+    [InlineData("elevated-close|close|+12|5")]
+    [InlineData("elevated-close|close| 12|5")]
+    [InlineData("elevated-close|close|12 |5")]
+    [InlineData("elevated-close|close|1,234|5")]
+    [InlineData("elevated-close|close|0x10|5")]
+    [InlineData("elevated-close|close|99999999999|5")]
+    [InlineData("elevated-close|close|12|0")]
+    [InlineData("elevated-close|close|12|-5")]
+    [InlineData("elevated-close|close|12|abc")]
+    [InlineData("elevated-close|close|12|")]
+    [InlineData("elevated-close|close|12|5\" install")]
+    public void Recusa_qualquer_outra_forma(string joinedArgs)
     {
+        // Arguments joined with '|' because InlineData cannot take a string array as one value.
+        string[] args = joinedArgs.Split('|');
+
         ElevatedCloseRequest.TryParse(args, out var request).ShouldBeFalse();
 
         request.ShouldBeNull();

@@ -37,7 +37,7 @@ internal sealed partial class WindowsElevatedProcessSystem : IElevatedProcessSys
         long? startTime = NativeMethods.StartTime(handle);
         if (name is null || startTime is null)
         {
-            NativeMethods.CloseHandle(handle);
+            _ = NativeMethods.CloseHandle(handle);
             return OpenStatus.Denied;
         }
 
@@ -63,7 +63,7 @@ internal sealed partial class WindowsElevatedProcessSystem : IElevatedProcessSys
         }
         finally
         {
-            NativeMethods.CloseHandle(handle);
+            _ = NativeMethods.CloseHandle(handle);
         }
     }
 
@@ -105,7 +105,7 @@ internal sealed partial class WindowsElevatedProcessSystem : IElevatedProcessSys
             nint toClose = Interlocked.Exchange(ref _handle, 0);
             if (toClose != 0)
             {
-                NativeMethods.CloseHandle(toClose);
+                _ = NativeMethods.CloseHandle(toClose);
             }
         }
     }
@@ -152,7 +152,7 @@ internal sealed partial class WindowsElevatedProcessSystem : IElevatedProcessSys
             }
             finally
             {
-                CloseHandle(snapshot);
+                _ = CloseHandle(snapshot);
             }
         }
 
@@ -199,7 +199,7 @@ internal sealed partial class WindowsElevatedProcessSystem : IElevatedProcessSys
             }
             finally
             {
-                CloseHandle(token);
+                _ = CloseHandle(token);
             }
         }
 
@@ -285,7 +285,7 @@ internal sealed partial class WindowsElevatedProcessSystem : IElevatedProcessSys
             }
             finally
             {
-                CloseHandle(token);
+                _ = CloseHandle(token);
             }
         }
 
