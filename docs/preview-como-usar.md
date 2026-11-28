@@ -101,10 +101,6 @@ confirme o aviso do Windows (uma vez só).
   encerra. Encerrar um jogo de administrador encerra só o jogo, não os programas que ele abriu. As proteções
   continuam valendo (o launcher, a lista protegida e o que já estava aberto antes da transmissão).
 - **Sem a permissão,** o combo não fecha esses jogos e o log diz para usar o botão da tela Geral.
-- **Limite conhecido:** a tarefa só aceita um jogo aberto por um Sunshine que roda como administrador. Por isso, para
-  fechar um jogo de administrador, o app do Playnite (ou do launcher) precisa estar com **"Run as elevated"** no
-  Sunshine. Com o Playnite sem administrador e o jogo com administrador, a tarefa recusa e o log diz "the process was
-  not started by Sunshine". Isso será revisto em um PR próprio.
 - **Se o log disser que a tarefa recusou,** o motivo vem junto. Por exemplo, "not started by Sunshine": o jogo não
   foi aberto pelo Sunshine (nem pelo Playnite que o Sunshine abriu).
 - **Se aparecer um código:** `40` o aviso do Windows não deu administrador; `41` o app não achou o
