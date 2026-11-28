@@ -128,6 +128,17 @@ processo elevado também aumentaria o que pode dar errado lá dentro.
   sem os protegidos) e pede `kill` de um em um pela tarefa para os que estiverem elevados.
 - Sem a tarefa instalada: o aviso do log passa a dizer "o jogo roda como administrador; na tela Geral, use 'Permitir
   fechar jogos de administrador'".
+- **Como o app acha o jogo (D2c):** o Windows não deixa o app abrir um processo elevado, então o .NET não lê a hora de
+  início. O app lê PID, nome e hora de início da lista de processos do Windows (`NtQuerySystemInformation`), que não
+  abre nenhum processo, e confere as proteções dele (launcher, lista protegida, aberto antes da transmissão) como
+  para qualquer jogo. Um jogo elevado na frente vai direto pela tarefa; um jogo comum cujo pedido o Windows recusar
+  também. Esperar o jogo sumir usa a mesma lista (mesmo PID e mesma hora de início).
+- **Encerrar pela tarefa encerra só o jogo:** a tarefa age num processo com janela, e o app não consegue abrir os
+  filhos de um processo elevado. Filhos sem janela ficam (na prática, somem com o jogo ou não atrapalham).
+- **Resposta da tarefa:** o app dispara com `RunEx` e lê `LastTaskResult` quando a tarefa termina (até 12 s). O
+  número vira o motivo no `app.log` ("the process was not started by Sunshine", etc.). Sem resposta a tempo, o app
+  segue olhando o próprio processo. Os códigos ficam duplicados no app (`ElevatedCloseReason`) e no auxiliar; um
+  teste mantém as duas listas iguais.
 - A função "fechar o jogo" continua desligada de fábrica, e a permissão de administrador também (não instalada).
 
 ## Riscos aceitos
@@ -166,7 +177,8 @@ Se a lista chegar a `sunshine.exe`, a regra fica como está. Se não, este ADR �
   permissões explícitas (só administradores gravam); uma tarefa de mesmo nome criada antes por outro programa é
   apagada antes de criar a nova; e o app manda o SID da conta que clicou, para a instalação recusar se o UAC for
   aprovado por outra conta de administrador.
-- **D2c:** a chamada pelo Agendador de Tarefas e a ligação no `CloseGameService`.
+- **D2c:** a chamada pelo Agendador de Tarefas e a ligação no `CloseGameService`, com o jogo elevado identificado
+  pela lista de processos do Windows (seção 6).
 - Todos com Opus · esforço alto e **revisão de segurança por um agente separado** antes de mesclar.
 
 ## Alternativas consideradas
