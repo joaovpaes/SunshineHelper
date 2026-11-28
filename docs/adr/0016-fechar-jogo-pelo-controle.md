@@ -104,7 +104,8 @@ O app continua sem elevação. Quando o jogo está elevado, o pedido e o encerra
 app registra um **aviso claro** no `app.log` e na tela Log: "O jogo roda como administrador; o app não consegue
 fechá-lo. No Sunshine, desmarque 'Executar como administrador' no app do launcher." O guia (`preview-como-usar.md`)
 e o README ganham essa orientação. Um ajudante elevado (tarefa agendada com privilégio máximo) fica fora da v1 e,
-se vier, terá ADR e revisão de segurança próprios.
+se vier, terá ADR e revisão de segurança próprios. **Atualização (2026-11-27):** o teste no PC mostrou jogos que exigem
+administrador de verdade; o ajudante está proposto no ADR 0017.
 
 ### 7. Onde fica cada parte
 

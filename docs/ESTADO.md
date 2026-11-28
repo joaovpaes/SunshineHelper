@@ -1,7 +1,7 @@
 # Estado do projeto
 
 Uma página para retomar o trabalho sem reler tudo. O Claude atualiza este arquivo no fim de cada PR
-(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-27**, `main` após o PR 73 (o PR D está em andamento).
+(regra no `CLAUDE.md`); não há trava no CI. Última atualização: **2026-11-27**, `main` após o PR 74 (o ADR 0017 está em revisão).
 
 ## Onde estamos
 
@@ -11,7 +11,7 @@ leitor do log do Sunshine, bandeja e janela (Painel, Geral, Perfis), log de diag
 diagnóstico. As decisões D2 (falha de um módulo vira aviso) e D3 (sessão anterior presa é restaurada antes da
 nova) estão no ADR 0011 e passaram no teste do PC. Situação do portão: `docs/fase1-portao.md`.
 
-**Último PR mesclado:** #73 (regras do "fechar o jogo"; antes, #72 regra A/B do overlay, #71 leitor XInput, #70 detector de combo e seção `controller`, #69 ADRs 0015 e 0016).
+**Último PR mesclado:** #74 (fechar o jogo pelo controle no Windows, desligado de fábrica; testado no PC com um jogo comum: fecha e o Playnite volta). Antes, #73 regras do "fechar o jogo", #72 regra A/B do overlay, #71 leitor XInput, #70 detector de combo e seção `controller`, #69 ADRs 0015 e 0016.
 **Versão de testes atual:** `v0.1.0-preview.5` (com a tela Log), publicada em 2026-11-23 pelo workflow `preview-release.yml` (zip com o app e o
 auxiliar de gatilho). As versões `preview.1` a `preview.5` foram testadas no PC do autor e funcionaram; o Windows mostra
 o aviso do SmartScreen porque não há assinatura de código.
@@ -22,7 +22,8 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 | PR | O quê | Modelo |
 | --- | --- | --- |
-| 74 | PR D do ADR 0016: fechar o jogo no Windows (janela em foco, pedir para fechar, encerrar, voltar ao launcher) ligado ao leitor do controle e caixa na tela Geral (neste PR; precisa de teste no PC, roteiro em `docs/testes-manuais.md`) | Sonnet · médio |
+| este | ADR 0017: ajudante elevado para fechar jogos de administrador (só o ADR, para aprovação) | Opus · alto |
+| D2a, D2b | Ajudante elevado (projeto e regras; depois instalar, ligar no app e tela), com revisão de segurança | Opus · alto |
 | a seguir | PR E do ADR 0015: tela "Controle" para gravar os combos | Sonnet · médio |
 | depois | PR F a H do ADR 0015 (janela do overlay seguindo o protótipo aprovado, perfis e ajustes com ADR próprio, atalhos) | ver ADR 0015 |
 
@@ -36,7 +37,11 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 Lista viva em `docs/testes-manuais.md`, "Ainda pendente":
 
 - Calibração do atraso do launcher (0 / 3000 / 5000 ms, 3 rodadas cada).
-- Leitor do controle (PR B) e fechar o jogo (PR D): roteiros em `docs/testes-manuais.md`, "PR B do ADR 0015" e "PR D do ADR 0016".
+- Fechar o jogo (PR D): o caminho principal passou (jogo comum fecha e o Playnite volta). Faltam os outros itens do roteiro
+  "PR D do ADR 0016" (segunda segurada encerra, pausa, jogo sem menu).
+- ADR 0017: conferir no PC se o jogo descende do `sunshine.exe` (comando no próprio ADR).
+- No teste do PR D o log disse que o Windows não deixou trazer o Playnite para a frente (ele já estava na frente). Rever a
+  mensagem para não parecer erro.
 - Opcional: relatório de diagnóstico com o caminho do log do Sunshine vazio.
 
 ## Backlog (sem PR marcado)
@@ -47,6 +52,8 @@ Lista viva em `docs/testes-manuais.md`, "Ainda pendente":
   estiver fechado.
 - Segunda cópia do app: hoje ela sai em silêncio; melhor seria trazer a janela da primeira para a frente.
 - Tela Log: quebrar as linhas longas (ou opção) e deixar Copiar e Abrir a pasta sempre visíveis, sem rolar a página.
+- Overlay: mostrar na tela que o combo de fechar foi reconhecido (pedido do autor no teste do PR D; vem com a janela do
+  overlay, PR F).
 - Overlay: ler controles no estilo PlayStation (DualShock 4 virtual do Sunshine), que o XInput não vê (ADR 0015).
 - `LEIA-ME.md` do pacote também em inglês (hoje só em português; as notas da release já são nas duas línguas).
 - Depois do instalador: release oficial com `release-please` e atestado de procedência (o `SHA256SUMS.txt` e o zip já saem
