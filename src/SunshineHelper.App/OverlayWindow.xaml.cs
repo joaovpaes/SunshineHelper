@@ -76,7 +76,7 @@ public partial class OverlayWindow : Window
         PanelHost.Children.Add(Block(Text("Overlay.Title"), 34, _text, bold: true, margin: new Thickness(0, 22, 0, 0)));
         PanelHost.Children.Add(Block(Text("Overlay.Subtitle"), 17, _dim, margin: new Thickness(0, 4, 0, 14)));
 
-        foreach (var item in model.Items)
+        foreach (var item in OverlayModel.Items)
         {
             PanelHost.Children.Add(BuildRow(item, model));
         }

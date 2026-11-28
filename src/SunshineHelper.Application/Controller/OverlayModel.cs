@@ -47,7 +47,7 @@ public sealed class OverlayModel
     }
 
     /// <summary>Every entry, in screen order.</summary>
-    public IReadOnlyList<OverlayItem> Items => _all;
+    public static IReadOnlyList<OverlayItem> Items => _all;
 
     /// <summary>The selected entry, or null when nothing can be selected.</summary>
     public OverlayItem? Selected { get; private set; }

@@ -12,7 +12,7 @@ public class OverlayModelTests
         var model = new OverlayModel();
 
         model.Selected.ShouldBe(OverlayItem.Restore);
-        model.Items.Count.ShouldBe(5);
+        OverlayModel.Items.Count.ShouldBe(5);
         model.IsAvailable(OverlayItem.Profiles).ShouldBeFalse();
         model.IsAvailable(OverlayItem.Restore).ShouldBeTrue();
     }
