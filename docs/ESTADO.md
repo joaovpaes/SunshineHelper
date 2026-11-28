@@ -22,8 +22,8 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 
 | PR | O quê | Modelo |
 | --- | --- | --- |
-| este | ADR 0017: ajudante elevado para fechar jogos de administrador (só o ADR, para aprovação) | Opus · alto |
-| D2a, D2b | Ajudante elevado (projeto e regras; depois instalar, ligar no app e tela), com revisão de segurança | Opus · alto |
+| 75 | ADR 0017: modo elevado do auxiliar para fechar jogos de administrador (só o ADR, para aprovação) | Opus · alto |
+| D2a, D2b | Modo elevado do auxiliar (regras; depois instalar, ligar no app e tela), com revisão de segurança | Opus · alto |
 | a seguir | PR E do ADR 0015: tela "Controle" para gravar os combos | Sonnet · médio |
 | depois | PR F a H do ADR 0015 (janela do overlay seguindo o protótipo aprovado, perfis e ajustes com ADR próprio, atalhos) | ver ADR 0015 |
 
