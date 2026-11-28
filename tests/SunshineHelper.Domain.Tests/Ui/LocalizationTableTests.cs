@@ -33,11 +33,39 @@ public class LocalizationTableTests
     {
         var pt = XamlDictionary.ReadTexts(Portuguese);
 
-        foreach (var page in new[] { "Panel", "Profiles", "Devices", "Log", "General" })
+        foreach (var page in new[] { "Panel", "Profiles", "Devices", "Controller", "Log", "General" })
         {
             pt.ShouldContainKey($"Nav.{page}");
             pt.ShouldContainKey($"Page.{page}.Title");
             pt.ShouldContainKey($"Page.{page}.Description");
         }
+    }
+
+    [Fact]
+    public void Todo_botao_do_controle_tem_nome_nos_dois_idiomas()
+    {
+        // The Controller screen names a button by "Button.<enum name>".
+        var pt = XamlDictionary.ReadTexts(Portuguese);
+        var en = XamlDictionary.ReadTexts(English);
+
+        foreach (var name in Enum.GetNames<SunshineHelper.Domain.Gamepad.GamepadButtons>().Where(n => n != "None"))
+        {
+            pt.ShouldContainKey($"Button.{name}");
+            en.ShouldContainKey($"Button.{name}");
+        }
+    }
+
+    [Theory]
+    [InlineData("TooFewButtons")]
+    [InlineData("TooManyButtons")]
+    [InlineData("StartAndBack")]
+    [InlineData("SameAsOther")]
+    [InlineData("HoldTooShort")]
+    [InlineData("HoldTooLong")]
+    public void Todo_aviso_de_combo_tem_texto_nos_dois_idiomas(string issue)
+    {
+        // The Controller screen names a warning by "Controller.Issue.<ComboIssue name>".
+        XamlDictionary.ReadTexts(Portuguese).ShouldContainKey($"Controller.Issue.{issue}");
+        XamlDictionary.ReadTexts(English).ShouldContainKey($"Controller.Issue.{issue}");
     }
 }

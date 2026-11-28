@@ -37,6 +37,8 @@ public partial class MainWindow : Window
         _statusTimer.Tick += (_, _) => RefreshDevicesIfVisible();
         _statusTimer.Tick += (_, _) => RefreshLogViewIfVisible();
         _statusTimer.Start();
+        _controllerTimer.Tick += (_, _) => OnControllerTick();
+        BuildControllerPanels();
 
         // Not set in XAML: SelectionChanged would fire before PageTitle exists.
         NavList.SelectedIndex = 0;
@@ -76,7 +78,19 @@ public partial class MainWindow : Window
         DevicesCard.Visibility = isDevices ? Visibility.Visible : Visibility.Collapsed;
         bool isLog = page == "Log";
         LogCard.Visibility = isLog ? Visibility.Visible : Visibility.Collapsed;
-        NotReadyCard.Visibility = isPanel || isGeneral || isProfiles || isDevices || isLog ? Visibility.Collapsed : Visibility.Visible;
+        bool isController = page == "Controller";
+        ControllerCard.Visibility = isController ? Visibility.Visible : Visibility.Collapsed;
+        NotReadyCard.Visibility = isPanel || isGeneral || isProfiles || isDevices || isLog || isController ? Visibility.Collapsed : Visibility.Visible;
+
+        // The controller is read only while this screen is on (and a combo is being recorded or tried).
+        if (isController)
+        {
+            StartControllerScreen();
+        }
+        else
+        {
+            StopControllerScreen();
+        }
 
         if (isLog)
         {

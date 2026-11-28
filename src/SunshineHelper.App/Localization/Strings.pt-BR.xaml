@@ -10,6 +10,7 @@
     <sys:String x:Key="Nav.Profiles">Perfis</sys:String>
     <sys:String x:Key="Nav.Devices">Dispositivos</sys:String>
     <sys:String x:Key="Nav.Log">Log</sys:String>
+    <sys:String x:Key="Nav.Controller">Controle</sys:String>
     <sys:String x:Key="Nav.General">Geral</sys:String>
 
     <sys:String x:Key="Page.Panel.Title">Painel</sys:String>
@@ -18,6 +19,8 @@
     <sys:String x:Key="Page.Profiles.Description">Resolução, HDR e limite de FPS de cada aparelho.</sys:String>
     <sys:String x:Key="Page.Devices.Title">Dispositivos</sys:String>
     <sys:String x:Key="Page.Devices.Description">Aparelhos que já se conectaram e o perfil de cada um.</sys:String>
+    <sys:String x:Key="Page.Controller.Title">Controle</sys:String>
+    <sys:String x:Key="Page.Controller.Description">Os combos que você segura no controle e por quanto tempo.</sys:String>
     <sys:String x:Key="Page.Log.Title">Log</sys:String>
     <sys:String x:Key="Page.Log.Description">O que o app fez em cada sessão.</sys:String>
     <sys:String x:Key="Page.General.Title">Geral</sys:String>
@@ -85,7 +88,7 @@
     <sys:String x:Key="General.Launcher.DelayInvalid">Atraso inválido: use um número inteiro de 0 a 30000.</sys:String>
 
     <sys:String x:Key="General.CloseGame">Fechar o jogo com o controle</sys:String>
-    <sys:String x:Key="General.CloseGame.Enable">Fechar o jogo que está na frente segurando Select + Y por 5 segundos</sys:String>
+    <sys:String x:Key="General.CloseGame.Enable">Fechar o jogo que está na frente segurando o combo no controle (veja a tela Controle; de fábrica, Select + Y por 5 segundos)</sys:String>
     <sys:String x:Key="General.CloseGame.Hint">Só durante a transmissão. O app primeiro pede para o jogo fechar, como se você clicasse no X. Se o jogo não fechar, segure o combo de novo em até 15 segundos para encerrá-lo. Ele nunca fecha o Windows, o Sunshine, este app, o launcher nem nada que você já tinha aberto antes da transmissão. Precisa da opção gamepad do Sunshine em x360. Jogos que rodam como administrador também precisam da permissão abaixo.</sys:String>
     <sys:String x:Key="General.CloseGame.NoLauncher">A lista de programas a fechar acima está vazia: sem o nome do launcher, o combo pode fechá-lo se ele for o programa que está na frente.</sys:String>
     <sys:String x:Key="General.CloseGame.Return">Trazer o launcher de volta para a frente depois de fechar o jogo</sys:String>
@@ -150,4 +153,43 @@
     <sys:String x:Key="Profiles.Fps.Repaired">Pronto: o app já pode gravar o limite de FPS do RTSS.</sys:String>
     <sys:String x:Key="Profiles.Fps.RepairFailed">Não foi possível liberar a permissão: {0}</sys:String>
     <sys:String x:Key="Panel.RtssClosed">Aviso: este perfil limita o FPS, mas o RTSS não está aberto. O limite só vale depois que o RTSS abrir.</sys:String>
+    <sys:String x:Key="Controller.Status.None">Nenhum controle visto agora.</sys:String>
+    <sys:String x:Key="Controller.Status.Connected">Controle conectado.</sys:String>
+    <sys:String x:Key="Controller.Hint">Aqui você grava os botões de cada combo e testa por quanto tempo segurar. A tela lê controle no estilo Xbox (no Sunshine, deixe a opção gamepad em x360). A barra de tempo é só um teste, mas se houver transmissão e o combo estiver ligado, segurar até o fim faz mesmo o que o combo faz.</sys:String>
+    <sys:String x:Key="Controller.CloseGame.Title">Fechar o jogo</sys:String>
+    <sys:String x:Key="Controller.CloseGame.Hint">Ligado na tela Geral. Pede ao jogo que está na frente para fechar; segure de novo para encerrá-lo.</sys:String>
+    <sys:String x:Key="Controller.Overlay.Title">Abrir o overlay</sys:String>
+    <sys:String x:Key="Controller.Overlay.Hint">A janela do overlay ainda não existe. O combo fica salvo agora e vale quando ela chegar.</sys:String>
+    <sys:String x:Key="Controller.Record">Gravar</sys:String>
+    <sys:String x:Key="Controller.Record.Cancel">Cancelar</sys:String>
+    <sys:String x:Key="Controller.Record.Prompt">Segure os botões do combo e depois solte tudo…</sys:String>
+    <sys:String x:Key="Controller.Record.NoController">Nenhum controle visto. Conecte um (ou comece uma transmissão) e tente de novo.</sys:String>
+    <sys:String x:Key="Controller.Reset">Voltar ao padrão</sys:String>
+    <sys:String x:Key="Controller.Hold">Tempo de segurar: {0} s</sys:String>
+    <sys:String x:Key="Controller.Hold.Less">−</sys:String>
+    <sys:String x:Key="Controller.Hold.More">+</sys:String>
+    <sys:String x:Key="Controller.Hold.Idle">Segure exatamente estes botões para testar o tempo.</sys:String>
+    <sys:String x:Key="Controller.Hold.Reached">Pronto: é esse o tempo.</sys:String>
+    <sys:String x:Key="Controller.Saved">Salvo: {0}. Vale na hora.</sys:String>
+    <sys:String x:Key="Controller.NotSaved">Não salvei:</sys:String>
+    <sys:String x:Key="Controller.Issue.TooFewButtons">um combo precisa de pelo menos 2 botões.</sys:String>
+    <sys:String x:Key="Controller.Issue.TooManyButtons">um combo aceita no máximo 4 botões.</sys:String>
+    <sys:String x:Key="Controller.Issue.StartAndBack">Start e Select juntos não são aceitos (é também o atalho de encerrar do Moonlight).</sys:String>
+    <sys:String x:Key="Controller.Issue.SameAsOther">o outro combo já usa estes botões.</sys:String>
+    <sys:String x:Key="Controller.Issue.HoldTooShort">o tempo de segurar precisa ser de pelo menos 0,5 s.</sys:String>
+    <sys:String x:Key="Controller.Issue.HoldTooLong">o tempo de segurar precisa ser de no máximo 10 s.</sys:String>
+    <sys:String x:Key="Button.Back">Select</sys:String>
+    <sys:String x:Key="Button.Start">Start</sys:String>
+    <sys:String x:Key="Button.A">A</sys:String>
+    <sys:String x:Key="Button.B">B</sys:String>
+    <sys:String x:Key="Button.X">X</sys:String>
+    <sys:String x:Key="Button.Y">Y</sys:String>
+    <sys:String x:Key="Button.LeftShoulder">LB</sys:String>
+    <sys:String x:Key="Button.RightShoulder">RB</sys:String>
+    <sys:String x:Key="Button.LeftThumb">L3</sys:String>
+    <sys:String x:Key="Button.RightThumb">R3</sys:String>
+    <sys:String x:Key="Button.DPadUp">Direcional ↑</sys:String>
+    <sys:String x:Key="Button.DPadDown">Direcional ↓</sys:String>
+    <sys:String x:Key="Button.DPadLeft">Direcional ←</sys:String>
+    <sys:String x:Key="Button.DPadRight">Direcional →</sys:String>
 </ResourceDictionary>

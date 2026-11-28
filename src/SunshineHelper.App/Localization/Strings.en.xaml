@@ -10,6 +10,7 @@
     <sys:String x:Key="Nav.Profiles">Profiles</sys:String>
     <sys:String x:Key="Nav.Devices">Devices</sys:String>
     <sys:String x:Key="Nav.Log">Log</sys:String>
+    <sys:String x:Key="Nav.Controller">Controller</sys:String>
     <sys:String x:Key="Nav.General">General</sys:String>
 
     <sys:String x:Key="Page.Panel.Title">Dashboard</sys:String>
@@ -18,6 +19,8 @@
     <sys:String x:Key="Page.Profiles.Description">Resolution, HDR and FPS limit for each device.</sys:String>
     <sys:String x:Key="Page.Devices.Title">Devices</sys:String>
     <sys:String x:Key="Page.Devices.Description">Devices that have connected, and the profile for each.</sys:String>
+    <sys:String x:Key="Page.Controller.Title">Controller</sys:String>
+    <sys:String x:Key="Page.Controller.Description">The combos you hold on the controller, and how long.</sys:String>
     <sys:String x:Key="Page.Log.Title">Log</sys:String>
     <sys:String x:Key="Page.Log.Description">What the app did in each session.</sys:String>
     <sys:String x:Key="Page.General.Title">General</sys:String>
@@ -85,7 +88,7 @@
     <sys:String x:Key="General.Launcher.DelayInvalid">Invalid delay: use a whole number from 0 to 30000.</sys:String>
 
     <sys:String x:Key="General.CloseGame">Close the game with the controller</sys:String>
-    <sys:String x:Key="General.CloseGame.Enable">Close the game in front by holding Select + Y for 5 seconds</sys:String>
+    <sys:String x:Key="General.CloseGame.Enable">Close the game in front by holding its combo on the controller (see the Controller screen; Select + Y for 5 seconds by default)</sys:String>
     <sys:String x:Key="General.CloseGame.Hint">Only during a stream. The app first asks the game to close, like clicking its X. If the game does not close, hold the combo again within 15 seconds to end it. It never closes Windows, Sunshine, this app, the launcher or anything you had open before the stream. Needs the Sunshine option gamepad set to x360. Games that run as administrator also need the permission below.</sys:String>
     <sys:String x:Key="General.CloseGame.NoLauncher">The list of programs to close above is empty: without the launcher's name, the combo could close it if it is the program in front.</sys:String>
     <sys:String x:Key="General.CloseGame.Return">Bring the launcher back to the front after closing the game</sys:String>
@@ -150,4 +153,43 @@
     <sys:String x:Key="Profiles.Fps.Repaired">Done: the app can now write the RTSS FPS limit.</sys:String>
     <sys:String x:Key="Profiles.Fps.RepairFailed">Could not grant the permission: {0}</sys:String>
     <sys:String x:Key="Panel.RtssClosed">Warning: this profile caps FPS, but RTSS is not running. The limit only applies once RTSS is open.</sys:String>
+    <sys:String x:Key="Controller.Status.None">No controller seen right now.</sys:String>
+    <sys:String x:Key="Controller.Status.Connected">Controller connected.</sys:String>
+    <sys:String x:Key="Controller.Hint">Here you can record the buttons of each combo and try how long to hold. The screen reads an Xbox-style controller (in Sunshine, keep the gamepad option at x360). The time bar is only a test, but if a stream is on and the combo is turned on, holding it to the end really does what the combo does.</sys:String>
+    <sys:String x:Key="Controller.CloseGame.Title">Close the game</sys:String>
+    <sys:String x:Key="Controller.CloseGame.Hint">Turned on in General. Asks the game in front to close; hold again to end it.</sys:String>
+    <sys:String x:Key="Controller.Overlay.Title">Open the overlay</sys:String>
+    <sys:String x:Key="Controller.Overlay.Hint">The overlay window does not exist yet. The combo is saved now and used when it arrives.</sys:String>
+    <sys:String x:Key="Controller.Record">Record</sys:String>
+    <sys:String x:Key="Controller.Record.Cancel">Cancel</sys:String>
+    <sys:String x:Key="Controller.Record.Prompt">Hold the buttons of the combo, then let go of everything…</sys:String>
+    <sys:String x:Key="Controller.Record.NoController">No controller seen. Connect one (or start a stream) and try again.</sys:String>
+    <sys:String x:Key="Controller.Reset">Back to default</sys:String>
+    <sys:String x:Key="Controller.Hold">Hold time: {0} s</sys:String>
+    <sys:String x:Key="Controller.Hold.Less">−</sys:String>
+    <sys:String x:Key="Controller.Hold.More">+</sys:String>
+    <sys:String x:Key="Controller.Hold.Idle">Hold exactly these buttons to try the time.</sys:String>
+    <sys:String x:Key="Controller.Hold.Reached">Done: that is how long it takes.</sys:String>
+    <sys:String x:Key="Controller.Saved">Saved: {0}. It applies right away.</sys:String>
+    <sys:String x:Key="Controller.NotSaved">Not saved:</sys:String>
+    <sys:String x:Key="Controller.Issue.TooFewButtons">a combo needs at least 2 buttons.</sys:String>
+    <sys:String x:Key="Controller.Issue.TooManyButtons">a combo takes at most 4 buttons.</sys:String>
+    <sys:String x:Key="Controller.Issue.StartAndBack">Start and Select together are not allowed (it is also Moonlight's quit shortcut).</sys:String>
+    <sys:String x:Key="Controller.Issue.SameAsOther">the other combo already uses these buttons.</sys:String>
+    <sys:String x:Key="Controller.Issue.HoldTooShort">the hold time must be at least 0.5 s.</sys:String>
+    <sys:String x:Key="Controller.Issue.HoldTooLong">the hold time must be at most 10 s.</sys:String>
+    <sys:String x:Key="Button.Back">Select</sys:String>
+    <sys:String x:Key="Button.Start">Start</sys:String>
+    <sys:String x:Key="Button.A">A</sys:String>
+    <sys:String x:Key="Button.B">B</sys:String>
+    <sys:String x:Key="Button.X">X</sys:String>
+    <sys:String x:Key="Button.Y">Y</sys:String>
+    <sys:String x:Key="Button.LeftShoulder">LB</sys:String>
+    <sys:String x:Key="Button.RightShoulder">RB</sys:String>
+    <sys:String x:Key="Button.LeftThumb">L3</sys:String>
+    <sys:String x:Key="Button.RightThumb">R3</sys:String>
+    <sys:String x:Key="Button.DPadUp">D-pad up</sys:String>
+    <sys:String x:Key="Button.DPadDown">D-pad down</sys:String>
+    <sys:String x:Key="Button.DPadLeft">D-pad left</sys:String>
+    <sys:String x:Key="Button.DPadRight">D-pad right</sys:String>
 </ResourceDictionary>

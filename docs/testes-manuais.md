@@ -530,6 +530,28 @@ Sunshine (pelo Playnite), por exemplo o MKW Recomp elevado. Depois de cada item,
 - [ ] **Jogo comum continua igual:** um jogo sem administrador fecha como antes, sem passar pela tarefa (o log não
       fala em "scheduled task").
 
+## PR E do ADR 0015 — tela Controle (gravar os combos)
+
+Use o **pacote de prévia** do PR. Precisa de um controle visto pelo Windows (um controle de verdade no PC, ou o
+virtual do Sunshine numa transmissão com `gamepad` em `x360`).
+
+- [ ] **Menu:** aparece **Controle** entre Dispositivos e Log. Com um controle ligado, a tela diz "Controle
+      conectado."; sem nenhum, "Nenhum controle visto agora.".
+- [ ] **Combos de fábrica:** "Fechar o jogo" mostra "Select + Y" e 5,0 s; "Abrir o overlay" mostra "L3 + R3" e 3,0 s.
+- [ ] **Barra do tempo:** segure exatamente Select + Y: a barra enche em 5 s e diz "Pronto: é esse o tempo.". Soltar,
+      ou apertar um botão a mais, zera a barra. (Teste fora de transmissão, ou com o combo desligado na tela Geral,
+      senão segurar até o fim fecha o jogo de verdade.)
+- [ ] **Gravar:** clique em Gravar no "Fechar o jogo", segure, por exemplo, LB + RB + A e solte tudo: aparece
+      "Salvo: LB + RB + A. Vale na hora." Feche e abra o app: o combo continua. Numa transmissão com o combo ligado, o
+      novo combo fecha o jogo e o antigo não.
+- [ ] **Avisos, sem salvar:** grave só um botão ("um combo precisa de pelo menos 2 botões"), cinco botões, Start +
+      Select juntos, e os mesmos botões do outro combo. Em todos o combo antigo fica como estava.
+- [ ] **Tempo:** os botões **−** e **+** mudam de 0,5 em 0,5 s, de 0,5 a 10 s, e o valor fica salvo.
+- [ ] **Voltar ao padrão:** devolve os botões e o tempo de fábrica daquele combo.
+- [ ] **Cancelar:** clique em Gravar e depois em Cancelar: nada muda. Sem controle visto, Gravar diz
+      "Nenhum controle visto. Conecte um…".
+- [ ] **Idiomas:** a tela segue o idioma escolhido na tela Geral (nomes dos botões incluídos).
+
 ## Automatizar isto (pendência, sem PR ainda)
 
 Pedido do autor: transformar estes itens em testes automáticos de verdade, em

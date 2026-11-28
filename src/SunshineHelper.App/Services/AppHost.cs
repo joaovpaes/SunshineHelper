@@ -75,6 +75,9 @@ internal sealed class AppHost : IAsyncDisposable
 
     public SessionStatusReader Status { get; }
 
+    /// <summary>The controller reader, shared by the watcher and the Controller screen.</summary>
+    public IGamepadReader GamepadReader { get; } = new XInputGamepadReader();
+
     /// <summary>Why settings.json was ignored in favour of defaults, or why a leftover
     /// session could not be put back. Empty when everything went well.</summary>
     public IReadOnlyList<string> StartupProblems { get; }
@@ -289,7 +292,7 @@ internal sealed class AppHost : IAsyncDisposable
     /// second.</summary>
     private void StartControllerWatcher()
     {
-        var watcher = new ControllerWatcher(new XInputGamepadReader(), _store, Settings, TimeProvider.System, _diagnosticLog);
+        var watcher = new ControllerWatcher(GamepadReader, _store, Settings, TimeProvider.System, _diagnosticLog);
         var closeGame = new CloseGameService(
             new WindowsGameWindowController(),
             new WindowsProcessController(),
