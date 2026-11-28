@@ -109,12 +109,12 @@ public partial class MainWindow
         panel.ButtonsText.Style = (Style)FindResource("Text.Title");
         panel.ButtonsText.TextWrapping = TextWrapping.Wrap;
 
-        panel.RecordButton.Padding = new Thickness(16, 8);
+        panel.RecordButton.Padding = new Thickness(16, 8, 16, 8);
         panel.RecordButton.Style = (Style)FindResource("Button.Primary");
         panel.RecordButton.SetResourceReference(ContentControl.ContentProperty, "Controller.Record");
         panel.RecordButton.Click += (_, _) => OnRecordClicked(panel);
 
-        var reset = new System.Windows.Controls.Button { Margin = new Thickness(8, 0, 0, 0), Padding = new Thickness(16, 8), Style = (Style)FindResource("Button.Secondary") };
+        var reset = new System.Windows.Controls.Button { Margin = new Thickness(8, 0, 0, 0), Padding = new Thickness(16, 8, 16, 8), Style = (Style)FindResource("Button.Secondary") };
         reset.SetResourceReference(ContentControl.ContentProperty, "Controller.Reset");
         reset.Click += async (_, _) => await OnResetComboAsync(panel);
 
@@ -122,10 +122,10 @@ public partial class MainWindow
         buttonRow.Children.Add(panel.RecordButton);
         buttonRow.Children.Add(reset);
 
-        var less = new System.Windows.Controls.Button { Padding = new Thickness(12, 4), Style = (Style)FindResource("Button.Secondary") };
+        var less = new System.Windows.Controls.Button { Padding = new Thickness(12, 4, 12, 4), Style = (Style)FindResource("Button.Secondary") };
         less.SetResourceReference(ContentControl.ContentProperty, "Controller.Hold.Less");
         less.Click += async (_, _) => await OnChangeHoldAsync(panel, -HoldStepMs);
-        var more = new System.Windows.Controls.Button { Margin = new Thickness(8, 0, 0, 0), Padding = new Thickness(12, 4), Style = (Style)FindResource("Button.Secondary") };
+        var more = new System.Windows.Controls.Button { Margin = new Thickness(8, 0, 0, 0), Padding = new Thickness(12, 4, 12, 4), Style = (Style)FindResource("Button.Secondary") };
         more.SetResourceReference(ContentControl.ContentProperty, "Controller.Hold.More");
         more.Click += async (_, _) => await OnChangeHoldAsync(panel, HoldStepMs);
 
