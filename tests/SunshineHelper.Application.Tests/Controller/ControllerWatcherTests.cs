@@ -31,7 +31,13 @@ public class ControllerWatcherTests
     private static AppSettings WithCloseGame(bool enabled) =>
         AppSettings.CreateDefault() with
         {
-            Controller = new ControllerSettings { CloseGame = new CloseGameSettings { Enabled = enabled } },
+            Controller = new ControllerSettings
+            {
+                CloseGame = new CloseGameSettings { Enabled = enabled },
+
+                // These tests are about the close-game combo; the overlay combo has its own.
+                Overlay = new OverlaySettings { Enabled = false },
+            },
         };
 
     private void StartSession() => _store.Content = "{}";

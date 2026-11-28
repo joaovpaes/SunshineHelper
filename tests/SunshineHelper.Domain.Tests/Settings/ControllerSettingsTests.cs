@@ -47,9 +47,31 @@ public class ControllerSettingsTests
     }
 
     [Fact]
-    public void ActiveCombos_vazio_enquanto_fechar_o_jogo_esta_desligado()
+    public void ActiveCombos_so_tem_o_overlay_enquanto_fechar_o_jogo_esta_desligado()
     {
-        new ControllerSettings().ActiveCombos().ShouldBeEmpty();
+        var combos = new ControllerSettings().ActiveCombos();
+
+        combos.Count.ShouldBe(1);
+        combos[0].Id.ShouldBe(ControllerSettings.OverlayComboId);
+        combos[0].Buttons.ShouldBe(GamepadButtons.LeftThumb | GamepadButtons.RightThumb);
+        combos[0].Hold.ShouldBe(TimeSpan.FromSeconds(3));
+    }
+
+    [Fact]
+    public void ActiveCombos_fica_vazio_com_os_dois_desligados()
+    {
+        var controller = new ControllerSettings { Overlay = new OverlaySettings { Enabled = false } };
+
+        controller.ActiveCombos().ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void O_overlay_vem_ligado_e_tomando_o_foco_de_fabrica()
+    {
+        var overlay = new OverlaySettings();
+
+        overlay.Enabled.ShouldBeTrue();
+        overlay.TakeFocus.ShouldBeTrue();
     }
 
     [Fact]
@@ -59,10 +81,11 @@ public class ControllerSettingsTests
 
         var combos = controller.ActiveCombos();
 
-        combos.Count.ShouldBe(1);
+        combos.Count.ShouldBe(2);
         combos[0].Id.ShouldBe(ControllerSettings.CloseGameComboId);
         combos[0].Buttons.ShouldBe(GamepadButtons.Back | GamepadButtons.Y);
         combos[0].Hold.ShouldBe(TimeSpan.FromSeconds(5));
+        combos[1].Id.ShouldBe(ControllerSettings.OverlayComboId);
     }
 
     [Fact]

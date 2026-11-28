@@ -26,7 +26,7 @@ Changing the resolution, toggling HDR and setting an FPS cap by hand before ever
 - **Identifies which device connected**, by the client name Sunshine reports.
 - **Applies that device's profile:** screen resolution, HDR on or off, and an FPS cap through [RTSS](https://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/). Each setting can follow what the client asked for, be pinned to a fixed value, or be left alone.
 - **Puts everything back when the session ends** — and also after a crash, or after the PC reboots mid-session. The previous state is written to disk before anything is changed, so there is always a way back.
-- **Gamepad overlay** *(planned, not built yet)* to switch profiles mid-session, adjust resolution and FPS, list and close processes, switch windows and send keyboard shortcuts, without reaching for a keyboard.
+- **Gamepad overlay** *(first version on `main`, not in a test version yet)*: hold L3 + R3 during a stream to open a panel on the right of the screen, driven only by the controller. Today it has **Restore now** (puts resolution, HDR and FPS cap back without ending the stream); switching profiles, adjusting resolution and FPS, closing windows and sending keyboard shortcuts come next.
 - **Close the game with the controller** *(on `main`, not in a test version yet; off by default)*: hold Select + Y for 5 s during a stream and the app asks the game in front to close (like clicking its X); hold again within 15 s to end it. It never closes Windows, Sunshine, this app, your launcher or anything that was open before the stream. Games that run as administrator also work after a one-time permission (Windows asks to confirm) on the **General** screen.
 
 ## What it does not do
@@ -88,7 +88,7 @@ The controller combo to close the game, including games that run as administrato
 ## Planned
 
 - Installer (`SunshineHelper-vX.Y.Z-setup.exe`) and code signing, with `SHA256SUMS.txt`.
-- Gamepad overlay (the close-game combo and the screen to record your own combos already exist; the overlay window comes next), and reading PlayStation-style virtual controllers.
+- Gamepad overlay: profiles, adjustments, windows and shortcuts screens (the close-game combo, the screen to record your own combos and the overlay window with Restore now already exist), and reading PlayStation-style virtual controllers.
 - Update notice and, later, automatic update.
 
 ## Related projects
@@ -123,7 +123,7 @@ Mudar a resolução, ligar e desligar o HDR e ajustar o limite de FPS na mão an
 - **Identifica qual aparelho conectou**, pelo nome do cliente que o Sunshine informa.
 - **Aplica o perfil daquele aparelho:** resolução, HDR ligado ou desligado e limite de FPS pelo [RTSS](https://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/). Cada item pode seguir o que o cliente pediu, ficar num valor fixo, ou não ser mexido.
 - **Devolve tudo ao fim da sessão** — e também depois de uma queda do app ou de um reinício do PC no meio. O estado anterior vai para o disco antes de qualquer mudança, então sempre existe caminho de volta.
-- **Overlay pelo controle** *(planejado, ainda não feito)* para trocar de perfil no meio da sessão, ajustar resolução e FPS, listar e fechar processos, trocar de janela e enviar atalhos de teclado, sem precisar de teclado.
+- **Overlay pelo controle** *(primeira versão no `main`, ainda não numa versão de testes)*: segure L3 + R3 durante a transmissão para abrir uma faixa na direita da tela, controlada só pelo controle. Hoje ela tem **Restaurar agora** (devolve resolução, HDR e limite de FPS sem encerrar a transmissão); trocar de perfil, ajustar resolução e FPS, fechar janelas e enviar atalhos de teclado vêm a seguir.
 - **Fechar o jogo pelo controle** *(está no `main`, ainda não numa versão de testes; desligado de fábrica)*: segure Select + Y por 5 s durante a transmissão e o app pede ao jogo que está na frente para fechar (como clicar no X); segure de novo em até 15 s para encerrá-lo. Nunca fecha o Windows, o Sunshine, este app, o launcher nem o que já estava aberto antes da transmissão. Jogos que rodam como administrador também fecham, depois de uma permissão única (o Windows pede confirmação) na tela **Geral**.
 
 ### O que ele não faz
@@ -185,7 +185,7 @@ O combo do controle para fechar o jogo, inclusive jogos que rodam como administr
 ### Planejado
 
 - Instalador (`SunshineHelper-vX.Y.Z-setup.exe`) e assinatura de código, com `SHA256SUMS.txt`.
-- Overlay pelo controle (o combo de fechar o jogo e a tela para gravar os próprios combos já existem; a janela do overlay vem a seguir) e leitura de controles virtuais estilo PlayStation.
+- Overlay pelo controle: telas de perfis, ajustes, janelas e atalhos (o combo de fechar o jogo, a tela para gravar os próprios combos e a janela do overlay com Restaurar agora já existem) e leitura de controles virtuais estilo PlayStation.
 - Aviso de versão nova e, depois, atualização automática.
 
 ### Contribuir
