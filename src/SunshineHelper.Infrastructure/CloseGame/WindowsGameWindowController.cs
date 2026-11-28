@@ -16,11 +16,12 @@ namespace SunshineHelper.Infrastructure.CloseGame;
 /// still the one that was identified (same PID and start time) and does nothing otherwise.
 /// </summary>
 /// <remarks>
-/// <para>This app is not elevated. A program running as administrator cannot be inspected
-/// (its start time is refused) and does not take messages from a program that is not
-/// elevated; both show up here as <see cref="ForegroundStatus.NotInspectable"/> and
-/// <see cref="WindowCloseResult.Denied"/>, which the service turns into the log line that
-/// tells the user to untick "Run as administrator" in Sunshine (ADR 0016, section 6).</para>
+/// <para>This app is not elevated. A program running as administrator cannot be opened (.NET
+/// cannot read its start time) and does not take messages from a program that is not elevated.
+/// Such a program is identified from the system's process list instead
+/// (<see cref="SystemProcessList"/>) and reported as <see cref="ForegroundStatus.Elevated"/> or in
+/// <see cref="LaunchedWindows.Elevated"/>; the service then goes through the scheduled task
+/// (docs/adr/0017-fechar-jogo-de-administrador.md).</para>
 /// </remarks>
 public sealed class WindowsGameWindowController : IGameWindowController
 {
@@ -67,11 +68,16 @@ public sealed class WindowsGameWindowController : IGameWindowController
 
         using (process)
         {
-            ProcessIdentity? identity = WindowsProcessController.TryIdentify(process);
-            return identity is null
-                ? new ForegroundWindow(ForegroundStatus.NotInspectable)
-                : new ForegroundWindow(ForegroundStatus.Found, identity, window.Value);
+            if (WindowsProcessController.TryIdentify(process) is { } identity)
+            {
+                return new ForegroundWindow(ForegroundStatus.Found, identity, window.Value);
+            }
         }
+
+        // Most likely a program that runs as administrator: identified without opening it.
+        return SystemProcessList.Find((int)processId) is { } listed && OwnerProcessId(window) == processId
+            ? new ForegroundWindow(ForegroundStatus.Elevated, listed.ToIdentity(), window.Value)
+            : new ForegroundWindow(ForegroundStatus.NotInspectable);
     }
 
     public WindowCloseResult RequestCloseWindow(ProcessIdentity process, nint window)
@@ -140,15 +146,19 @@ public sealed class WindowsGameWindowController : IGameWindowController
     {
         ArgumentNullException.ThrowIfNull(process);
 
+        // The launcher itself may run as administrator, so it is looked up in the system's list
+        // when it cannot be opened.
+        IReadOnlyList<SystemProcess> system = SystemProcessList.Read();
         using (Process? live = WindowsProcessController.FindLive(process))
         {
-            if (live is null)
+            if (live is null && !SystemProcessList.Contains(system, process))
             {
                 return LaunchedWindows.None;
             }
         }
 
         var windows = new List<WindowedProcess>();
+        var elevated = new List<WindowedProcess>();
         int notInspectable = 0;
         foreach (int id in ProcessTree.DescendantsOf(process.Id))
         {
@@ -164,7 +174,14 @@ public sealed class WindowsGameWindowController : IGameWindowController
                     continue;
                 }
 
-                if (WindowsProcessController.TryIdentify(child) is not { } identity)
+                ProcessIdentity? identity = WindowsProcessController.TryIdentify(child);
+                bool admin = identity is null;
+                if (admin)
+                {
+                    identity = SystemProcessList.Find(system, id) is { } listed ? listed.ToIdentity() : null;
+                }
+
+                if (identity is null)
                 {
                     notInspectable++;
                     continue;
@@ -173,7 +190,7 @@ public sealed class WindowsGameWindowController : IGameWindowController
                 // A child cannot be older than its parent; an older one is a recycled PID.
                 if (identity.StartedAt >= process.StartedAt - _parentTolerance)
                 {
-                    windows.Add(new WindowedProcess(identity, window));
+                    (admin ? elevated : windows).Add(new WindowedProcess(identity, window));
                 }
             }
             catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or Win32Exception)
@@ -182,7 +199,7 @@ public sealed class WindowsGameWindowController : IGameWindowController
             }
         }
 
-        return new LaunchedWindows(windows, notInspectable);
+        return new LaunchedWindows(windows, notInspectable, elevated);
     }
 
     public async Task<bool> KillProcessAsync(ProcessIdentity process, CancellationToken cancellationToken)

@@ -296,7 +296,8 @@ internal sealed class AppHost : IAsyncDisposable
             Settings,
             Status,
             TimeProvider.System,
-            _diagnosticLog);
+            _diagnosticLog,
+            new WindowsElevatedGameCloser());
         var token = _stopping.Token;
 
         // The watcher's loop must keep reading the controller while a game is being closed

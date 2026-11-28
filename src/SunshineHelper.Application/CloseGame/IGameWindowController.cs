@@ -12,9 +12,14 @@ public enum ForegroundStatus
     /// <summary>A window and the process that owns it.</summary>
     Found,
 
-    /// <summary>A window whose process Windows does not let this app inspect: usually a
-    /// program running as administrator while the app is not.</summary>
+    /// <summary>A window whose process could not be identified at all (not even from the
+    /// system's process list).</summary>
     NotInspectable,
+
+    /// <summary>A window of a program that runs as administrator. The app cannot open it, but
+    /// identified it (PID, name and start time) from the system's process list; it is closed
+    /// through the scheduled task (docs/adr/0017-fechar-jogo-de-administrador.md).</summary>
+    Elevated,
 }
 
 /// <summary>The window in the foreground and its process, when the process could be
@@ -31,11 +36,12 @@ public sealed record WindowedProcess(ProcessIdentity Process, nint Window);
 /// launcher keeps the foreground while its game is on screen
 /// (docs/adr/0016-fechar-jogo-pelo-controle.md, "Quem é o alvo").</summary>
 /// <param name="Windows">Descendants of the launcher with a visible main window.</param>
-/// <param name="NotInspectable">Descendants with a window that Windows did not let the app
-/// inspect, usually because they run as administrator.</param>
-public sealed record LaunchedWindows(IReadOnlyList<WindowedProcess> Windows, int NotInspectable)
+/// <param name="NotInspectable">Descendants with a window that could not be identified at all.</param>
+/// <param name="Elevated">Descendants with a window that run as administrator, identified from
+/// the system's process list (the app cannot open them; they go through the scheduled task).</param>
+public sealed record LaunchedWindows(IReadOnlyList<WindowedProcess> Windows, int NotInspectable, IReadOnlyList<WindowedProcess> Elevated)
 {
-    public static LaunchedWindows None { get; } = new([], 0);
+    public static LaunchedWindows None { get; } = new([], 0, []);
 }
 
 /// <summary>How a polite "close your window" request went.</summary>

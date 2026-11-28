@@ -86,7 +86,7 @@
 
     <sys:String x:Key="General.CloseGame">Fechar o jogo com o controle</sys:String>
     <sys:String x:Key="General.CloseGame.Enable">Fechar o jogo que está na frente segurando Select + Y por 5 segundos</sys:String>
-    <sys:String x:Key="General.CloseGame.Hint">Só durante a transmissão. O app primeiro pede para o jogo fechar, como se você clicasse no X. Se o jogo não fechar, segure o combo de novo em até 15 segundos para encerrá-lo. Ele nunca fecha o Windows, o Sunshine, este app, o launcher nem nada que você já tinha aberto antes da transmissão. Precisa da opção gamepad do Sunshine em x360 e de um jogo que não rode como administrador.</sys:String>
+    <sys:String x:Key="General.CloseGame.Hint">Só durante a transmissão. O app primeiro pede para o jogo fechar, como se você clicasse no X. Se o jogo não fechar, segure o combo de novo em até 15 segundos para encerrá-lo. Ele nunca fecha o Windows, o Sunshine, este app, o launcher nem nada que você já tinha aberto antes da transmissão. Precisa da opção gamepad do Sunshine em x360. Jogos que rodam como administrador também precisam da permissão abaixo.</sys:String>
     <sys:String x:Key="General.CloseGame.NoLauncher">A lista de programas a fechar acima está vazia: sem o nome do launcher, o combo pode fechá-lo se ele for o programa que está na frente.</sys:String>
     <sys:String x:Key="General.CloseGame.Return">Trazer o launcher de volta para a frente depois de fechar o jogo</sys:String>
     <sys:String x:Key="General.CloseGame.Force">Encerrar o jogo sem pedir confirmação</sys:String>
