@@ -13,6 +13,9 @@
          an incompatibility is caught immediately, not the first time someone actually
          publishes a release. -->
     <PublishAot>true</PublishAot>
+    <!-- The elevated-close mode (ADR 0017) calls Win32 through hand-written LibraryImport
+         signatures with raw pointers (token information, the process list, EnumWindows). -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>

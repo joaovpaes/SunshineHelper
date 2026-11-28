@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <!-- The linked elevated-close sources use raw pointers (see SunshineHelper.Trigger.csproj). -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Shouldly" />
+  </ItemGroup>
+
+  <!-- The auxiliary is a NativeAOT executable, so its elevated-close sources are compiled in here
+       by link instead of referencing the project. The Windows part runs against real processes on
+       the windows-latest runner. -->
+  <ItemGroup>
+    <Compile Include="..\..\src\SunshineHelper.Trigger\ElevatedClose\*.cs" Link="Linked\%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <!-- Only for the test that keeps the auxiliary's fixed list of names in step with the app's. -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\SunshineHelper.Application\SunshineHelper.Application.csproj" />
+  </ItemGroup>
+
+</Project>
