@@ -21,5 +21,6 @@ Formato e modelo: `0000-template.md`. Um ADR por arquivo; quando um deles for tr
 | 0014 | Registro dos aparelhos que conectaram (`devices.json`) | proposta | 2026-11-23 |
 | 0015 | Overlay pelo controle: leitura do controle (XInput), máquina de estados do combo e janela (Fase 2) | proposta | 2026-11-23 |
 | 0016 | Fechar o jogo pelo controle sem atingir outro programa (Select + Y, proteções, confirmação, pausa) | proposta | 2026-11-27 |
+| 0017 | Fechar jogos de administrador: modo elevado do auxiliar, chamado por tarefa agendada | proposta | 2026-11-27 |
 
 Estado geral do projeto: `docs/ESTADO.md`.
