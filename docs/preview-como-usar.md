@@ -7,7 +7,7 @@ acaba, devolve tudo como estava. Mas ainda **não tem instalador** e **não é a
 ## O que vem no zip
 
 - `SunshineHelper.exe`: o app (fica na bandeja do Windows). Não precisa instalar o .NET.
-- `SunshineHelper.Trigger.exe`: o auxiliar que o Sunshine chama no começo e no fim da transmissão.
+- `SunshineHelper.Trigger.exe`: o auxiliar que o Sunshine chama no começo e no fim da transmissão (e que, se você permitir, fecha jogos de administrador; veja mais abaixo).
 - `LICENSE` e este `LEIA-ME.md`.
 
 Confira o zip com o `SHA256SUMS.txt` da página da versão (no PowerShell: `Get-FileHash .\arquivo.zip`; o valor
@@ -127,6 +127,8 @@ confirme o aviso do Windows (uma vez só).
 - No **Painel**: "Transmissão ativa" durante a transmissão e "Nenhuma transmissão ativa" depois.
 - O app guarda um registro em `%LOCALAPPDATA%\SunshineHelper` (`app.log`). Em **Geral** há o botão
   "Gerar relatório de diagnóstico" (dados sensíveis são ocultados; leia o arquivo antes de compartilhar).
+- A tela **Log** mostra o mesmo registro dentro do app, e a tela **Dispositivos** lista os aparelhos que já
+  conectaram e o perfil de cada um.
 - Se o Sunshine for finalizado no meio da transmissão, o app restaura a tela sozinho em poucos segundos.
 
 ## Problemas

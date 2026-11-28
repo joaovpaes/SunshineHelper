@@ -27,6 +27,7 @@ Changing the resolution, toggling HDR and setting an FPS cap by hand before ever
 - **Applies that device's profile:** screen resolution, HDR on or off, and an FPS cap through [RTSS](https://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/). Each setting can follow what the client asked for, be pinned to a fixed value, or be left alone.
 - **Puts everything back when the session ends** — and also after a crash, or after the PC reboots mid-session. The previous state is written to disk before anything is changed, so there is always a way back.
 - **Gamepad overlay** *(planned, not built yet)* to switch profiles mid-session, adjust resolution and FPS, list and close processes, switch windows and send keyboard shortcuts, without reaching for a keyboard.
+- **Close the game with the controller** *(on `main`, not in a test version yet; off by default)*: hold Select + Y for 5 s during a stream and the app asks the game in front to close (like clicking its X); hold again within 15 s to end it. It never closes Windows, Sunshine, this app, your launcher or anything that was open before the stream. Games that run as administrator also work after a one-time permission (Windows asks to confirm) on the **General** screen.
 
 ## What it does not do
 
@@ -45,12 +46,15 @@ The app does not set these up for you:
 4. **The app must be open before the stream starts** (the helper gives up after 2 s). Turn on *Start with Windows* in the **General** screen to have it start minimized in the tray.
 5. **FPS cap:** RTSS must be running, and the Profiles screen offers a one-time **Repair** button (Windows asks for confirmation once) so the app can write RTSS's profile file.
 6. **Resolutions above your monitor's (Super Resolution):** the app only asks Windows for the resolution, so the GPU driver has to offer it. On AMD, turn on **Virtual Super Resolution (VSR)** in AMD Software: Adrenalin Edition; on NVIDIA, enable **DSR** factors in the NVIDIA Control Panel. If the driver does not offer the resolution, the app logs the refusal and the stream goes on without it.
+7. **Close the game with the controller (optional, off by default):** in **General**, turn the option on, fill in your launcher's process name in the list of programs to close, and keep Sunshine's `gamepad` option at `x360` (a PlayStation-style virtual pad is not read). For games that run as administrator, click **Allow closing administrator games** once.
 
 ## Known limits
 
 - **Sunshine's own monitor problems are not covered.** The app does not turn on, wake up or switch a monitor: it only changes resolution, HDR and FPS cap on the **primary** monitor and restores them. If Sunshine needs the monitor to stay on or active during a stream, that is up to Sunshine and Windows.
 - **A monitor without HDR cannot use the HDR option.** The app refuses to turn HDR on, says so in the Dashboard and in `app.log`, and the stream goes on without HDR. Leave the profile's HDR as "leave as is" for that monitor.
 - Refresh rate is never changed, and only the primary monitor is handled.
+- The controller combo only works with an Xbox 360-style controller (`gamepad` = `x360` in Sunshine); the PlayStation-style virtual controller is not read yet.
+- Games that run as administrator are only closed by the combo after you click **Allow closing administrator games** (a copy of `SunshineHelper.Trigger.exe` goes to Program Files and a scheduled task is created; Windows asks once). It only closes games that Sunshine started and that have a window; child processes without a window are not ended.
 - Test versions have no installer and no code signing, and were tested only on Windows 11 with Sunshine for Windows, RTSS 7.3.x and Playnite.
 
 ## Works with
@@ -79,10 +83,12 @@ The installer (planned) will check for Sunshine before it installs anything. If 
 
 Profiles per device, resolution, HDR and FPS cap with restore, a Devices screen (devices that have connected), a Log screen, start with Windows, interface in English and Portuguese, and closing the launcher at the end of a session ([Playnite](https://playnite.link) first, because it is what the author uses; other launchers are a goal for later).
 
+The controller combo to close the game, including games that run as administrator, is already on `main` and comes in the next test version.
+
 ## Planned
 
 - Installer (`SunshineHelper-vX.Y.Z-setup.exe`) and code signing, with `SHA256SUMS.txt`.
-- Gamepad overlay.
+- Gamepad overlay (the close-game combo already exists; the overlay window and a screen to record your own combos come next), and reading PlayStation-style virtual controllers.
 - Update notice and, later, automatic update.
 
 ## Related projects
@@ -118,6 +124,7 @@ Mudar a resolução, ligar e desligar o HDR e ajustar o limite de FPS na mão an
 - **Aplica o perfil daquele aparelho:** resolução, HDR ligado ou desligado e limite de FPS pelo [RTSS](https://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/). Cada item pode seguir o que o cliente pediu, ficar num valor fixo, ou não ser mexido.
 - **Devolve tudo ao fim da sessão** — e também depois de uma queda do app ou de um reinício do PC no meio. O estado anterior vai para o disco antes de qualquer mudança, então sempre existe caminho de volta.
 - **Overlay pelo controle** *(planejado, ainda não feito)* para trocar de perfil no meio da sessão, ajustar resolução e FPS, listar e fechar processos, trocar de janela e enviar atalhos de teclado, sem precisar de teclado.
+- **Fechar o jogo pelo controle** *(está no `main`, ainda não numa versão de testes; desligado de fábrica)*: segure Select + Y por 5 s durante a transmissão e o app pede ao jogo que está na frente para fechar (como clicar no X); segure de novo em até 15 s para encerrá-lo. Nunca fecha o Windows, o Sunshine, este app, o launcher nem o que já estava aberto antes da transmissão. Jogos que rodam como administrador também fecham, depois de uma permissão única (o Windows pede confirmação) na tela **Geral**.
 
 ### O que ele não faz
 
@@ -136,12 +143,15 @@ O app não faz estas configurações por você:
 4. **O app precisa estar aberto antes da transmissão** (o auxiliar desiste em 2 s). Ligue **Iniciar com o Windows** na tela **Geral** para ele abrir minimizado na bandeja.
 5. **Limite de FPS:** o RTSS precisa estar aberto, e a tela Perfis tem um botão **Reparar** (o Windows pede confirmação uma vez) para o app poder gravar o arquivo de perfil do RTSS.
 6. **Resolução maior que a do monitor (Super Resolução):** o app só pede a resolução ao Windows, então o driver da placa precisa oferecê-la. Na AMD, ligue o **Virtual Super Resolution (VSR)** no AMD Software: Adrenalin Edition; na NVIDIA, ative os fatores do **DSR** no Painel de Controle da NVIDIA. Se o driver não oferecer a resolução, o app registra a recusa e a transmissão segue sem ela.
+7. **Fechar o jogo pelo controle (opcional, desligado de fábrica):** na tela **Geral**, ligue a opção, preencha o nome do processo do seu launcher na lista de programas a fechar e deixe a opção `gamepad` do Sunshine em `x360` (o controle virtual estilo PlayStation não é lido). Para jogos que rodam como administrador, clique uma vez em **Permitir fechar jogos de administrador**.
 
 ### Limites conhecidos
 
 - **Problemas do próprio Sunshine com o monitor não são cobertos.** O app não liga, não acorda nem troca o monitor: ele só muda resolução, HDR e limite de FPS do monitor **principal** e devolve tudo. Se o Sunshine precisa que o monitor fique ligado ou ativo durante a transmissão, isso é do Sunshine e do Windows.
 - **Monitor sem HDR não usa a opção de HDR.** O app se recusa a ligar o HDR, avisa no Painel e no `app.log`, e a transmissão segue sem HDR. Deixe o HDR do perfil em "Deixar como está" nesse monitor.
 - A taxa de atualização nunca é mudada, e só o monitor principal é tratado.
+- O combo do controle só funciona com controle no estilo Xbox 360 (`gamepad` = `x360` no Sunshine); o virtual estilo PlayStation ainda não é lido.
+- Jogos que rodam como administrador só são fechados pelo combo depois de **Permitir fechar jogos de administrador** (uma cópia do `SunshineHelper.Trigger.exe` vai para Arquivos de Programas e uma tarefa agendada é criada; o Windows pede confirmação uma vez). Só fecha jogos abertos pelo Sunshine e com janela; processos filhos sem janela não são encerrados.
 - As versões de testes não têm instalador nem assinatura de código, e foram testadas só em Windows 11 com o Sunshine para Windows, RTSS 7.3.x e Playnite.
 
 ### Funciona com
@@ -170,10 +180,12 @@ O instalador (planejado) vai verificar se o Sunshine está presente antes de ins
 
 Perfis por aparelho, resolução, HDR e limite de FPS com restauração, tela Dispositivos (aparelhos que já conectaram), tela Log, iniciar com o Windows, interface em português e inglês e fechamento do launcher ao fim da sessão (o [Playnite](https://playnite.link) vem primeiro, por ser o que o autor usa; outros launchers são objetivo futuro).
 
+O combo do controle para fechar o jogo, inclusive jogos que rodam como administrador, já está no `main` e vem na próxima versão de testes.
+
 ### Planejado
 
 - Instalador (`SunshineHelper-vX.Y.Z-setup.exe`) e assinatura de código, com `SHA256SUMS.txt`.
-- Overlay pelo controle.
+- Overlay pelo controle (o combo de fechar o jogo já existe; a janela do overlay e a tela para gravar os próprios combos vêm a seguir) e leitura de controles virtuais estilo PlayStation.
 - Aviso de versão nova e, depois, atualização automática.
 
 ### Contribuir
