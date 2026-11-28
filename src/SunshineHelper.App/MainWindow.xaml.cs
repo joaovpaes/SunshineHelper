@@ -117,6 +117,7 @@ public partial class MainWindow : Window
         LogPathBox.Text = current.SunshineLogPath ?? string.Empty;
         LauncherNamesBox.Text = string.Join(Environment.NewLine, current.Launcher.ProcessNames);
         LauncherDelayBox.Text = current.Timing.LauncherDelayMs.ToString(CultureInfo.InvariantCulture);
+        FillCloseGame(current);
         AppVersionText.Text = string.Format(CultureInfo.CurrentCulture, Text("General.About.Version"), AppHost.AppVersion);
         GeneralMessage.Text = string.Empty;
         _loadingGeneral = false;
@@ -212,6 +213,62 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>Puts the close-game options on screen. Callers already have
+    /// <see cref="_loadingGeneral"/> set, so this does not count as the user changing them.</summary>
+    private void FillCloseGame(AppSettings current)
+    {
+        var closeGame = current.Controller.CloseGame;
+        CloseGameBox.IsChecked = closeGame.Enabled;
+        CloseGameReturnBox.IsChecked = closeGame.ReturnToLauncher;
+        CloseGameForceBox.IsChecked = closeGame.ForceWithoutConfirm;
+        CloseGameWarning.Text = closeGame.Enabled && current.Launcher.ProcessNames.Count == 0
+            ? Text("General.CloseGame.NoLauncher")
+            : string.Empty;
+    }
+
+    private void FillCloseGameWarning()
+    {
+        var current = _host.Settings.Current;
+        CloseGameWarning.Text = current.Controller.CloseGame.Enabled && current.Launcher.ProcessNames.Count == 0
+            ? Text("General.CloseGame.NoLauncher")
+            : string.Empty;
+    }
+
+    private async void OnCloseGameChanged(object sender, RoutedEventArgs e)
+    {
+        if (_loadingGeneral)
+        {
+            return;
+        }
+
+        bool enabled = CloseGameBox.IsChecked == true;
+        bool returnToLauncher = CloseGameReturnBox.IsChecked == true;
+        bool force = CloseGameForceBox.IsChecked == true;
+
+        bool saved = await TrySaveAsync(settings => settings with
+        {
+            Controller = settings.Controller with
+            {
+                CloseGame = settings.Controller.CloseGame with
+                {
+                    Enabled = enabled,
+                    ReturnToLauncher = returnToLauncher,
+                    ForceWithoutConfirm = force,
+                },
+            },
+        });
+
+        // On a failed save the boxes go back to what is really stored.
+        _loadingGeneral = true;
+        FillCloseGame(_host.Settings.Current);
+        _loadingGeneral = false;
+
+        if (saved)
+        {
+            GeneralMessage.Text = Text(enabled ? "General.CloseGame.On" : "General.CloseGame.Off");
+        }
+    }
+
     private async void OnSaveLauncher(object sender, RoutedEventArgs e)
     {
         if (!int.TryParse(LauncherDelayBox.Text.Trim(), NumberStyles.None, CultureInfo.InvariantCulture, out int delayMs)
@@ -231,6 +288,7 @@ public partial class MainWindow : Window
         if (saved)
         {
             LauncherNamesBox.Text = string.Join(Environment.NewLine, names);
+            FillCloseGameWarning();
             GeneralMessage.Text = Text("General.Launcher.Saved");
         }
     }

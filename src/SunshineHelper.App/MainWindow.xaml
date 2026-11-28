@@ -245,6 +245,23 @@
                             Content="{DynamicResource General.Save}" Click="OnSaveLauncher" />
 
                     <Border Margin="0,24,0,0" BorderBrush="{DynamicResource Brush.Line}" BorderThickness="0,1,0,0" />
+                    <TextBlock Margin="0,24,0,0" Style="{StaticResource Text.Label}" Text="{DynamicResource General.CloseGame}" />
+                    <CheckBox x:Name="CloseGameBox" Margin="0,8,0,0"
+                              Content="{DynamicResource General.CloseGame.Enable}"
+                              Checked="OnCloseGameChanged" Unchecked="OnCloseGameChanged" />
+                    <TextBlock Margin="0,8,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap"
+                               Text="{DynamicResource General.CloseGame.Hint}" />
+                    <TextBlock x:Name="CloseGameWarning" Margin="0,8,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap" />
+                    <CheckBox x:Name="CloseGameReturnBox" Margin="0,16,0,0"
+                              Content="{DynamicResource General.CloseGame.Return}"
+                              Checked="OnCloseGameChanged" Unchecked="OnCloseGameChanged" />
+                    <CheckBox x:Name="CloseGameForceBox" Margin="0,8,0,0"
+                              Content="{DynamicResource General.CloseGame.Force}"
+                              Checked="OnCloseGameChanged" Unchecked="OnCloseGameChanged" />
+                    <TextBlock Margin="0,8,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap"
+                               Text="{DynamicResource General.CloseGame.Force.Hint}" />
+
+                    <Border Margin="0,24,0,0" BorderBrush="{DynamicResource Brush.Line}" BorderThickness="0,1,0,0" />
                     <TextBlock Margin="0,24,0,0" Style="{StaticResource Text.Label}" Text="{DynamicResource General.Report}" />
                     <TextBlock Margin="0,8,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap"
                                Text="{DynamicResource General.Report.Hint}" />

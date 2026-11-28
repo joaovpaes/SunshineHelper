@@ -24,6 +24,20 @@ public sealed record ForegroundWindow(ForegroundStatus Status, ProcessIdentity? 
     public static ForegroundWindow Nothing { get; } = new(ForegroundStatus.None);
 }
 
+/// <summary>A process and its visible main window.</summary>
+public sealed record WindowedProcess(ProcessIdentity Process, nint Window);
+
+/// <summary>The programs a launcher started that show a window, for the case where the
+/// launcher keeps the foreground while its game is on screen
+/// (docs/adr/0016-fechar-jogo-pelo-controle.md, "Quem é o alvo").</summary>
+/// <param name="Windows">Descendants of the launcher with a visible main window.</param>
+/// <param name="NotInspectable">Descendants with a window that Windows did not let the app
+/// inspect, usually because they run as administrator.</param>
+public sealed record LaunchedWindows(IReadOnlyList<WindowedProcess> Windows, int NotInspectable)
+{
+    public static LaunchedWindows None { get; } = new([], 0);
+}
+
 /// <summary>How a polite "close your window" request went.</summary>
 public enum WindowCloseResult
 {
@@ -60,6 +74,10 @@ public interface IGameWindowController
     /// <summary>Every process started by <paramref name="process"/>, children and their
     /// children. Processes that cannot be inspected are left out.</summary>
     IReadOnlyList<ProcessIdentity> GetDescendants(ProcessIdentity process);
+
+    /// <summary>Every process started by <paramref name="process"/> (children and their
+    /// children) that shows a visible main window, with that window.</summary>
+    LaunchedWindows GetWindowedDescendants(ProcessIdentity process);
 
     /// <summary>Ends <paramref name="process"/> alone, leaving its children. True when it is
     /// gone afterwards (or was already gone).</summary>

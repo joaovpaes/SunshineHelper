@@ -135,7 +135,7 @@ public sealed class WindowsProcessController : IProcessController
         return stillThere is null;
     }
 
-    private static ProcessIdentity? TryIdentify(Process process)
+    internal static ProcessIdentity? TryIdentify(Process process)
     {
         try
         {
@@ -150,7 +150,7 @@ public sealed class WindowsProcessController : IProcessController
 
     /// <summary>The running process <paramref name="expected"/> names, or null when it is
     /// gone or the PID now belongs to a different process.</summary>
-    private static Process? FindLive(ProcessIdentity expected)
+    internal static Process? FindLive(ProcessIdentity expected)
     {
         Process process;
         try

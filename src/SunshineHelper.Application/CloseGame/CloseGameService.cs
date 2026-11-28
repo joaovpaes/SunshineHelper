@@ -173,14 +173,29 @@ public sealed class CloseGameService
             return new CloseGameOutcome(CloseGameResult.NoTarget);
         }
 
+        nint window = foreground.Window;
         CloseGameProtectionReason reason = CloseGameProtection.Check(target, sessionStartedAt, settings);
-        if (reason != CloseGameProtectionReason.None)
+        if (reason == CloseGameProtectionReason.Launcher)
+        {
+            // Some launchers (Playnite in fullscreen) keep the foreground while the game
+            // they started is on screen. The launcher itself stays untouchable; the target
+            // becomes the one game it started during the stream, or nothing.
+            (WindowedProcess? game, CloseGameOutcome? refused) = FindLauncherGame(target, sessionStartedAt, settings);
+            if (game is null)
+            {
+                return refused!;
+            }
+
+            target = game.Process;
+            window = game.Window;
+        }
+        else if (reason != CloseGameProtectionReason.None)
         {
             _log.Write(DiagnosticLevel.Info, Area, "'" + target.Name + "' is protected (" + Describe(reason) + "); nothing was closed");
             return new CloseGameOutcome(CloseGameResult.Protected, target.Name, reason);
         }
 
-        WindowCloseResult request = _windows.RequestCloseWindow(target, foreground.Window);
+        WindowCloseResult request = _windows.RequestCloseWindow(target, window);
         if (request == WindowCloseResult.Denied)
         {
             _log.Write(
@@ -222,6 +237,58 @@ public sealed class CloseGameService
             Area,
             "'" + target.Name + "' did not close; hold the combo again within " + windowText + " s to end it");
         return new CloseGameOutcome(CloseGameResult.AwaitingConfirmation, target.Name);
+    }
+
+    /// <summary>The game the launcher in the foreground started: a descendant of it with a
+    /// visible window, started during the stream and not protected. Exactly one, or nothing:
+    /// with none or several the app does not guess.</summary>
+    private (WindowedProcess? Game, CloseGameOutcome? Refused) FindLauncherGame(
+        ProcessIdentity launcher, DateTimeOffset sessionStartedAt, AppSettings settings)
+    {
+        LaunchedWindows launched = _windows.GetWindowedDescendants(launcher);
+        var games = new List<WindowedProcess>();
+        foreach (var candidate in launched.Windows)
+        {
+            if (CloseGameProtection.Check(candidate.Process, sessionStartedAt, settings) == CloseGameProtectionReason.None)
+            {
+                games.Add(candidate);
+            }
+        }
+
+        if (games.Count == 1)
+        {
+            _log.Write(
+                DiagnosticLevel.Info,
+                Area,
+                "'" + launcher.Name + "' (the launcher) is in front; closing the game it started, '" + games[0].Process.Name + "'");
+            return (games[0], null);
+        }
+
+        if (games.Count > 1)
+        {
+            string count = games.Count.ToString(CultureInfo.InvariantCulture);
+            string names = string.Join(", ", games.Select(game => game.Process.Name));
+            _log.Write(
+                DiagnosticLevel.Info,
+                Area,
+                "'" + launcher.Name + "' (the launcher) is in front and started " + count + " programs with a window during the stream (" + names + "); the app does not guess, nothing was closed");
+            return (null, new CloseGameOutcome(CloseGameResult.AmbiguousTarget, launcher.Name, CloseGameProtectionReason.Launcher));
+        }
+
+        if (launched.NotInspectable > 0)
+        {
+            _log.Write(
+                DiagnosticLevel.Warning,
+                Area,
+                "'" + launcher.Name + "' (the launcher) is in front and the game it started cannot be inspected; it probably runs as administrator, so the app cannot close it (in Sunshine, untick 'Run as administrator' for the launcher app)");
+            return (null, new CloseGameOutcome(CloseGameResult.NotInspectable, launcher.Name, CloseGameProtectionReason.Launcher));
+        }
+
+        _log.Write(
+            DiagnosticLevel.Info,
+            Area,
+            "'" + launcher.Name + "' is protected (it is the launcher) and started no game with a window during the stream; nothing was closed");
+        return (null, new CloseGameOutcome(CloseGameResult.Protected, launcher.Name, CloseGameProtectionReason.Launcher));
     }
 
     private async Task<CloseGameOutcome> ForceAsync(ProcessIdentity target, AppSettings settings, CancellationToken cancellationToken)
