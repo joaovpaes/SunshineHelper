@@ -511,16 +511,17 @@ Use o **pacote de prévia** do PR, com a permissão ligada (Geral → "Jogos que
 Permitir). O "fechar o jogo" precisa estar ligado. Use um jogo que roda **como administrador** e foi aberto pelo
 Sunshine (pelo Playnite), por exemplo o MKW Recomp elevado. Depois de cada item, veja a tela **Log**.
 
-- [ ] **Fecha pedindo:** com o jogo na frente, segure Select + Y por 5 s. O jogo fecha como se você clicasse no X,
+- [x] **Fecha pedindo:** (passou em 2026-11-28, com o Playnite como administrador no Sunshine) com o jogo na frente, segure Select + Y por 5 s. O jogo fecha como se você clicasse no X,
       o Playnite volta, e o log diz "asked '…' (runs as administrator) to close through the scheduled task" e
       "'…' closed".
-- [ ] **Segunda segurada encerra:** com um jogo que não fecha pelo X (ou que pede confirmação), segure o combo: o
+- [ ] **Segunda segurada encerra:** (ainda não testado) com um jogo que não fecha pelo X (ou que pede confirmação), segure o combo: o
       log diz "did not close; hold the combo again". Segure de novo em até 15 s: o jogo é encerrado e o log diz
       "ended '…' (runs as administrator) through the scheduled task".
 - [ ] **Sem a permissão:** clique em Remover, abra o jogo de novo e segure o combo: nada fecha, e o log diz "runs as
       administrator, and closing such games is not allowed yet; on the General screen, use 'Allow closing
       administrator games'". (Depois, Permitir de novo.)
-- [ ] **Jogo aberto fora do Sunshine:** com a transmissão já começada, abra um jogo de administrador **direto no
+- [ ] **Jogo aberto fora do Sunshine:** (visto sem querer em 2026-11-28: com o Playnite **sem** administrador e o jogo
+      com administrador, a tarefa recusou com "not started by Sunshine"; é o limite do guia) com a transmissão já começada, abra um jogo de administrador **direto no
       Windows** (clique duplo e "Sim" no aviso), não pelo Playnite, e segure o combo com ele na frente: nada fecha,
       e o log diz "the scheduled task did not close '…': the process was not started by Sunshine".
 - [ ] **Jogo comum continua igual:** um jogo sem administrador fecha como antes, sem passar pela tarefa (o log não

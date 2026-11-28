@@ -23,6 +23,7 @@ Ordem completa e modelos em `docs/fase1-plano.md`, "Próximos PRs".
 | PR | O quê | Modelo |
 | --- | --- | --- |
 | D2c | ADR 0017: o combo fecha jogos de administrador pela tarefa (pedir para fechar e encerrar) (neste PR) | Opus · alto |
+| D2d | ADR 0017: aceitar o jogo de administrador também quando o Playnite roda sem administrador (regra 7 hoje exige Sunshine elevado). Ideia: aceitar um `sunshine.exe` cujo arquivo está em pasta só de administrador | Opus · alto |
 | a seguir | PR E do ADR 0015: tela "Controle" para gravar os combos | Sonnet · médio |
 | depois | PR F a H do ADR 0015 (janela do overlay seguindo o protótipo aprovado, perfis e ajustes com ADR próprio, atalhos) | ver ADR 0015 |
 
