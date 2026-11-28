@@ -248,6 +248,6 @@ internal sealed class OverlayHost
     private void Render() =>
         _window?.Render(_model, new OverlayView(_statusText, _statusIdle, _note, _noteKind, _busy));
 
-    private string Text(string key) =>
+    private static string Text(string key) =>
         System.Windows.Application.Current.TryFindResource(key) as string ?? key;
 }

@@ -105,7 +105,7 @@ public partial class OverlayWindow : Window
         Margin = margin ?? new Thickness(0),
     };
 
-    private static UIElement BuildStatus(OverlayView view)
+    private static Border BuildStatus(OverlayView view)
     {
         var dot = new Border
         {
@@ -135,7 +135,7 @@ public partial class OverlayWindow : Window
         };
     }
 
-    private UIElement BuildRow(OverlayItem item, OverlayModel model)
+    private Border BuildRow(OverlayItem item, OverlayModel model)
     {
         bool available = model.IsAvailable(item);
         bool selected = model.Selected == item;
@@ -176,7 +176,7 @@ public partial class OverlayWindow : Window
         };
     }
 
-    private static UIElement BuildNote(string note, OverlayNoteKind kind)
+    private static Border BuildNote(string note, OverlayNoteKind kind)
     {
         var accent = kind switch
         {
@@ -197,7 +197,7 @@ public partial class OverlayWindow : Window
         };
     }
 
-    private UIElement BuildFooter(OverlayModel model, OverlayView view)
+    private Border BuildFooter(OverlayModel model, OverlayView view)
     {
         var hints = new WrapPanel { Margin = new Thickness(32, 24, 32, 20) };
         if (model.Confirming || view.Busy)
@@ -244,7 +244,7 @@ public partial class OverlayWindow : Window
     }
 
     /// <summary>A button cap (the color of the real button) and what it does.</summary>
-    private static UIElement Hint(string cap, System.Windows.Media.Brush color, string label)
+    private static StackPanel Hint(string cap, System.Windows.Media.Brush color, string label)
     {
         var circle = new Border
         {
