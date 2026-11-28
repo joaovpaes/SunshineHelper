@@ -260,6 +260,18 @@
                               Checked="OnCloseGameChanged" Unchecked="OnCloseGameChanged" />
                     <TextBlock Margin="0,8,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap"
                                Text="{DynamicResource General.CloseGame.Force.Hint}" />
+                    <TextBlock Margin="0,16,0,0" Style="{StaticResource Text.Label}" Text="{DynamicResource General.CloseGame.Admin}" />
+                    <TextBlock Margin="0,8,0,0" Style="{StaticResource Text.Dim}" TextWrapping="Wrap"
+                               Text="{DynamicResource General.CloseGame.Admin.Hint}" />
+                    <TextBlock x:Name="ElevatedCloseStatus" Margin="0,8,0,0" TextWrapping="Wrap" />
+                    <StackPanel Margin="0,8,0,0" Orientation="Horizontal">
+                        <Button x:Name="ElevatedCloseAllowButton" Padding="12,6" IsEnabled="False"
+                                Style="{StaticResource Button.Secondary}"
+                                Content="{DynamicResource General.CloseGame.Admin.Allow}" Click="OnAllowElevatedClose" />
+                        <Button x:Name="ElevatedCloseRemoveButton" Margin="8,0,0,0" Padding="12,6" IsEnabled="False"
+                                Style="{StaticResource Button.Secondary}"
+                                Content="{DynamicResource General.CloseGame.Admin.Remove}" Click="OnRemoveElevatedClose" />
+                    </StackPanel>
 
                     <Border Margin="0,24,0,0" BorderBrush="{DynamicResource Brush.Line}" BorderThickness="0,1,0,0" />
                     <TextBlock Margin="0,24,0,0" Style="{StaticResource Text.Label}" Text="{DynamicResource General.Report}" />

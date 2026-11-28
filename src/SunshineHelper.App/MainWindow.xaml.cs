@@ -8,10 +8,12 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using SunshineHelper.App.Services;
+using SunshineHelper.Application.CloseGame;
 using SunshineHelper.Application.Session;
 using SunshineHelper.Domain.Localization;
 using SunshineHelper.Domain.Monitoring;
 using SunshineHelper.Domain.Settings;
+using SunshineHelper.Infrastructure.CloseGame;
 using SunshineHelper.Infrastructure.Startup;
 
 namespace SunshineHelper.App;
@@ -20,6 +22,8 @@ public partial class MainWindow : Window
 {
     private readonly AppHost _host;
     private readonly WindowsStartupRegistration _startup = new();
+    private readonly WindowsElevatedCloseSetup _elevatedClose = new();
+    private int _elevatedCloseCheck;
     private readonly DispatcherTimer _statusTimer = new() { Interval = TimeSpan.FromSeconds(1) };
     private bool _refreshing;
     private bool _loadingGeneral;
@@ -118,6 +122,7 @@ public partial class MainWindow : Window
         LauncherNamesBox.Text = string.Join(Environment.NewLine, current.Launcher.ProcessNames);
         LauncherDelayBox.Text = current.Timing.LauncherDelayMs.ToString(CultureInfo.InvariantCulture);
         FillCloseGame(current);
+        RefreshElevatedClose();
         AppVersionText.Text = string.Format(CultureInfo.CurrentCulture, Text("General.About.Version"), AppHost.AppVersion);
         GeneralMessage.Text = string.Empty;
         _loadingGeneral = false;
@@ -267,6 +272,76 @@ public partial class MainWindow : Window
         {
             GeneralMessage.Text = Text(enabled ? "General.CloseGame.On" : "General.CloseGame.Off");
         }
+    }
+
+    /// <summary>Shows where the permission to close administrator games stands
+    /// (docs/adr/0017-fechar-jogo-de-administrador.md). Looking takes a moment (it asks the Task
+    /// Scheduler), so the buttons stay off until the answer is in.</summary>
+    private async void RefreshElevatedClose()
+    {
+        // Two checks can overlap (opening the screen, then right after allowing); only the last
+        // one may touch the screen, or the buttons could end up showing an older answer.
+        int check = ++_elevatedCloseCheck;
+        ElevatedCloseAllowButton.IsEnabled = false;
+        ElevatedCloseRemoveButton.IsEnabled = false;
+        ElevatedCloseStatus.Text = Text("General.CloseGame.Admin.Checking");
+        try
+        {
+            ElevatedCloseSetupState state = await _elevatedClose.GetStateAsync(CancellationToken.None);
+            if (check != _elevatedCloseCheck)
+            {
+                return;
+            }
+
+            ElevatedCloseStatus.Text = Text("General.CloseGame.Admin." + state.ToString());
+            ElevatedCloseAllowButton.Content = Text(state == ElevatedCloseSetupState.Outdated
+                ? "General.CloseGame.Admin.Update"
+                : "General.CloseGame.Admin.Allow");
+            ElevatedCloseAllowButton.IsEnabled = state is ElevatedCloseSetupState.NotAllowed or ElevatedCloseSetupState.Outdated;
+            ElevatedCloseRemoveButton.IsEnabled = state is ElevatedCloseSetupState.Allowed or ElevatedCloseSetupState.Outdated;
+        }
+        catch (Exception ex)
+        {
+            // An event handler must never throw: it would close the app.
+            if (check == _elevatedCloseCheck)
+            {
+                ElevatedCloseStatus.Text = string.Format(CultureInfo.CurrentCulture, Text("General.CloseGame.Admin.CheckFailed"), ex.Message);
+            }
+        }
+    }
+
+    private async void OnAllowElevatedClose(object sender, RoutedEventArgs e) => await RunElevatedCloseSetupAsync(install: true);
+
+    private async void OnRemoveElevatedClose(object sender, RoutedEventArgs e) => await RunElevatedCloseSetupAsync(install: false);
+
+    /// <summary>Starts the auxiliary through UAC to allow or remove; the app itself stays without
+    /// administrator. Failures are shown on screen, never thrown out of the click handler.</summary>
+    private async Task RunElevatedCloseSetupAsync(bool install)
+    {
+        ElevatedCloseAllowButton.IsEnabled = false;
+        ElevatedCloseRemoveButton.IsEnabled = false;
+        try
+        {
+            ElevatedCloseSetupResult result = install
+                ? await _elevatedClose.InstallAsync(CancellationToken.None)
+                : await _elevatedClose.UninstallAsync(CancellationToken.None);
+            string code = result.ExitCode is { } exitCode
+                ? ((int)exitCode).ToString(CultureInfo.InvariantCulture)
+                : "-";
+            GeneralMessage.Text = result.Outcome switch
+            {
+                ElevatedCloseSetupOutcome.Done => Text(install ? "General.CloseGame.Admin.Done.Allowed" : "General.CloseGame.Admin.Done.Removed"),
+                ElevatedCloseSetupOutcome.Canceled => Text("General.CloseGame.Admin.Canceled"),
+                _ => string.Format(CultureInfo.CurrentCulture, Text("General.CloseGame.Admin.Failed"), code),
+            };
+        }
+        catch (Exception ex)
+        {
+            // An event handler must never throw: it would close the app.
+            GeneralMessage.Text = string.Format(CultureInfo.CurrentCulture, Text("General.CloseGame.Admin.Error"), ex.Message);
+        }
+
+        RefreshElevatedClose();
     }
 
     private async void OnSaveLauncher(object sender, RoutedEventArgs e)

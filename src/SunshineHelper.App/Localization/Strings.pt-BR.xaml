@@ -93,6 +93,23 @@
     <sys:String x:Key="General.CloseGame.Force.Hint">Desligado de fábrica. Ligado, o jogo que não fecha sozinho é encerrado na hora, e o que ele não tinha salvo se perde.</sys:String>
     <sys:String x:Key="General.CloseGame.On">Fechar o jogo com o controle está ligado. Vale na hora, inclusive na transmissão atual.</sys:String>
     <sys:String x:Key="General.CloseGame.Off">Fechar o jogo com o controle está desligado.</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin">Jogos que rodam como administrador</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.Hint">Alguns jogos só abrem como administrador, e o Windows não deixa este app (que roda sem administrador) fechá-los. Permitir copia o SunshineHelper.Trigger.exe para a pasta Arquivos de Programas e cria uma tarefa agendada que só fecha jogos abertos pelo Sunshine que rodam como administrador. O Windows pede confirmação uma vez; o app continua sem administrador.</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.Checking">Verificando…</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.NotAllowed">Não permitido.</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.Allowed">Permitido.</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.Outdated">Permitido, mas o app foi atualizado depois. Clique em Atualizar para usar a versão nova.</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.NotAdminAccount">Indisponível: esta conta do Windows não é de administrador.</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.AuxiliaryMissing">Indisponível: o SunshineHelper.Trigger.exe não está na mesma pasta do app.</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.CheckFailed">Não foi possível verificar: {0}</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.Allow">Permitir fechar jogos de administrador</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.Update">Atualizar</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.Remove">Remover</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.Done.Allowed">Pronto: permitido.</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.Done.Removed">Removido: a tarefa agendada e a cópia em Arquivos de Programas foram apagadas.</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.Error">Não deu certo: {0}</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.Canceled">Cancelado no aviso do Windows. Nada mudou.</sys:String>
+    <sys:String x:Key="General.CloseGame.Admin.Failed">Não deu certo (código {0}). Os códigos estão no guia, em "Fechar jogos de administrador".</sys:String>
 
     <sys:String x:Key="General.Report">Relatório de diagnóstico</sys:String>
     <sys:String x:Key="General.Report.Hint">Descreva o problema com suas palavras (o que você fez, o que esperava e o que aconteceu). O botão junta isso com suas configurações e o fim dos logs num arquivo de texto, que você escolhe onde salvar. Endereços IP e MAC, chaves do Sunshine e o seu nome de usuário do Windows são trocados por marcadores. Nada é enviado pela internet: leia o arquivo antes de compartilhar.</sys:String>

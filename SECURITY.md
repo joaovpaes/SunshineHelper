@@ -39,6 +39,16 @@ where a vulnerability matters most:
   `Profiles\Global` file only. Anything that makes that grant reach another file or folder, or run
   something else elevated, is in scope. Known and accepted: any program running as you can then edit
   RTSS's global profile.
+- **Closing games that run as administrator** (ADR 0017). Off until the user clicks "Allow" on the General
+  screen (UAC, once): the auxiliary `SunshineHelper.Trigger.exe` is copied to `%ProgramFiles%\SunshineHelper`
+  and a scheduled task "SunshineHelper Close Elevated Game" runs it with the user's highest privileges, on
+  demand only. In that elevated mode it closes or ends one process, and only one that is elevated, belongs to
+  the same user and session, has a visible window and descends from a `sunshine.exe` running as `SYSTEM` or
+  elevated. It writes nothing and reads no settings. Anything that makes it act on another process, run
+  other code elevated, or that lets the installed copy be replaced without administrator, is in scope. Known
+  and accepted: any program running as you can start the task and close such a game, and can change the
+  auxiliary next to the app before you click "Allow" or "Update" (as with any program you approve in UAC;
+  code signing is on the backlog).
 - **The diagnostic report**, which must never leak IPs, MAC addresses, Sunshine keys or the Windows user name.
 
 Out of scope: vulnerabilities in Sunshine, Moonlight, RTSS or Windows themselves (report those to their own
@@ -91,6 +101,16 @@ importam principalmente:
   arquivo `Profiles\Global` do RTSS. Qualquer forma de essa permissão chegar a outro arquivo ou pasta,
   ou de rodar outra coisa como administrador, está no escopo. Conhecido e aceito: qualquer programa
   rodando como você passa a poder alterar o perfil global do RTSS.
+- **Fechar jogos que rodam como administrador** (ADR 0017). Desligado até o usuário clicar em "Permitir" na
+  tela Geral (UAC, uma vez): o auxiliar `SunshineHelper.Trigger.exe` é copiado para
+  `%ProgramFiles%\SunshineHelper` e uma tarefa agendada "SunshineHelper Close Elevated Game" o roda com os
+  privilégios mais altos do usuário, só sob demanda. Nesse modo elevado ele fecha ou encerra um processo, e só
+  um que esteja elevado, seja do mesmo usuário e sessão, tenha janela visível e descenda de um `sunshine.exe`
+  rodando como `SYSTEM` ou elevado. Não grava nada nem lê configurações. Qualquer forma de fazê-lo agir em
+  outro processo, rodar outro código como administrador, ou de trocar a cópia instalada sem administrador,
+  está no escopo. Conhecido e aceito: qualquer programa rodando como você pode disparar a tarefa e fechar um
+  jogo assim, e pode trocar o auxiliar ao lado do app antes de você clicar em "Permitir" ou "Atualizar" (como
+  qualquer programa que você aprova no UAC; a assinatura de código está no backlog).
 - **O relatório de diagnóstico**, que nunca pode vazar IPs, MACs, chaves do Sunshine nem o nome de usuário do
   Windows.
 

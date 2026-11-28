@@ -469,14 +469,39 @@ $g = Get-Process SuperOdysseyRecomp
 dotnet run --project src\SunshineHelper.Trigger -- elevated-close close $g.Id $g.StartTime.ToFileTime(); $LASTEXITCODE
 ```
 
-- [ ] **Fechar o jogo elevado:** o comando acima mostra `0` e o jogo fecha (como clicar no X). Se o jogo não fechar
+- [x] **Fechar o jogo elevado** (2026-11-28, MKW Recomp aberto como administrador: `0` e fechou): o comando acima mostra `0` e o jogo fecha (como clicar no X). Se o jogo não fechar
       mas o código for `0`, troque `close` por `kill` e repita: o jogo é encerrado.
 - [ ] **Horário errado:** repita com `($g.StartTime.ToFileTime() + 1)` no lugar do horário: mostra `11` e nada fecha.
-- [ ] **Programa comum:** troque o jogo pelo Playnite (`$g = Get-Process Playnite.FullscreenApp`): mostra `15` (o app
+- [x] **Programa comum** (2026-11-28, MKW Recomp comum: `15`): troque o jogo pelo Playnite (`$g = Get-Process Playnite.FullscreenApp`): mostra `15` (o app
       fecha programas comuns sozinho) e nada fecha.
 - [ ] **Nome proibido:** `$g = Get-Process explorer | Select-Object -First 1`: mostra `13` e nada fecha.
 - [ ] **Fora do Sunshine:** abra o Bloco de Notas como administrador, fora da transmissão
       (`$g = Get-Process notepad`): mostra `17` e nada fecha.
+
+## PR D2b do ADR 0017 — permitir e remover (tela Geral)
+
+O botão precisa do `SunshineHelper.Trigger.exe` ao lado do app, então este teste usa o **pacote de prévia** que o
+próprio PR gera (link no PR). Feche o SunshineHelper que estiver aberto (bandeja → Sair), descompacte o pacote
+numa pasta sua e abra o `SunshineHelper.exe` de lá. Não precisa de transmissão.
+
+- [ ] **Situação inicial:** em Geral → "Jogos que rodam como administrador" aparece "Não permitido." e o botão
+      **Permitir fechar jogos de administrador** está ligado; **Remover** está desligado.
+- [ ] **Cancelar:** clique em Permitir e responda **Não** no aviso do Windows: aparece "Cancelado no aviso do
+      Windows. Nada mudou." e a situação continua "Não permitido.".
+- [ ] **Permitir:** clique de novo e responda **Sim**: aparece "Pronto: permitido.", a situação vira "Permitido.",
+      Permitir desliga e Remover liga.
+- [ ] **O que foi criado:** existe `C:\Program Files\SunshineHelper\SunshineHelper.Trigger.exe`, e o Agendador de
+      Tarefas (`taskschd.msc`, pasta "Biblioteca do Agendador de Tarefas") mostra "SunshineHelper Close Elevated
+      Game". O app continua **sem** administrador (Gerenciador de Tarefas → Detalhes → Elevado = Não).
+- [ ] **A tarefa roda sem administrador (o teste que importa para o próximo PR):** num PowerShell **comum**:
+      ```powershell
+      schtasks /Run /TN "SunshineHelper Close Elevated Game"
+      schtasks /Query /TN "SunshineHelper Close Elevated Game" /V /FO LIST | Select-String "Resultado|Result"
+      ```
+      O primeiro responde "ÊXITO" (ou "SUCCESS"), sem aviso do Windows. O segundo mostra o último resultado `10`:
+      a tarefa rodou e recusou, de propósito, porque foi chamada sem jogo.
+- [ ] **Remover:** clique em Remover e responda Sim: aparece "Removido…", a pasta e a tarefa somem e a situação
+      volta a "Não permitido.".
 
 ## Automatizar isto (pendência, sem PR ainda)
 

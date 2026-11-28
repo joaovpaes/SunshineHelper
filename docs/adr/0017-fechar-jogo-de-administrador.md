@@ -45,7 +45,8 @@ configuração e sai em seguida.
 
 ### 2. Como o app chama o modo elevado
 
-- A tarefa `\SunshineHelper\CloseElevatedGame` é registrada com: conta = o próprio usuário, "executar só com o usuário
+- A tarefa `SunshineHelper Close Elevated Game`, na pasta raiz do Agendador de Tarefas (uma tarefa na raiz cujo
+  principal é o usuário pode ser iniciada por ele sem elevação), é registrada com: conta = o próprio usuário, "executar só com o usuário
   conectado" (sem senha guardada), **"executar com privilégios mais altos"**, oculta, sem gatilho (só sob demanda),
   limite de 30 s, e "não iniciar outra instância" se uma já estiver rodando.
 - A ação é fixa: `"<pasta protegida>\SunshineHelper.Trigger.exe" elevated-close $(Arg0) $(Arg1) $(Arg2)`, com a pasta
@@ -112,7 +113,7 @@ processo elevado também aumentaria o que pode dar errado lá dentro.
   Command do Sunshine. Não é obrigatório (a cópia da pasta do zip continua funcionando para `start` e `end`), mas evita
   ter duas cópias com versões diferentes.
 - **Remover:** botão **"Remover"** no mesmo lugar (UAC de novo): apaga a tarefa e a cópia. Manualmente:
-  `schtasks /delete /tn "\SunshineHelper\CloseElevatedGame" /f` e apagar a pasta.
+  `schtasks /delete /tn "SunshineHelper Close Elevated Game" /f` e apagar a pasta.
 - **Versão:** a tela compara a versão do auxiliar instalado com a do pacote. Se o app for atualizado e o auxiliar
   mudar, aparece **"Atualizar"** (UAC de novo). Uma cópia antiga continua segura: só faz menos.
 - Este é o primeiro passo do instalador que está no backlog; quando ele existir (já rodando como administrador), faz o
@@ -160,9 +161,13 @@ Se a lista chegar a `sunshine.exe`, a regra fica como está. Se não, este ADR �
 - **Este PR:** só o ADR, para aprovação.
 - **D2a:** o modo `elevated-close` no auxiliar, com as regras da seção 3 numa parte pura testada no CI com processos
   falsos (o auxiliar continua sem referência a Application nem Infrastructure).
-- **D2b:** instalar/remover/atualizar (UAC), chamada pelo Agendador de Tarefas, ligação no `CloseGameService`, botões na
-  tela Geral, `SECURITY.md`, guia e roteiro em `docs/testes-manuais.md`.
-- Os dois com Opus · esforço alto e **revisão de segurança por um agente separado** antes de mesclar.
+- **D2b:** instalar/remover/atualizar pelo UAC e a situação na tela Geral, `SECURITY.md`, guia e roteiro em
+  `docs/testes-manuais.md`. Pela revisão de segurança: a pasta instalada é recusada se for um link e recebe
+  permissões explícitas (só administradores gravam); uma tarefa de mesmo nome criada antes por outro programa é
+  apagada antes de criar a nova; e o app manda o SID da conta que clicou, para a instalação recusar se o UAC for
+  aprovado por outra conta de administrador.
+- **D2c:** a chamada pelo Agendador de Tarefas e a ligação no `CloseGameService`.
+- Todos com Opus · esforço alto e **revisão de segurança por um agente separado** antes de mesclar.
 
 ## Alternativas consideradas
 
